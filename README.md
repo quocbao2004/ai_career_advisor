@@ -1,9 +1,8 @@
 # ai_career_advisor
 
 **AI Career Advisor** là một ứng dụng web định hướng nghề nghiệp thông minh, giúp người dùng khám phá ngành nghề phù hợp dựa trên tính cách, kỹ năng và sở thích cá nhân.  
-Dự án được phát triển với **Django (Backend)** và **HTML, CSS, JavaScript, Bootstrap (Frontend)
-Quá trình phát triển dữ án tuân thủ theo Git Flow
-**.
+Dự án được phát triển với **Django (Backend)** và **HTML, CSS, JavaScript, Bootstrap (Frontend). 
+Quá trình phát triển dữ án tuân thủ theo Git Flow**
 
 ---
 
