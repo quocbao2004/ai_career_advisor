@@ -10,9 +10,10 @@ Dự án được phát triển với **Django (Backend)** và **HTML, CSS, Java
 | Thành phần | Công nghệ |
 |-------------|------------|
 | Frontend | HTML, CSS, JavaScript, Bootstrap 5 |
-| Backend | Django 5.x |
+| Backend | Django, JWT,  |
+| Authentication | Google, GitHub, JWT, Role-based Access |
+| AI Module | Gemini API, gợi ý nghề nghiệp thông minh |
 | Cơ sở dữ liệu | PostgreSQL |
-| AI Recommendation | Gemini API (gợi ý nghề nghiệp thông minh) |
 
 ---
 
