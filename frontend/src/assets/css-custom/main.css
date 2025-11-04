@@ -1,0 +1,19 @@
+@import url("./logo.css");
+
+/* variables */
+:root {
+  --header-background: #383c3d;
+  --primary-color: #004e92;
+  --secondary-color: #000428;
+  --accent-color: #d4af37;
+  --text-color: #333333;
+  --background-color: #f9f9f9;
+}
+
+/* Common */
+.title-font {
+  font-family: "Montserrat", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 600;
+  font-style: normal;
+}
