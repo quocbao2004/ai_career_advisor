@@ -1,0 +1,75 @@
+/* Container tổng */
+.logo-container {
+  display: flex;
+  align-items: center;
+  gap: 8px; /* giảm khoảng cách */
+  font-family: "Poppins", sans-serif;
+  user-select: none;
+  cursor: pointer;
+  padding: 4px 10px;
+}
+
+/* Biểu tượng AI */
+.logo-icon {
+  font-weight: 600;
+  font-size: 1rem; /* giảm kích cỡ chữ */
+  color: white;
+  background: linear-gradient(135deg, #004e92, #000428);
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 8px rgba(0, 78, 146, 0.4),
+    inset 0 0 5px rgba(255, 255, 255, 0.2);
+  position: relative;
+  transition: all 0.3s ease;
+  letter-spacing: 0.5px;
+}
+
+/* Vầng sáng vàng kim quanh logo */
+.logo-icon::before {
+  content: "";
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #d4af37, #fff4d0);
+  opacity: 0.4;
+  z-index: -1;
+  filter: blur(6px);
+}
+
+/* Chữ CAREER */
+.logo-text {
+  font-size: 1.1rem;
+  font-weight: 700;
+  background: linear-gradient(90deg, #d4af37, #f5e6a1);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  letter-spacing: 1px;
+  position: relative;
+}
+
+/* Gạch dưới nhỏ, tinh tế */
+.logo-text::after {
+  content: "";
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  width: 100%;
+  height: 1.5px;
+  background: linear-gradient(90deg, #d4af37, #f5e6a1);
+  border-radius: 1px;
+  box-shadow: 0 0 3px rgba(212, 175, 55, 0.5);
+}
+
+/* Hover nhẹ */
+.logo-container:hover .logo-icon {
+  transform: scale(1.05);
+  box-shadow: 0 0 10px rgba(212, 175, 55, 0.6),
+    inset 0 0 8px rgba(255, 255, 255, 0.25);
+}
