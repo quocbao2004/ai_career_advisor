@@ -38,23 +38,27 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
+    # custom app
     'apps.accounts',
     'apps.ai',
     'apps.career',
     'apps.courses',
+    'apps.users',
+    'apps.learning_paths',
 
+    # import
+    'corsheaders',
+    'dj_rest_auth',
+    'social_django',
+    'pgvector.django',
     'rest_framework',
     'rest_framework_simplejwt',
     'rest_framework.authtoken',
-    'dj_rest_auth',
-    'social_django',
-    'corsheaders',
 ]
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
-        'dj_rest_auth.jwt_auth.JWTCookieAuthentication'
     )
 }
 
@@ -97,11 +101,11 @@ WSGI_APPLICATION = 'ai_career.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'ai_career_advisor',
+        'NAME': 'career_advisor',
         'USER': 'postgres',
         'PASSWORD': '123456',
         'HOST': 'localhost',
-        'PORT': '5432',
+        'PORT': '5433',
     }
 }
 
@@ -146,3 +150,14 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# config value
+AUTH_USER_MODEL = 'users.User'
+
+SIMPLE_JWT = {
+    'AUTH_COOKIE': 'access_token',  # cookie name
+    'AUTH_COOKIE_SECURE': False,    # True in production
+    'AUTH_COOKIE_HTTP_ONLY': True,
+    'AUTH_COOKIE_PATH': '/',
+    'AUTH_COOKIE_SAMESITE': 'Lax',
+}
