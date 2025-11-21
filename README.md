@@ -11,7 +11,7 @@ Quá trình phát triển dữ án tuân thủ theo Git Flow**
 | Thành phần | Công nghệ |
 |-------------|------------|
 | Frontend | HTML, CSS, JavaScript, Bootstrap 5 |
-| Backend | Django, JWT,  |
+| Backend | Django, pandas |
 | Authentication | Google, GitHub, JWT, Role-based Access |
 | AI Module | Gemini API, gợi ý nghề nghiệp thông minh |
 | Cơ sở dữ liệu | PostgreSQL |
@@ -43,5 +43,5 @@ Mục tiêu của dự án là tạo ra một nền tảng hỗ trợ định h�
 
 ### Clone repository
 ```bash
-git clone https://github.com/<tên-tài-khoản-của-bạn>/ai_career_advisor.git
+git clone https://github.com/quocbao2004/ai_career_advisor.git
 cd ai_career_advisor
