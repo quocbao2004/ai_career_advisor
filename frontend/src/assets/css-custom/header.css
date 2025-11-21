@@ -1,44 +1,69 @@
+/* Biến CSS cho các màu sắc chủ yếu */
 :root {
   --gold: #d4af37;
   --gold-light: #f5e6a1;
   --text-dark: #1e1e1e;
 }
 
-/* Tổng thể navbar */
+/* Navbar chính */
 .custom-navbar {
-  background: #fff;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  background: white;
+  box-shadow: 0 6px 30px rgba(79, 70, 229, 0.12);
   height: 70px;
   transition: all 0.3s ease;
   font-family: "Poppins", sans-serif;
-}
-
-/* Menu link */
-.navbar-nav .nav-link {
-  color: var(--text-dark);
-  font-weight: 500;
+  color: black;
   position: relative;
-  transition: all 0.3s ease;
+  z-index: 100;
 }
 
+/* Danh sách menu điều hướng */
+.navbar-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Mục menu cá nhân */
+.navbar-nav .nav-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Liên kết điều hướng */
+.navbar-nav .nav-link {
+  color: black;
+  font-weight: 600;
+  position: relative;
+  transition: all 0.2s ease;
+  padding: 8px 10px;
+  text-align: center;
+}
+
+/* Hiệu ứng underline nâng cao cho liên kết */
 .navbar-nav .nav-link::after {
   content: "";
   position: absolute;
   left: 0;
-  bottom: -3px;
+  bottom: -6px;
   width: 0%;
-  height: 2px;
+  height: 3px;
   background: linear-gradient(90deg, var(--gold), var(--gold-light));
-  transition: width 0.3s ease;
-  border-radius: 2px;
+  box-shadow: 0 3px 8px rgba(212, 175, 55, 0.25);
+  transition: width 0.25s ease;
+  border-radius: 3px;
 }
 
+/* Hiệu ứng hover - Underline chạy ngang */
 .navbar-nav .nav-link:hover::after {
   width: 100%;
 }
 
+/* Hiệu ứng hover trên liên kết */
 .navbar-nav .nav-link:hover {
-  color: #000;
+  color: #fff;
+  opacity: 0.95;
 }
 
 /* Nút ánh kim */
@@ -49,27 +74,33 @@
   border-radius: 6px;
   font-weight: 600;
   padding: 8px 18px;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
 }
 
 .btn-gold:hover {
-  box-shadow: 0 4px 10px rgba(212, 175, 55, 0.4);
-  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(212, 175, 55, 0.35);
 }
 
 .btn-outline-gold {
-  border: 1px solid var(--gold);
-  color: #333;
+  border: 1px solid rgba(255,255,255,0.18);
+  color: #ffffff;
   background: transparent;
   border-radius: 6px;
   font-weight: 500;
   padding: 8px 18px;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
 }
 
 .btn-outline-gold:hover {
   background: linear-gradient(90deg, var(--gold), var(--gold-light));
   color: #000;
+  box-shadow: 0 6px 18px rgba(212, 175, 55, 0.28);
+}
+
+/* scrolled lighter variant (optional) */
+.custom-navbar.scrolled {
+  background: linear-gradient(135deg, #5b4de3 0%, #6f3fb8 100%);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
 }
 
 /* Mobile */

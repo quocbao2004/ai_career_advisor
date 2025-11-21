@@ -1,18 +1,20 @@
+// Thành phần Header - Thanh điều hướng chính
 import React from "react";
 import { Link } from "react-router-dom";
 import Logo from "./logo";
 import "../assets/css-custom/header.css";
 
+// Thành phần Header với các liên kết điều hướng
 const Header = () => {
   return (
     <nav className="navbar navbar-expand-lg custom-navbar sticky-top px-4">
       <div className="container-fluid">
-        {/* Logo */}
+        {/* Logo - Liên kết về trang chủ */}
         <Link className="navbar-brand d-flex align-items-center" to="/">
           <Logo />
         </Link>
 
-        {/* Toggle button (mobile) */}
+        {/* Nút toggle cho di động */}
         <button
           className="navbar-toggler"
           type="button"
@@ -25,7 +27,7 @@ const Header = () => {
           <span className="navbar-toggler-icon"></span>
         </button>
 
-        {/* Menu */}
+        {/* Menu điều hướng chính */}
         <div
           className="collapse navbar-collapse justify-content-center"
           id="mainNavbar"
@@ -47,8 +49,8 @@ const Header = () => {
               </Link>
             </li>
             <li className="nav-item">
-              <Link className="nav-link" to="/quizz">
-                Trắc nghiệm nhân cách
+              <Link className="nav-link" to="/quiz">
+                Trắc nghiệm
               </Link>
             </li>
             <li className="nav-item">
@@ -56,10 +58,15 @@ const Header = () => {
                 Nghề nghiệp phù hợp
               </Link>
             </li>
+            <li className="nav-item">
+              <Link className="nav-link" to="/admin">
+                Admin
+              </Link>
+            </li>
           </ul>
         </div>
 
-        {/* Auth buttons */}
+        {/* Các nút xác thực */}
         <div className="d-flex align-items-center gap-2">
           <button className="btn btn-outline-gold">Đăng nhập</button>
           <button className="btn btn-gold">Đăng ký</button>
@@ -68,5 +75,6 @@ const Header = () => {
     </nav>
   );
 };
+
 
 export default Header;
