@@ -1,11 +1,13 @@
-/* Biến CSS cho các màu sắc chủ yếu */
 :root {
   --gold: #d4af37;
   --gold-light: #f5e6a1;
   --text-dark: #1e1e1e;
 }
 
-/* Navbar chính */
+#header-custom {
+  background-color: #fff;
+}
+
 .custom-navbar {
   background: white;
   box-shadow: 0 6px 30px rgba(79, 70, 229, 0.12);
@@ -17,21 +19,18 @@
   z-index: 100;
 }
 
-/* Danh sách menu điều hướng */
 .navbar-nav {
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-/* Mục menu cá nhân */
 .navbar-nav .nav-item {
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-/* Liên kết điều hướng */
 .navbar-nav .nav-link {
   color: black;
   font-weight: 600;
@@ -41,7 +40,6 @@
   text-align: center;
 }
 
-/* Hiệu ứng underline nâng cao cho liên kết */
 .navbar-nav .nav-link::after {
   content: "";
   position: absolute;
@@ -55,18 +53,14 @@
   border-radius: 3px;
 }
 
-/* Hiệu ứng hover - Underline chạy ngang */
 .navbar-nav .nav-link:hover::after {
   width: 100%;
 }
 
-/* Hiệu ứng hover trên liên kết */
 .navbar-nav .nav-link:hover {
-  color: #fff;
-  opacity: 0.95;
+  opacity: 0.5;
 }
 
-/* Nút ánh kim */
 .btn-gold {
   background: linear-gradient(90deg, var(--gold), var(--gold-light));
   color: #000;

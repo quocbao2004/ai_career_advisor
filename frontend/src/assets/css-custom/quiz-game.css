@@ -1,0 +1,365 @@
+/* 1. CONTAINER CHUNG */
+.quiz-wrapper {
+  min-height: 85vh; /* Chiều cao tối thiểu để căn giữa màn hình */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  position: relative;
+  z-index: 10; /* Đảm bảo nổi lên trên background */
+}
+
+/* 2. MÀN HÌNH BẮT ĐẦU (START SCREEN) */
+.quiz-start-card {
+  text-align: center;
+  max-width: 550px;
+  width: 100%;
+  padding: 50px 40px !important; /* Padding rộng rãi */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.quiz-icon-large {
+  font-size: 4.5rem;
+  margin-bottom: 24px;
+  /* Hiệu ứng icon bay bay */
+  animation: floatIcon 3s ease-in-out infinite;
+  filter: drop-shadow(0 0 20px rgba(124, 58, 237, 0.3));
+}
+
+@keyframes floatIcon {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-15px);
+  }
+}
+
+.quiz-start-card h2 {
+  font-size: 2rem;
+  font-weight: 800;
+  margin-bottom: 12px;
+  background: linear-gradient(to right, #fff, #cbd5e1);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.quiz-start-actions {
+  display: flex;
+  gap: 16px;
+  margin-top: 32px;
+  width: 100%;
+  justify-content: center;
+}
+
+/* 3. THANH TIẾN TRÌNH (PROGRESS BAR) */
+.quiz-playing-container {
+  width: 100%;
+  max-width: 650px; /* Độ rộng tối đa của câu hỏi */
+}
+
+.quiz-progress-container {
+  margin-bottom: 24px;
+}
+
+.progress-bar-bg {
+  height: 8px;
+  background: rgba(255, 255, 255, 0.1); /* Nền mờ */
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 8px;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.progress-bar-fill {
+  height: 100%;
+  border-radius: 10px;
+  transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1); /* Chuyển động mượt */
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+}
+
+.progress-text {
+  color: #94a3b8;
+  font-size: 0.9rem;
+  font-weight: 600;
+  display: block;
+  text-align: right;
+}
+
+/* 4. CARD CÂU HỎI (QUESTION CARD) */
+.question-card {
+  padding: 40px !important;
+  margin-bottom: 20px;
+}
+
+.question-text {
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin-bottom: 32px;
+  line-height: 1.5;
+  text-align: center;
+  color: #f1f5f9;
+}
+
+/* Lưới lựa chọn A/B */
+.options-grid {
+  display: grid;
+  gap: 16px;
+}
+
+.option-btn {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 18px 24px;
+  border-radius: 16px;
+  color: #e2e8f0;
+  text-align: left;
+  font-size: 1.05rem;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  display: flex;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Label A/B nhỏ bên trái */
+.option-label {
+  background: rgba(255, 255, 255, 0.1);
+  width: 36px;
+  height: 36px;
+  min-width: 36px; /* Giữ cứng kích thước */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  margin-right: 20px;
+  font-weight: 800;
+  font-size: 0.95rem;
+  color: #fff;
+}
+
+/* Hover Effect cho nút chọn */
+.option-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: #818cf8; /* Màu tím sáng */
+  transform: translateX(6px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.option-btn:active {
+  transform: scale(0.98);
+}
+
+/* 5. MÀN HÌNH KẾT QUẢ (RESULT SCREEN) */
+.quiz-result-card {
+  max-width: 900px; /* Rộng hơn để chứa nhiều thông tin */
+  width: 100%;
+  padding: 50px !important;
+}
+
+.result-badge {
+  display: inline-block;
+  padding: 8px 20px;
+  border-radius: 30px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #fff; /* Chữ luôn trắng */
+  margin-bottom: 20px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.result-title-main {
+  font-size: 2.5rem;
+  font-weight: 800;
+  margin-bottom: 16px;
+}
+
+.result-desc {
+  font-size: 1.1rem;
+  color: #cbd5e1;
+  line-height: 1.7;
+  max-width: 700px;
+  margin: 0 auto 30px;
+}
+
+/* Khung chứa tags nghề nghiệp */
+.result-section-box {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 16px;
+  padding: 24px;
+  margin-top: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.result-section-box h4 {
+  font-size: 1rem;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 16px;
+}
+
+.tags-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+}
+
+.career-tag {
+  padding: 8px 16px;
+  border-radius: 50px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  transition: transform 0.2s;
+}
+
+.career-tag:hover {
+  transform: translateY(-3px);
+}
+
+/* 6. RIÊNG CHO HOLLAND QUIZ (Grid 3 cột) */
+.holland-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 24px;
+  margin-top: 30px;
+}
+
+.holland-item-box {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid; /* Màu border set inline trong JS */
+  border-radius: 16px;
+  padding: 24px;
+  text-align: center;
+  transition: transform 0.3s;
+}
+
+.holland-item-box:hover {
+  background: rgba(255, 255, 255, 0.06);
+  transform: translateY(-5px);
+}
+
+.holland-emoji {
+  font-size: 2.5rem;
+  margin-bottom: 12px;
+  display: block;
+}
+
+.career-tag-small {
+  display: inline-block;
+  font-size: 0.75rem;
+  padding: 4px 10px;
+  border-radius: 6px;
+  color: #fff; /* Chữ trắng trên nền màu */
+  font-weight: 600;
+  margin: 4px;
+}
+
+/* 7. BUTTONS CHUNG */
+.btn-quiz-primary {
+  border: none;
+  color: white;
+  padding: 14px 36px;
+  border-radius: 50px;
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  transition: all 0.2s ease;
+  min-width: 160px;
+}
+
+.btn-quiz-primary:hover {
+  transform: translateY(-3px);
+  filter: brightness(1.1);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+}
+
+.btn-quiz-outline {
+  background: transparent;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  color: white;
+  padding: 14px 36px;
+  border-radius: 50px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-quiz-outline:hover {
+  border-color: #fff;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.btn-text-only {
+  background: none;
+  border: none;
+  color: #64748b;
+  width: 100%;
+  margin-top: 20px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: color 0.2s;
+}
+
+.btn-text-only:hover {
+  color: #f1f5f9;
+  text-decoration: underline;
+}
+
+.quiz-actions-row {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  margin-top: 40px;
+}
+
+/* 8. ANIMATION */
+.fade-in-up {
+  animation: fadeInUp 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .quiz-wrapper {
+    padding: 15px;
+  }
+  .quiz-start-card,
+  .question-card,
+  .quiz-result-card {
+    padding: 30px 20px !important;
+  }
+  .quiz-icon-large {
+    font-size: 3.5rem;
+  }
+  .result-title-main {
+    font-size: 1.8rem;
+  }
+  .holland-grid {
+    grid-template-columns: 1fr;
+  }
+  .quiz-start-actions,
+  .quiz-actions-row {
+    flex-direction: column;
+  }
+  .btn-quiz-primary,
+  .btn-quiz-outline {
+    width: 100%;
+  }
+}

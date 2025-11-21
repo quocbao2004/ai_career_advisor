@@ -1,16 +1,12 @@
-// Thành phần logo - Hiển thị biểu tượng và tên công ty
 import React from "react";
-import "../assets/css-custom/main.css";
+import { Link } from "react-router-dom";
 
-// Thành phần Logo chính
 const Logo = () => {
   return (
-    <div className="logo-container">
-      {/* Phần biểu tượng - Chữ AI */}
+    <Link to="/" className="logo-container">
       <div className="logo-icon">AI</div>
-      {/* Phần văn bản - Tên công ty */}
       <div className="logo-text">CAREER ADVISOR</div>
-    </div>
+    </Link>
   );
 };
 

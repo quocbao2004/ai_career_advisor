@@ -1,11 +1,9 @@
-// Trang bài trắc nghiệm Mã Holland - Xác định 6 loại sở thích và khả năng sự nghiệp (R, I, A, S, E, C)
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Header from "../components/header";
-import Footer from "../components/footer";
-import "../assets/css-custom/quiz.css";
+import GlassCard from "../components/common/GlassCard";
+import "../assets/css-custom/quiz-game.css";
 
-// Dữ liệu các câu hỏi Mã Holland - 12 câu hỏi, mỗi câu đo lường sở thích trong 6 loại mã Holland
+// --- DỮ LIỆU HOLLAND (Giữ nguyên logic) ---
 const HOLLAND_QUESTIONS = [
   {
     id: 1,
@@ -81,7 +79,6 @@ const HOLLAND_QUESTIONS = [
   },
 ];
 
-// Dữ liệu 6 mã Holland - mỗi loại có tên, emoji, mô tả và gợi ý nghề nghiệp phù hợp
 const HOLLAND_CODES = {
   R: {
     name: "Realistic (Thực Tế)",
@@ -127,41 +124,18 @@ const HOLLAND_CODES = {
   },
 };
 
-// Thành phần Bài Trắc Nghiệm Mã Holland chính
 const HollandQuiz = () => {
   const navigate = useNavigate();
-  // Trạng thái quản lý vị trí câu hỏi hiện tại
   const [currentQuestion, setCurrentQuestion] = useState(0);
-  // Lưu trữ lựa chọn của người dùng cho mỗi câu hỏi
   const [answers, setAnswers] = useState({});
-  // Kết quả Mã Holland cuối cùng (3 loại chính, phụ, cấp 3)
   const [result, setResult] = useState(null);
-  // Kiểm soát hiển thị màn hình bắt đầu
   const [quizStarted, setQuizStarted] = useState(false);
 
-  // Hàm tính toán kết quả Mã Holland - xác định 3 loại mã hàng đầu
   const calculateResult = (finalAnswers) => {
-    // Đối tượng đếm số lần xuất hiện của mỗi mã Holland (R, I, A, S, E, C)
-    const counts = {
-      R: 0,
-      I: 0,
-      A: 0,
-      S: 0,
-      E: 0,
-      C: 0,
-    };
-
-    // Đếm số lần xuất hiện của mỗi mã từ các câu trả lời
-    Object.values(finalAnswers).forEach((code) => {
-      counts[code]++;
-    });
-
-    // Sắp xếp các mã theo tần suất giảm dần
+    const counts = { R: 0, I: 0, A: 0, S: 0, E: 0, C: 0 };
+    Object.values(finalAnswers).forEach((code) => counts[code]++);
     const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]);
-    // Lấy 3 mã hàng đầu
     const topThree = sorted.slice(0, 3).map((entry) => entry[0]);
-
-    // Trả về đối tượng kết quả với thông tin chi tiết về 3 loại mã hàng đầu
     return {
       primary: HOLLAND_CODES[topThree[0]],
       secondary: HOLLAND_CODES[topThree[1]],
@@ -170,26 +144,16 @@ const HollandQuiz = () => {
     };
   };
 
-  // Xử lý khi người dùng chọn một câu trả lời
   const handleAnswer = (answerCode) => {
-    // Cập nhật câu trả lời vào đối tượng answers
-    const newAnswers = {
-      ...answers,
-      [currentQuestion]: answerCode,
-    };
+    const newAnswers = { ...answers, [currentQuestion]: answerCode };
     setAnswers(newAnswers);
-
-    // Chuyển đến câu hỏi tiếp theo, hoặc hiển thị kết quả nếu đây là câu hỏi cuối
     if (currentQuestion < HOLLAND_QUESTIONS.length - 1) {
       setCurrentQuestion(currentQuestion + 1);
     } else {
-      // Tính toán kết quả Mã Holland cuối cùng
-      const resultData = calculateResult(newAnswers);
-      setResult(resultData);
+      setResult(calculateResult(newAnswers));
     }
   };
 
-  // Xử lý khi người dùng muốn làm lại bài trắc nghiệm
   const handleReset = () => {
     setCurrentQuestion(0);
     setAnswers({});
@@ -197,162 +161,144 @@ const HollandQuiz = () => {
     setQuizStarted(false);
   };
 
+  // --- Start Screen ---
   if (!quizStarted) {
     return (
-      <div className="quiz-page">
-        <Header />
-        <main className="quiz-container">
-          <div className="quiz-start-screen">
-            <div className="quiz-start-content">
-              <h2>Holland Code Test</h2>
-              <p>Khám phá loại công việc Holland Code của bạn</p>
-              <p className="quiz-start-description">
-                Bài trắc nghiệm này gồm 12 câu hỏi sẽ giúp xác định loại Holland Code phù hợp với bạn nhất.
-                Kết quả sẽ cho bạn biết những loại công việc nào phù hợp với tính cách và sở thích của bạn.
-              </p>
-              <button
-                className="btn btn-quiz"
-                onClick={() => setQuizStarted(true)}
-                style={{ background: "#7c3aed" }}
-              >
-                Bắt đầu trắc nghiệm
-              </button>
-              <button className="btn btn-outline" onClick={() => navigate("/quiz")}>
-                Quay lại
-              </button>
-            </div>
+      <div className="quiz-wrapper">
+        <GlassCard className="quiz-start-card fade-in-up">
+          <div className="quiz-icon-large">🎯</div>
+          <h2>Trắc Nghiệm Holland</h2>
+          <p className="text-white-50">
+            Xác định 6 nhóm sở thích nghề nghiệp của bạn.
+          </p>
+          <div className="quiz-start-actions">
+            <button
+              className="btn-quiz-primary"
+              onClick={() => setQuizStarted(true)}
+              style={{ background: "#7c3aed" }}
+            >
+              Bắt đầu ngay
+            </button>
+            <button
+              className="btn-quiz-outline"
+              onClick={() => navigate("/trac-nghiem")}
+            >
+              Quay lại
+            </button>
           </div>
-        </main>
-        <Footer />
+        </GlassCard>
       </div>
     );
   }
 
+  // --- Result Screen ---
   if (result) {
     return (
-      <div className="quiz-page">
-        <Header />
-        <main className="quiz-container">
-          <div className="quiz-result">
-            <div className="result-card" style={{ borderTopColor: result.primary.color }}>
-              <div className="result-type" style={{ color: result.primary.color }}>
-                {HOLLAND_QUESTIONS.length}/{HOLLAND_QUESTIONS.length} câu hỏi hoàn thành
-              </div>
-              <h2 className="result-title">
-                Mã Holland Code của bạn: <span style={{ color: result.primary.color }}>{result.topThree.join("")}</span>
-              </h2>
-
-              <div className="holland-results">
-                <div className="holland-code-result">
-                  <h3>
-                    <span className="holland-emoji">{result.primary.emoji}</span>
-                    Loại chính: {result.primary.name}
-                  </h3>
-                  <p>{result.primary.description}</p>
-                  <div className="result-careers">
-                    {result.primary.careers.map((career, idx) => (
-                      <div key={idx} className="career-tag" style={{ background: result.primary.color }}>
-                        {career}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="holland-code-result">
-                  <h3>
-                    <span className="holland-emoji">{result.secondary.emoji}</span>
-                    Loại phụ: {result.secondary.name}
-                  </h3>
-                  <p>{result.secondary.description}</p>
-                  <div className="result-careers">
-                    {result.secondary.careers.map((career, idx) => (
-                      <div key={idx} className="career-tag" style={{ background: result.secondary.color }}>
-                        {career}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="holland-code-result">
-                  <h3>
-                    <span className="holland-emoji">{result.tertiary.emoji}</span>
-                    Loại thứ ba: {result.tertiary.name}
-                  </h3>
-                  <p>{result.tertiary.description}</p>
-                  <div className="result-careers">
-                    {result.tertiary.careers.map((career, idx) => (
-                      <div key={idx} className="career-tag" style={{ background: result.tertiary.color }}>
-                        {career}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              <div className="result-actions">
-                <button
-                  className="btn btn-quiz"
-                  style={{ background: result.primary.color }}
-                  onClick={handleReset}
-                >
-                  Làm lại bài trắc nghiệm
-                </button>
-                <button className="btn btn-outline" onClick={() => navigate("/quiz")}>
-                  Chọn bài khác
-                </button>
-              </div>
+      <div className="quiz-wrapper">
+        <GlassCard
+          className="quiz-result-card fade-in-up"
+          style={{ borderTop: `4px solid ${result.primary.color}` }}
+        >
+          <div className="text-center mb-4">
+            <div
+              className="result-badge"
+              style={{ background: result.primary.color }}
+            >
+              Mã Holland: {result.topThree.join("")}
             </div>
           </div>
-        </main>
-        <Footer />
+
+          {/* Hiển thị 3 mã chính phụ */}
+          <div className="holland-grid">
+            {[result.primary, result.secondary, result.tertiary].map(
+              (item, i) => (
+                <div
+                  key={i}
+                  className="holland-item-box"
+                  style={{ borderColor: `${item.color}50` }}
+                >
+                  <div className="holland-emoji">{item.emoji}</div>
+                  <h4 style={{ color: item.color }}>{item.name}</h4>
+                  <p className="small text-white-50">{item.description}</p>
+                  <div className="tags-container">
+                    {item.careers.slice(0, 3).map((c, idx) => (
+                      <span
+                        key={idx}
+                        className="career-tag-small"
+                        style={{ background: item.color }}
+                      >
+                        {c}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )
+            )}
+          </div>
+
+          <div className="quiz-actions-row mt-4">
+            <button
+              className="btn-quiz-primary"
+              onClick={handleReset}
+              style={{ background: result.primary.color }}
+            >
+              Làm lại
+            </button>
+            <button
+              className="btn-quiz-outline"
+              onClick={() => navigate("/trac-nghiem")}
+            >
+              Quay lại
+            </button>
+          </div>
+        </GlassCard>
       </div>
     );
   }
 
+  // --- Question Screen ---
   const question = HOLLAND_QUESTIONS[currentQuestion];
   const progress = ((currentQuestion + 1) / HOLLAND_QUESTIONS.length) * 100;
 
   return (
-    <div className="quiz-page">
-      <Header />
-      <main className="quiz-container">
-        <div className="quiz-question-wrapper">
-          <div className="quiz-progress">
-            <div className="progress-bar">
-              <div
-                className="progress-fill"
-                style={{ width: `${progress}%`, background: "#7c3aed" }}
-              ></div>
-            </div>
-            <div className="progress-text">
-              Câu {currentQuestion + 1}/{HOLLAND_QUESTIONS.length}
-            </div>
+    <div className="quiz-wrapper">
+      <div className="quiz-playing-container">
+        <div className="quiz-progress-container">
+          <div className="progress-bar-bg">
+            <div
+              className="progress-bar-fill"
+              style={{ width: `${progress}%`, background: "#7c3aed" }}
+            ></div>
           </div>
-
-          <div className="quiz-question-card">
-            <h3 className="question-text">{question.question}</h3>
-
-            <div className="question-options">
-              <button
-                className="option-button"
-                onClick={() => handleAnswer(question.a.code)}
-              >
-                <span className="option-text">{question.a.text}</span>
-              </button>
-              <button
-                className="option-button"
-                onClick={() => handleAnswer(question.b.code)}
-              >
-                <span className="option-text">{question.b.text}</span>
-              </button>
-            </div>
-          </div>
-
-          <button className="btn btn-outline" onClick={() => navigate("/quiz")}>
-            Hủy bỏ
-          </button>
+          <span className="progress-text">
+            Câu {currentQuestion + 1}/{HOLLAND_QUESTIONS.length}
+          </span>
         </div>
-      </main>
+
+        <GlassCard className="question-card fade-in-up">
+          <h3 className="question-text">{question.question}</h3>
+          <div className="options-grid">
+            <button
+              className="option-btn"
+              onClick={() => handleAnswer(question.a.code)}
+            >
+              <span className="option-label">A</span> {question.a.text}
+            </button>
+            <button
+              className="option-btn"
+              onClick={() => handleAnswer(question.b.code)}
+            >
+              <span className="option-label">B</span> {question.b.text}
+            </button>
+          </div>
+        </GlassCard>
+        <button
+          className="btn-text-only"
+          onClick={() => navigate("/trac-nghiem")}
+        >
+          Hủy bỏ
+        </button>
+      </div>
     </div>
   );
 };

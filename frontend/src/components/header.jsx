@@ -1,20 +1,19 @@
-// Thành phần Header - Thanh điều hướng chính
 import React from "react";
 import { Link } from "react-router-dom";
 import Logo from "./logo";
 import "../assets/css-custom/header.css";
 
-// Thành phần Header với các liên kết điều hướng
 const Header = () => {
   return (
-    <nav className="navbar navbar-expand-lg custom-navbar sticky-top px-4">
+    <nav
+      className="navbar navbar-expand-lg custom-navbar sticky-top px-4"
+      id="header-custom"
+    >
       <div className="container-fluid">
-        {/* Logo - Liên kết về trang chủ */}
         <Link className="navbar-brand d-flex align-items-center" to="/">
           <Logo />
         </Link>
 
-        {/* Nút toggle cho di động */}
         <button
           className="navbar-toggler"
           type="button"
@@ -27,7 +26,6 @@ const Header = () => {
           <span className="navbar-toggler-icon"></span>
         </button>
 
-        {/* Menu điều hướng chính */}
         <div
           className="collapse navbar-collapse justify-content-center"
           id="mainNavbar"
@@ -39,27 +37,27 @@ const Header = () => {
               </Link>
             </li>
             <li className="nav-item">
-              <Link className="nav-link" to="/about">
+              <Link className="nav-link" to="/ve-chung-toi">
                 Giới thiệu
               </Link>
             </li>
             <li className="nav-item">
-              <Link className="nav-link" to="/contact">
+              <Link className="nav-link" to="/lien-he">
                 Liên hệ
               </Link>
             </li>
             <li className="nav-item">
-              <Link className="nav-link" to="/quiz">
+              <Link className="nav-link" to="/trac-nghiem">
                 Trắc nghiệm
               </Link>
             </li>
             <li className="nav-item">
-              <Link className="nav-link" to="/career">
+              <Link className="nav-link" to="/dinh-huong-nghe-nghiep">
                 Nghề nghiệp phù hợp
               </Link>
             </li>
             <li className="nav-item">
-              <Link className="nav-link" to="/admin">
+              <Link className="nav-link" to="/quan-tri">
                 Admin
               </Link>
             </li>
@@ -68,13 +66,16 @@ const Header = () => {
 
         {/* Các nút xác thực */}
         <div className="d-flex align-items-center gap-2">
-          <button className="btn btn-outline-gold">Đăng nhập</button>
-          <button className="btn btn-gold">Đăng ký</button>
+          <button className="btn btn-outline-gold">
+            <a href="/dang-nhap">Đăng nhập</a>
+          </button>
+          <button className="btn btn-gold">
+            <a href="/dang-ky">Đăng ký</a>
+          </button>
         </div>
       </div>
     </nav>
   );
 };
-
 
 export default Header;
