@@ -1,18 +1,18 @@
-/* Container tổng */
+/* Container chứa logo chính */
 .logo-container {
   display: flex;
   align-items: center;
-  gap: 8px; /* giảm khoảng cách */
+  gap: 8px; /* Khoảng cách giữa biểu tượng và văn bản */
   font-family: "Poppins", sans-serif;
   user-select: none;
   cursor: pointer;
   padding: 4px 10px;
 }
 
-/* Biểu tượng AI */
+/* Biểu tượng AI - hình tròn với gradient */
 .logo-icon {
   font-weight: 600;
-  font-size: 1rem; /* giảm kích cỡ chữ */
+  font-size: 1rem; /* Kích cỡ chữ bên trong */
   color: white;
   background: linear-gradient(135deg, #004e92, #000428);
   width: 34px;
@@ -21,29 +21,19 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 0 8px rgba(0, 78, 146, 0.4),
-    inset 0 0 5px rgba(255, 255, 255, 0.2);
+  box-shadow: inset 0 0 5px rgba(255, 255, 255, 0.06);
+  border: none;
   position: relative;
   transition: all 0.3s ease;
   letter-spacing: 0.5px;
 }
 
-/* Vầng sáng vàng kim quanh logo */
+/* Ẩn phần tử ::before mặc định */
 .logo-icon::before {
-  content: "";
-  position: absolute;
-  top: -2px;
-  left: -2px;
-  width: 38px;
-  height: 38px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #d4af37, #fff4d0);
-  opacity: 0.4;
-  z-index: -1;
-  filter: blur(6px);
+  display: none;
 }
 
-/* Chữ CAREER */
+/* Văn bản "CAREER ADVISOR" với gradient vàng */
 .logo-text {
   font-size: 1.1rem;
   font-weight: 700;
@@ -54,7 +44,7 @@
   position: relative;
 }
 
-/* Gạch dưới nhỏ, tinh tế */
+/* Gạch dưới tinh tế dưới văn bản */
 .logo-text::after {
   content: "";
   position: absolute;
@@ -67,7 +57,7 @@
   box-shadow: 0 0 3px rgba(212, 175, 55, 0.5);
 }
 
-/* Hover nhẹ */
+/* Hiệu ứng hover - Phóng to biểu tượng nhẹ */
 .logo-container:hover .logo-icon {
   transform: scale(1.05);
   box-shadow: 0 0 10px rgba(212, 175, 55, 0.6),
