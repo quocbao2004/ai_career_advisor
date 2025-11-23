@@ -31,6 +31,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    "unfold",  # <--- Phải đặt lên đầu
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -39,7 +40,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     # custom app
-    'apps.accounts',
     'apps.ai',
     'apps.career',
     'apps.courses',
@@ -54,6 +54,9 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework_simplejwt',
     'rest_framework.authtoken',
+
+    "unfold.contrib.filters",  # Tùy chọn thêm bộ lọc
+    "unfold.contrib.forms",    # Tùy chọn thêm form đẹp
 ]
 
 REST_FRAMEWORK = {
@@ -101,11 +104,11 @@ WSGI_APPLICATION = 'ai_career.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'career_advisor',
+        'NAME': 'ai_career_advisor',
         'USER': 'postgres',
         'PASSWORD': '123456',
         'HOST': 'localhost',
-        'PORT': '5432',
+        'PORT': '5433',
     }
 }
 
