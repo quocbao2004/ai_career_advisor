@@ -53,16 +53,8 @@ const Header = () => {
             </li>
             <li className="nav-item">
               <Link className="nav-link" to="/dinh-huong-nghe-nghiep">
-                Nghề nghiệp phù hợp
+                Nghề nghiệp
               </Link>
-            </li>
-            <li className="nav-item">
-              <Link className="nav-link" to="/quan-tri">
-                Trang quản trị
-              </Link>
-            </li>
-            <li className="nav-item">
-              <a href="http://127.0.0.1:8000/admin/">Admin</a>
             </li>
           </ul>
         </div>

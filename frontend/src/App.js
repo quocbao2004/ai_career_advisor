@@ -9,8 +9,9 @@ import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import ForgotPassWordPage from "./pages/ForgotPasswordPage";
 import MainLayout from "./components/layout/MainLayout";
+import ImportData from "./pages/ImportData";
 import "./assets/css-custom/main.css";
-import "bootstrap-icons/font/bootstrap-icons.css";
+// import "bootstrap-icons/font/bootstrap-icons.css";
 
 function App() {
   return (
@@ -19,7 +20,6 @@ function App() {
         <Routes>
           {/* Common */}
           <Route path="/" element={<HomePage />} />
-          <Route path="/quan-tri" element={<AdminDashboard />} />
 
           {/* Auth */}
           <Route path="/dang-nhap" element={<LoginPage />} />
@@ -30,6 +30,10 @@ function App() {
           <Route path="/trac-nghiem" element={<QuizSelection />} />
           <Route path="/trac-nghiem/mbti" element={<MBTIQuiz />} />
           <Route path="/trac-nghiem/holland" element={<HollandQuiz />} />
+
+          {/* Admin */}
+          <Route path="/quan-tri" element={<AdminDashboard />} />
+          <Route path="/import-data" element={<ImportData />} />
         </Routes>
       </MainLayout>
     </div>

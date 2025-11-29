@@ -9,28 +9,28 @@ import "../assets/css-custom/homepage.css";
 // --- DỮ LIỆU TĨNH (Đưa ra ngoài để component gọn hơn) ---
 const features = [
   {
-    icon: "📝",
+    icon: "",
     title: "Trắc Nghiệm Tính Cách",
     description:
       "Khám phá bản thân qua bài test MBTI, Holland, Big Five với AI phân tích chuyên sâu.",
     color: "#4F46E5",
   },
   {
-    icon: "🎯",
+    icon: "",
     title: "Định Hướng Nghề Nghiệp",
     description:
       "AI tư vấn nghề nghiệp phù hợp dựa trên tính cách, kỹ năng và xu hướng thị trường.",
     color: "#0891B2",
   },
   {
-    icon: "📚",
+    icon: "",
     title: "Lộ Trình Học Tập",
     description:
       "Gợi ý lộ trình học tập cá nhân hóa với các khóa học, kỹ năng cần thiết.",
     color: "#7C3AED",
   },
   {
-    icon: "🔄",
+    icon: "",
     title: "Chuyển Đổi Nghề Nghiệp",
     description:
       "Hỗ trợ chuyển ngành với roadmap chi tiết, đào tạo lại kỹ năng phù hợp.",

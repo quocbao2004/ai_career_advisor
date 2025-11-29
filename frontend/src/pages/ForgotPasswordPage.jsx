@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import GlassCard from "../components/common/GlassCard";
 import Logo from "../components/logo";
-import "bootstrap-icons/font/bootstrap-icons.css";
+// import "bootstrap-icons/font/bootstrap-icons.css";
 import "../assets/css-custom/loginpage.css";
 
 const RESEND_TIMEOUT = 60;

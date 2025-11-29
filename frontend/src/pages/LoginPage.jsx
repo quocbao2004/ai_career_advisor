@@ -1,9 +1,8 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import GlassCard from "../components/common/GlassCard";
-import Logo from "../components/logo"; // Tái sử dụng Logo nếu muốn đẹp hơn
-import "bootstrap-icons/font/bootstrap-icons.css";
-import "../assets/css-custom/loginpage.css"; // Sẽ cập nhật file này ở bước 2
+import Logo from "../components/logo";
+import "../assets/css-custom/loginpage.css";
 
 const LoginPage = () => {
   const [formData, setFormData] = useState({

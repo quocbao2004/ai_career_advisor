@@ -9,28 +9,28 @@ const AdminDashboard = () => {
     {
       title: "Tổng User",
       value: "50234",
-      icon: "👥",
+      icon: "",
       color: "#4f46e5",
       spark: [10, 15, 12, 18, 20, 25, 22],
     },
     {
       title: "Đang hoạt động",
       value: "12458",
-      icon: "✨",
+      icon: "",
       color: "#0891b2",
       spark: [8, 9, 12, 10, 14, 16, 15],
     },
     {
       title: "Doanh thu",
       value: "89200",
-      icon: "💰",
+      icon: "",
       color: "#fbbf24",
       spark: [15, 20, 25, 30, 28, 35, 40],
     },
     {
       title: "Hiệu suất",
       value: "98",
-      icon: "🚀",
+      icon: "",
       color: "#10b981",
       spark: [90, 92, 95, 94, 98, 97, 99],
     },
@@ -68,7 +68,7 @@ const AdminDashboard = () => {
       {/* 1. Hero Section */}
       <section className="admin-hero">
         <div>
-          <h1>Dashboard Thống Kê</h1>
+          <h1>Thống Kê</h1>
           <p style={{ opacity: 0.8 }}>
             Tổng quan hiệu suất hệ thống thời gian thực
           </p>

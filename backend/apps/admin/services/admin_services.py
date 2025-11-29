@@ -1,15 +1,13 @@
-from apps.admin.repositories.admin_repo import Admin_Repository
+from apps.career.models import Career
+from apps.admin import serializers
+from rest_framework.exceptions import ValidationError
 
 class AdminServices():
-
-    def __init__(self):
-        self.repo = Admin_Repository
-
-    def get_dashboard_stats(self):
-        return {
-            "total_users": self.repo.count_users(),
-            "total_industries": self.repo.count_industries(),
-            "total_careers": self.repo.count_careers(),
-            "total_courses": self.repo.count_courses(),
-            "total_skills": self.repo.count_skills(),
-        }
+    @staticmethod
+    def create_careers(data):
+        serializer = serializers.CareerSerializer(data=data, many=True)
+        if serializer.is_valid():
+            serializer.save()
+            return serializer.data
+        else:
+            raise ValidationError(serializer.errors)
