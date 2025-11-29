@@ -12,10 +12,13 @@ import MainLayout from "./components/layout/MainLayout";
 import "./assets/css-custom/main.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
 
+import { GoogleOAuthProvider } from "@react-oauth/google";
+
 function App() {
   return (
     <div className="App">
-      <MainLayout>
+      <GoogleOAuthProvider clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID}>
+          <MainLayout>
         <Routes>
           {/* Common */}
           <Route path="/" element={<HomePage />} />
@@ -32,6 +35,8 @@ function App() {
           <Route path="/trac-nghiem/holland" element={<HollandQuiz />} />
         </Routes>
       </MainLayout>
+      </GoogleOAuthProvider>
+      
     </div>
   );
 }

@@ -14,27 +14,12 @@ class PathStatus(models.TextChoices):
 
 class LearningPath(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    user = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE,
-        related_name='learning_paths'
-    )
-    career = models.ForeignKey(
-        Career,
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name='learning_paths'
-    )
+    user = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE,related_name='learning_paths')
+    career = models.ForeignKey(Career,on_delete=models.SET_NULL,null=True,blank=True,related_name='learning_paths')
     title = models.CharField(max_length=150)
-    description = models.TextField(blank=True)
 
     # Tracking tiến độ
-    status = models.CharField(
-        max_length=20,
-        choices=PathStatus.choices,
-        default=PathStatus.IN_PROGRESS
-    )
+    status = models.CharField(max_length=50,choices=PathStatus.choices,default=PathStatus.IN_PROGRESS)
     progress_percentage = models.FloatField(default=0.0)  # 0.0 đến 100.0
 
     created_at = models.DateTimeField(auto_now_add=True)
@@ -44,7 +29,7 @@ class LearningPath(models.Model):
         db_table = 'learning_paths'
 
     def __str__(self):
-        return f"{self.title} - {self.user.full_name}"
+        return f"{self.title} - {self.user}"
 
     def update_progress(self):
         """Hàm helper để tự động tính % hoàn thành"""
@@ -58,32 +43,14 @@ class LearningPath(models.Model):
         if self.progress_percentage == 100:
             self.status = PathStatus.COMPLETED
 
-        self.save()
+        self.save(update_fields=['progress_percentage', 'status', 'updated_at'])
 
 
 class LearningPathItem(models.Model):
-    # Đổi tên từ Course -> Item để linh hoạt hơn
-    path = models.ForeignKey(
-        LearningPath,
-        on_delete=models.CASCADE,
-        related_name='items'  # đổi related_name cho hợp lý
-    )
-
-    # Item có thể là Course trong DB
-    course = models.ForeignKey(
-        Course,
-        on_delete=models.SET_NULL,  # Nếu xóa khóa học, không xóa lộ trình, chỉ set null
-        null=True,
-        blank=True,
-        related_name='learning_path_items'
-    )
-
-    # HOẶC là một task tự đặt tên (VD: "Đọc sách Clean Code")
+    path = models.ForeignKey(LearningPath,on_delete=models.CASCADE,related_name='items'  )
+    course = models.ForeignKey(Course,on_delete=models.SET_NULL,null=True,blank=True,related_name='learning_path_items')
     custom_task_name = models.CharField(max_length=255, blank=True, null=True)
-
-    order_index = models.IntegerField(help_text="Order of this item in the path")
-    estimated_duration = models.IntegerField(default=0, help_text="Estimated duration in hours")
-
+    order_index = models.IntegerField()
     # Trạng thái hoàn thành của từng mục
     is_completed = models.BooleanField(default=False)
     completed_at = models.DateTimeField(null=True, blank=True)

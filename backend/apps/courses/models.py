@@ -1,7 +1,6 @@
 from django.db import models
 from apps.career.models import Career
-from apps.users.models import MasterSkill  # Import MasterSkill từ app users
-
+from apps.users.models import MasterSkill 
 
 # ENUM cho độ khó khóa học
 class CourseLevel(models.TextChoices):

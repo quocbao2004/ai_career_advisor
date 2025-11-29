@@ -2,7 +2,7 @@ import uuid
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, BaseUserManager
 from django.utils.translation import gettext_lazy as _
-
+from django.core.validators import MinValueValidator, MaxValueValidator
 
 # ==========================================
 # 1. ENUMS (Lựa chọn)
@@ -67,11 +67,12 @@ class UserManager(BaseUserManager):
 
 class User(AbstractBaseUser, PermissionsMixin):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    email = models.EmailField(max_length=255, unique=True, db_index=True)
     full_name = models.CharField(max_length=100)
+    email = models.EmailField(max_length=255, unique=True, db_index=True)
+    password_hash = models.TextField()
     role = models.CharField(max_length=10, choices=Role.choices, default=Role.USER)
 
-    # Profile Fields (Đã gộp từ bảng Profile cũ vào đây)
+    # Profile Fields 
     avatar_url = models.TextField(blank=True, null=True)
     phone_number = models.CharField(max_length=20, blank=True, null=True)
     gender = models.CharField(max_length=10, choices=Gender.choices, blank=True, null=True)
@@ -101,8 +102,16 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return self.email
+    @property
+    def password(self):
+        return self.password_hash
+
+    @password.setter
+    def password(self, value):
+        self.password_hash = value
 
 class MasterSkill(models.Model):
+    id=models.AutoField(primary_key=True)
     skill_name = models.CharField(max_length=100, unique=True)
     type = models.CharField(max_length=50, default='hard_skill')
     description = models.TextField(blank=True, null=True)
@@ -115,28 +124,31 @@ class MasterSkill(models.Model):
 
 
 class UserSkill(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='skills')
-    skill = models.ForeignKey(MasterSkill, on_delete=models.CASCADE, related_name='user_skills')
-    proficiency_level = models.IntegerField(default=1)  # 1-5
+    user = models.ForeignKey(User,on_delete=models.CASCADE,db_column='user_id',related_name='skills')
+    skill = models.ForeignKey(MasterSkill,on_delete=models.CASCADE,db_column='skill_id',related_name='user_skills')
+
+    proficiency_level = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(5)])
     verified = models.BooleanField(default=False)
 
     class Meta:
         db_table = 'user_skills'
-        unique_together = ('user', 'skill')
+        unique_together = ('user', 'skill') 
+        verbose_name = "User Skill"
+        verbose_name_plural = "User Skills"
 
     def __str__(self):
         return f"{self.user.full_name} - {self.skill.skill_name}"
 
 
 class UserInterest(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="interests")
-    keyword = models.CharField(max_length=100)  # VD: "AI", "Marketing"
+    user = models.ForeignKey(User,on_delete=models.CASCADE,db_column='user_id',related_name="interests")
+    keyword = models.CharField(max_length=100)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         db_table = 'user_interests'
-        unique_together = ('user', 'keyword')
+        verbose_name = "User Interest"
+        verbose_name_plural = "User Interests"
 
     def __str__(self):
         return f"{self.user.full_name} likes {self.keyword}"
@@ -146,12 +158,14 @@ class PersonalityTest(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='personality_tests')
     test_type = models.CharField(max_length=20, choices=TestType.choices)
-    result = models.TextField(blank=True, null=True)
+    raw_result = models.JSONField(blank=True, null=True)
     summary_code = models.CharField(max_length=10, blank=True, null=True)  # VD: INTJ
     taken_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         db_table = 'personality_tests'
+        verbose_name = "Personality Test"
+        verbose_name_plural = "Personality Tests"
 
     def __str__(self):
         return f"{self.user.full_name} - {self.test_type}"

@@ -11,11 +11,15 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+import sys
+import os
+
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
+sys.path.append(str(BASE_DIR / "apps"))
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
@@ -31,7 +35,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
-    "unfold",  # <--- Phải đặt lên đầu
+    #"unfold",  # <--- Phải đặt lên đầu
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -45,6 +49,7 @@ INSTALLED_APPS = [
     'apps.courses',
     'apps.users',
     'apps.learning_paths',
+    'apps.auths',
 
     # import
     'corsheaders',
@@ -55,8 +60,8 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     'rest_framework.authtoken',
 
-    "unfold.contrib.filters",  # Tùy chọn thêm bộ lọc
-    "unfold.contrib.forms",    # Tùy chọn thêm form đẹp
+    #"unfold.contrib.filters",  # Tùy chọn thêm bộ lọc
+    #"unfold.contrib.forms",    # Tùy chọn thêm form đẹp
 ]
 
 REST_FRAMEWORK = {
@@ -108,7 +113,11 @@ DATABASES = {
         'USER': 'postgres',
         'PASSWORD': '123456',
         'HOST': 'localhost',
-        'PORT': '5433',
+        'PORT': '5432',
+        'CONN_MAX_AGE': 600,  
+        'OPTIONS': {
+            'connect_timeout': 10,
+        }
     }
 }
 
@@ -164,3 +173,28 @@ SIMPLE_JWT = {
     'AUTH_COOKIE_PATH': '/',
     'AUTH_COOKIE_SAMESITE': 'Lax',
 }
+
+# config email
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'daoquocbao2k04@gmail.com'
+EMAIL_HOST_PASSWORD = 'yrkz njvj tfpa qabo'
+
+# Cache Configuration (for OTP storage)
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'unique-snowflake',
+    }
+}
+
+# CORS Configuration
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    "http://localhost:8080",
+]
+
+CORS_ALLOW_CREDENTIALS = True
