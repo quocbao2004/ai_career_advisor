@@ -1,76 +1,97 @@
 from django.db import models
 import uuid
 from django.conf import settings
+from apps.users.models import MasterSkill
 
-# Create your models here.
+
+# ==========================================
+# 1. INDUSTRY (Ngành nghề)
+# ==========================================
 class Industry(models.Model):
-    industry_name = models.CharField(max_length=100, null=False),
-    description = models.TextField()
+    # FIX LỖI: Đã xóa dấu phẩy thừa ở cuối dòng dưới
+    name = models.CharField(max_length=100, unique=True, null=False)
+    description = models.TextField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
     def __str__(self):
         return self.industry_name
+
     class Meta:
         db_table = 'industries'
+        verbose_name_plural = 'Industries'
+    def __str__(self):
+        return self.name
 
+# ==========================================
+# 2. CAREER (Nghề nghiệp cốt lõi)
+# ==========================================
 class Career(models.Model):
     id = models.AutoField(primary_key=True)
-    title = models.CharField(max_length=100)
+    industry = models.ForeignKey(Industry,on_delete=models.SET_NULL,null=True,related_name='careers')
+    title = models.CharField(max_length=150, null=False)
+    # Thêm cột level để gộp bảng Specialization vào đây (Tinh gọn)
+    # VD: title="Backend Dev", level="Senior"
+    level = models.CharField(max_length=100, blank=True, null=True)
     description = models.TextField(blank=True)
-    industry = models.ForeignKey(Industry, on_delete=models.SET_NULL, null=True, related_name='careers')
+    # Thêm thông tin lương để AI tư vấn (Quan trọng)
+    salary_min = models.DecimalField(max_digits=15, decimal_places=2, null=True, blank=True)
+    salary_max = models.DecimalField(max_digits=15, decimal_places=2, null=True, blank=True)
+    # Xu hướng tương lai (Data để AI "chém gió")
+    future_outlook = models.TextField(blank=True, null=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return self.title
+        return f"{self.title} - {self.level if self.level else 'General'}"
+
     class Meta:
         db_table = 'careers'
+        # Đảm bảo không nhập trùng nghề trong cùng 1 ngành
+        unique_together = ('industry', 'title', 'level')
 
-class CareerRequiredSkill(models.Model):
-    career = models.ForeignKey(Career, on_delete=models.CASCADE, related_name='required_skills')
-    skill_name = models.CharField(max_length=100)
+    # ==========================================
+
+
+# 3. CAREER SKILLS (Liên kết Nghề - Kỹ năng)
+# ==========================================
+class CareerSkill(models.Model):
+    """
+    Thay thế cho CareerRequiredSkill cũ.
+    Bảng này nối Career với MasterSkill (ở app users).
+    """
+    career = models.ForeignKey(Career,on_delete=models.CASCADE,related_name='required_skills')
+    skill = models.ForeignKey(MasterSkill,on_delete=models.CASCADE,related_name='career_links')
+    # True: Bắt buộc phải có, False: Nên có (Nice to have)
+    is_required = models.BooleanField(default=True)
 
     class Meta:
-        unique_together = ('career', 'skill_name')
+        db_table = 'career_skills'
+        unique_together = ('career', 'skill')
         verbose_name = 'Career Required Skill'
-        verbose_name_plural = 'Career Required Skills'
-        db_table = 'career_required_skills'
 
     def __str__(self):
-        return f"{self.career.title} - {self.skill_name}"
+        type_str = "Required" if self.is_required else "Optional"
+        return f"{self.career.title} needs {self.skill.skill_name} ({type_str})"
 
-class CareerTrait(models.Model):
-    career = models.ForeignKey(Career, on_delete=models.CASCADE, related_name='traits')
-    trait_name = models.CharField(max_length=100)
 
-    class Meta:
-        unique_together = ('career', 'trait_name')
-        verbose_name = 'Career Trait'
-        verbose_name_plural = 'Career Traits'
-        db_table = 'career_traits'
-
-    def __str__(self):
-        return f"{self.career.title} - {self.trait_name}"
-
+# ==========================================
+# 4. RECOMMENDATIONS (Gợi ý của AI)
+# ==========================================
 class CareerRecommendation(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    user = models.ForeignKey(
-        settings.AUTH_USER_MODEL,  # <- CHỈ CẦN DÒNG NÀY
-        on_delete=models.CASCADE,
-        related_name="career_recommendations"
-    )
-    career = models.ForeignKey(Career, on_delete=models.CASCADE, related_name='recommendations')
-    score = models.FloatField()
-    recommended_at = models.DateTimeField(auto_now_add=True)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE,related_name="career_recommendations")
+    career = models.ForeignKey(Career,on_delete=models.CASCADE,related_name='recommendations')
+
+    # Điểm phù hợp (0.0 đến 1.0) hoặc (0 đến 100)
+    match_score = models.FloatField()
+
+    # Lý do tại sao AI gợi ý (Lưu text để hiển thị cho user đỡ phải hỏi lại AI)
+    reasoning = models.TextField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.user} → {self.career.title} ({self.score})"
+        return f"{self.user} -> {self.career.title} ({self.match_score})"
 
     class Meta:
         db_table = 'career_recommendations'
-class CareerSpecialization(models.Model):
-    id = models.AutoField(primary_key=True)
-    career = models.ForeignKey(Career, on_delete=models.CASCADE, related_name='specializations')
-    title = models.CharField(max_length=100)
-    description = models.TextField(blank=True)
-
-    def __str__(self):
-        return f"{self.title} ({self.career.title})"
-    class Meta:
-        db_table = 'career_specializations'

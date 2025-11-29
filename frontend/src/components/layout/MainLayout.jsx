@@ -2,6 +2,7 @@ import React from "react";
 import NeuralNetworkBackground from "../background/NeuralNetworkBackground";
 import Header from "../header";
 import Footer from "../footer";
+import AIChat from "../AIChat";
 
 const MainLayout = ({ children }) => {
   return (
@@ -18,6 +19,7 @@ const MainLayout = ({ children }) => {
         }}
       >
         <Header />
+        <AIChat/>
         <main style={{ flex: 1 }}>{children}</main>
         <Footer />
       </div>

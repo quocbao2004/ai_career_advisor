@@ -1,16 +1,21 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { GoogleLogin } from "@react-oauth/google";
 import GlassCard from "../components/common/GlassCard";
-import Logo from "../components/logo"; // Tái sử dụng Logo nếu muốn đẹp hơn
+import Logo from "../components/logo";
+import { loginUser, saveTokens, saveUserInfo, googleLogin } from "../api/authApi";
 import "bootstrap-icons/font/bootstrap-icons.css";
-import "../assets/css-custom/loginpage.css"; // Sẽ cập nhật file này ở bước 2
+import "../assets/css-custom/loginpage.css";
 
 const LoginPage = () => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
     rememberMe: false,
   });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -18,35 +23,67 @@ const LoginPage = () => {
       ...prev,
       [name]: type === "checkbox" ? checked : value,
     }));
+    setError("");
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Login Data:", formData);
-    // Xử lý logic đăng nhập tại đây
+    setLoading(true);
+    setError("");
+
+    try {
+      const result = await loginUser(formData.email, formData.password);
+      if (result.success) {
+        saveTokens(result.access, result.refresh);
+        saveUserInfo(result.user);
+        navigate("/");
+      } else {
+        setError(result.message || "Đăng nhập thất bại");
+      }
+    } catch (err) {
+      setError("Lỗi kết nối đến server");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGoogleSuccess = async (credentialResponse) => {
+    setLoading(true);
+    setError("");
+    try {
+      const result = await googleLogin(credentialResponse.credential);
+      
+      if (result.success) {
+        saveTokens(result.access, result.refresh);
+        saveUserInfo(result.user);
+        navigate("/");
+      } else {
+        setError(result.message || "Lỗi đăng nhập Google");
+      }
+    } catch (err) {
+      setError("Lỗi đăng nhập Google");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <div className="auth-wrapper">
-      {/* Không cần Ocean Wrapper/Bubbles nữa vì MainLayout đã lo background.
-         Chỉ cần căn giữa GlassCard.
-      */}
-
       <GlassCard className="auth-card-container">
-        {/* Header của Form */}
         <div className="text-center mb-4">
-          {/* Optional: Thêm Logo nhỏ để nhận diện thương hiệu */}
           <div className="d-flex justify-content-center mb-3">
             <Logo />
           </div>
           <h2 className="fw-bold text-white">Chào mừng trở lại</h2>
-          <p className="text-white-50 small">
-            Nhập thông tin để truy cập cố vấn AI.
-          </p>
         </div>
 
+        {error && (
+          <div className="alert alert-danger" style={{ marginBottom: "20px" }}>
+            {error}
+          </div>
+        )}
+
         <form onSubmit={handleSubmit} style={{ width: "100%" }}>
-          {/* Email Input */}
           <div className="auth-input-group">
             <div className="input-icon">
               <i className="bi bi-envelope-fill"></i>
@@ -59,10 +96,10 @@ const LoginPage = () => {
               value={formData.email}
               onChange={handleChange}
               required
+              disabled={loading}
             />
           </div>
 
-          {/* Password Input */}
           <div className="auth-input-group">
             <div className="input-icon">
               <i className="bi bi-lock-fill"></i>
@@ -75,10 +112,10 @@ const LoginPage = () => {
               value={formData.password}
               onChange={handleChange}
               required
+              disabled={loading}
             />
           </div>
 
-          {/* Options: Remember & Forgot Password */}
           <div className="options-row">
             <label className="remember-box">
               <input
@@ -86,6 +123,7 @@ const LoginPage = () => {
                 name="rememberMe"
                 checked={formData.rememberMe}
                 onChange={handleChange}
+                disabled={loading}
               />
               <span className="custom-checkbox"></span>
               <span className="ms-2 small text-white-50">
@@ -98,30 +136,27 @@ const LoginPage = () => {
             </Link>
           </div>
 
-          {/* Sign In Button */}
-          <button type="submit" className="btn-auth-primary">
-            Đăng nhập
+          <button 
+            type="submit" 
+            className="btn-auth-primary"
+            disabled={loading}
+          >
+            {loading ? "Đang đăng nhập..." : "Đăng nhập"}
           </button>
 
-          {/* Divider */}
           <div className="auth-divider">
             <span>Hoặc tiếp tục với</span>
           </div>
 
-          {/* Social Buttons */}
-          <div className="social-buttons-box">
-            <button type="button" className="btn-social google">
-              <i className="bi bi-google"></i>
-            </button>
-            <button type="button" className="btn-social github">
-              <i className="bi bi-github"></i>
-            </button>
-            <button type="button" className="btn-social facebook">
-              <i className="bi bi-facebook"></i>
-            </button>
+          <div className="social-buttons-box" style={{ display: "flex", gap: "10px", justifyContent: "center" }}>
+            <GoogleLogin
+              onSuccess={handleGoogleSuccess}
+              onError={() => setError("Lỗi đăng nhập Google")}
+              size="large"
+              text="signin"
+            />
           </div>
 
-          {/* Footer Text */}
           <div className="text-center mt-4 small text-white-50">
             Chưa có tài khoản?{" "}
             <Link to="/dang-ky" className="link-highlight">
