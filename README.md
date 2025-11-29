@@ -50,11 +50,13 @@ cd ai_career_advisor
 ```
 ### Chạy môi trường backend
 ```bash
+cd backend
 pip install -r requirements.txt
 python manage.py runserver
 ```
 ### Chạy môi trường frontend
 ```bash
+cd frontend
 npm install
 npm start
 ```
