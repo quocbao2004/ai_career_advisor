@@ -1,7 +1,8 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from auths.services.auth_service import AuthService
+from apps.custom_auth.services.auth_service import AuthService
+from utils.permissions import IsUser
 import jwt
 import logging
 
@@ -188,6 +189,124 @@ class GoogleLoginView(APIView):
             }, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
             logger.error(f"Google login error: {str(e)}")
+            return Response({
+                "success": False,
+                "message": "Lỗi hệ thống"
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class ForgotPasswordView(APIView):
+
+    def post(self, request):
+        email = request.data.get("email")
+
+        if not email:
+            return Response({
+                "success": False,
+                "message": "Email là bắt buộc"
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            data, error = AuthService.request_password_reset(email)
+
+            if error:
+                return Response({
+                    "success": False,
+                    "message": error
+                }, status=status.HTTP_400_BAD_REQUEST)
+
+            return Response({
+                "success": True,
+                "message": "Nếu email tồn tại, bạn sẽ nhận được mã OTP",
+                **data
+            }, status=status.HTTP_200_OK)
+        except Exception as e:
+            logger.error(f"Forgot password error: {str(e)}")
+            return Response({
+                "success": False,
+                "message": "Lỗi hệ thống"
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class VerifyResetOTPView(APIView):
+
+    def post(self, request):
+        email = request.data.get("email")
+        otp = request.data.get("otp")
+
+        if not email or not otp:
+            return Response({
+                "success": False,
+                "message": "Email và OTP là bắt buộc"
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            data, error = AuthService.verify_otp_for_reset(email, otp)
+
+            if error:
+                return Response({
+                    "success": False,
+                    "message": error
+                }, status=status.HTTP_400_BAD_REQUEST)
+
+            return Response({
+                "success": True,
+                "message": "OTP xác thực thành công",
+                **data
+            }, status=status.HTTP_200_OK)
+        except Exception as e:
+            logger.error(f"Verify reset OTP error: {str(e)}")
+            return Response({
+                "success": False,
+                "message": "Lỗi hệ thống"
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class ResetPasswordView(APIView):
+
+    def post(self, request):
+        email = request.data.get("email")
+        new_password = request.data.get("new_password")
+
+        if not email or not new_password:
+            return Response({
+                "success": False,
+                "message": "Email và mật khẩu mới là bắt buộc"
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            data, error = AuthService.reset_password(email, new_password)
+
+            if error:
+                return Response({
+                    "success": False,
+                    "message": error
+                }, status=status.HTTP_400_BAD_REQUEST)
+
+            return Response({
+                "success": True,
+                "message": data.get("message", "Mật khẩu đã được đặt lại")
+            }, status=status.HTTP_200_OK)
+        except Exception as e:
+            logger.error(f"Reset password error: {str(e)}")
+            return Response({
+                "success": False,
+                "message": "Lỗi hệ thống"
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class LogoutView(APIView):
+    permission_classes = [IsUser]
+
+    def post(self, request):
+        try:
+            AuthService.logout(request.user.email)
+            return Response({
+                "success": True,
+                "message": "Đã đăng xuất"
+            }, status=status.HTTP_200_OK)
+        except Exception as e:
+            logger.error(f"Logout error: {str(e)}")
             return Response({
                 "success": False,
                 "message": "Lỗi hệ thống"

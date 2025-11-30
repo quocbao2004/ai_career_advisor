@@ -1,9 +1,31 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import Logo from "./logo";
+import { getUserInfo, clearTokens, logoutUser } from "../api/authApi";
 import "../assets/css-custom/header.css";
 
 const Header = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [userInfo, setUserInfo] = useState(null);
+
+  // Update userInfo whenever location changes or component mounts
+  useEffect(() => {
+    setUserInfo(getUserInfo());
+  }, [location]);
+
+  const handleLogout = async () => {
+    try {
+      await logoutUser();
+    } catch (err) {
+      // still clear tokens even if logout call fails
+    } finally {
+      clearTokens();
+      setUserInfo(null);
+      navigate("/dang-nhap");
+    }
+  };
+
   return (
     <nav
       className="navbar navbar-expand-lg custom-navbar sticky-top px-4"
@@ -56,25 +78,52 @@ const Header = () => {
                 Nghề nghiệp phù hợp
               </Link>
             </li>
-            <li className="nav-item">
-              <Link className="nav-link" to="/quan-tri">
-                Trang quản trị
-              </Link>
-            </li>
-            <li className="nav-item">
-              <a href="http://127.0.0.1:8000/admin/">Admin</a>
-            </li>
+            {userInfo && userInfo.role === "user" && (
+              <li className="nav-item">
+                <Link className="nav-link" to="/trang-nguoi-dung">
+                  Trang người dùng
+                </Link>
+              </li>
+            )}
+            {userInfo && userInfo.role === "admin" && (
+              <>
+                <li className="nav-item">
+                  <Link className="nav-link" to="/trang-quan-tri">
+                    Trang quản trị
+                  </Link>
+                </li>
+                <li className="nav-item">
+                  <a href="http://127.0.0.1:8000/admin/">Admin</a>
+                </li>
+              </>
+            )}
           </ul>
         </div>
 
-        {/* Các nút xác thực */}
+        {/* Nút xác thực hoặc User Menu */}
         <div className="d-flex align-items-center gap-2">
-          <button className="btn btn-outline-gold">
-            <a href="/dang-nhap">Đăng nhập</a>
-          </button>
-          <button className="btn btn-gold">
-            <a href="/dang-ky">Đăng ký</a>
-          </button>
+          {userInfo ? (
+            <>
+              <span className="text-white small">
+                Xin chào, {userInfo.fullName}
+              </span>
+              <button
+                className="btn btn-outline-gold btn-sm"
+                onClick={handleLogout}
+              >
+                Đăng xuất
+              </button>
+            </>
+          ) : (
+            <>
+              <Link className="btn btn-outline-gold" to="/dang-nhap">
+                Đăng nhập
+              </Link>
+              <Link className="btn btn-gold" to="/dang-ky">
+                Đăng ký
+              </Link>
+            </>
+          )}
         </div>
       </div>
     </nav>

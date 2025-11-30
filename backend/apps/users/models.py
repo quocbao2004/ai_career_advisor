@@ -93,6 +93,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     objects = UserManager()
 
     USERNAME_FIELD = 'email'
+    PASSWORD_FIELD = 'password_hash'
     REQUIRED_FIELDS = ['full_name']
 
     class Meta:
@@ -102,6 +103,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return self.email
+
     @property
     def password(self):
         return self.password_hash

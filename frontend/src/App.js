@@ -2,6 +2,7 @@ import "./App.css";
 import { Routes, Route } from "react-router-dom";
 import HomePage from "./pages/HomePage";
 import AdminDashboard from "./pages/AdminDashboard";
+import UserDashboard from "./pages/UserDashboard";
 import QuizSelection from "./pages/QuizSelection";
 import MBTIQuiz from "./pages/MBTIQuiz";
 import HollandQuiz from "./pages/HollandQuiz";
@@ -9,6 +10,8 @@ import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import ForgotPassWordPage from "./pages/ForgotPasswordPage";
 import MainLayout from "./components/layout/MainLayout";
+import ProtectedRoute from "./components/ProtectedRoute";
+import RoleBasedRedirect from "./components/RoleBasedRedirect";
 import "./assets/css-custom/main.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
 
@@ -18,25 +21,36 @@ function App() {
   return (
     <div className="App">
       <GoogleOAuthProvider clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID}>
-          <MainLayout>
-        <Routes>
-          {/* Common */}
-          <Route path="/" element={<HomePage />} />
-          <Route path="/quan-tri" element={<AdminDashboard />} />
+        <MainLayout>
+          <Routes>
+            {/* Home */}
+            <Route path="/" element={<HomePage />} />
 
-          {/* Auth */}
-          <Route path="/dang-nhap" element={<LoginPage />} />
-          <Route path="/dang-ky" element={<RegisterPage />} />
-          <Route path="/quen-mat-khau" element={<ForgotPassWordPage />} />
+            {/* Auth */}
+            <Route path="/dang-nhap" element={<LoginPage />} />
+            <Route path="/dang-ky" element={<RegisterPage />} />
+            <Route path="/quen-mat-khau" element={<ForgotPassWordPage />} />
 
-          {/* Quizz */}
-          <Route path="/trac-nghiem" element={<QuizSelection />} />
-          <Route path="/trac-nghiem/mbti" element={<MBTIQuiz />} />
-          <Route path="/trac-nghiem/holland" element={<HollandQuiz />} />
-        </Routes>
-      </MainLayout>
+            {/* Redirect dựa trên role */}
+            <Route path="/dashboard" element={<RoleBasedRedirect />} />
+
+            {/* Dashboards - Protected */}
+            <Route
+              path="/trang-nguoi-dung"
+              element={<ProtectedRoute element={<UserDashboard />} requiredRole="user" />}
+            />
+            <Route
+              path="/trang-quan-tri"
+              element={<ProtectedRoute element={<AdminDashboard />} requiredRole="admin" />}
+            />
+
+            {/* Quiz Routes */}
+            <Route path="/trac-nghiem" element={<QuizSelection />} />
+            <Route path="/trac-nghiem/mbti" element={<MBTIQuiz />} />
+            <Route path="/trac-nghiem/holland" element={<HollandQuiz />} />
+          </Routes>
+        </MainLayout>
       </GoogleOAuthProvider>
-      
     </div>
   );
 }

@@ -31,12 +31,26 @@ const LoginPage = () => {
     setLoading(true);
     setError("");
 
+    if (!formData.email || !formData.password) {
+      setError("Email và mật khẩu là bắt buộc");
+      setLoading(false);
+      return;
+    }
+
     try {
       const result = await loginUser(formData.email, formData.password);
+      
       if (result.success) {
         saveTokens(result.access, result.refresh);
         saveUserInfo(result.user);
-        navigate("/");
+        // Điều hướng dựa trên role
+        if (result.user.role === "admin") {
+          navigate("/trang-quan-tri", { replace: true });
+        } else if (result.user.role === "user") {
+          navigate("/trang-nguoi-dung", { replace: true });
+        } else {
+          navigate("/", { replace: true });
+        }
       } else {
         setError(result.message || "Đăng nhập thất bại");
       }
@@ -56,7 +70,14 @@ const LoginPage = () => {
       if (result.success) {
         saveTokens(result.access, result.refresh);
         saveUserInfo(result.user);
-        navigate("/");
+        // Điều hướng dựa trên role
+        if (result.user.role === "admin") {
+          navigate("/trang-quan-tri", { replace: true });
+        } else if (result.user.role === "user") {
+          navigate("/trang-nguoi-dung", { replace: true });
+        } else {
+          navigate("/", { replace: true });
+        }
       } else {
         setError(result.message || "Lỗi đăng nhập Google");
       }
@@ -95,7 +116,6 @@ const LoginPage = () => {
               placeholder="name@gmail.com"
               value={formData.email}
               onChange={handleChange}
-              required
               disabled={loading}
             />
           </div>
@@ -111,7 +131,6 @@ const LoginPage = () => {
               placeholder="Mật khẩu"
               value={formData.password}
               onChange={handleChange}
-              required
               disabled={loading}
             />
           </div>

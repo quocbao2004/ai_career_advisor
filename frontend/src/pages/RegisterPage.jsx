@@ -43,6 +43,12 @@ const RegisterPage = () => {
     setLoading(true);
     setError("");
 
+    if (!formData.fullname || !formData.email || !formData.password || !formData.confirmPassword) {
+      setError("Vui lòng điền đầy đủ thông tin");
+      setLoading(false);
+      return;
+    }
+
     if (formData.password !== formData.confirmPassword) {
       setError("Mật khẩu xác nhận không khớp!");
       setLoading(false);
@@ -189,7 +195,6 @@ const RegisterPage = () => {
                 placeholder="Họ và tên"
                 value={formData.fullname}
                 onChange={handleChange}
-                required
                 disabled={loading}
               />
             </div>
@@ -205,7 +210,6 @@ const RegisterPage = () => {
                 placeholder="Email"
                 value={formData.email}
                 onChange={handleChange}
-                required
                 disabled={loading}
               />
             </div>
@@ -221,7 +225,6 @@ const RegisterPage = () => {
                 placeholder="Mật khẩu"
                 value={formData.password}
                 onChange={handleChange}
-                required
                 disabled={loading}
               />
             </div>
@@ -237,7 +240,6 @@ const RegisterPage = () => {
                 placeholder="Xác nhận mật khẩu"
                 value={formData.confirmPassword}
                 onChange={handleChange}
-                required
                 disabled={loading}
               />
             </div>
@@ -336,7 +338,6 @@ const RegisterPage = () => {
               onChange={handleOtpChange}
               maxLength="6"
               inputMode="numeric"
-              required
               disabled={loading}
             />
           </div>
