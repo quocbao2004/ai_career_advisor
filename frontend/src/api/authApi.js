@@ -1,5 +1,5 @@
 
-const API_BASE_URL = "http://localhost:8000/api/auths";
+const API_BASE_URL = "http://localhost:8000/api/auth";
 
 export const registerUser = async (email, password, full_name) => {
   try {
@@ -66,6 +66,45 @@ export const googleLogin = async (token) => {
   }
 };
 
+export const forgotPassword = async (email) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/quen-mat-khau/`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email }),
+    });
+    return await response.json();
+  } catch (error) {
+    return { success: false, message: "Lỗi kết nối: " + error.message };
+  }
+};
+
+export const verifyResetOTP = async (email, otp) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/xac-thuc-otp-reset/`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, otp }),
+    });
+    return await response.json();
+  } catch (error) {
+    return { success: false, message: "Lỗi kết nối: " + error.message };
+  }
+};
+
+export const resetPassword = async (email, newPassword) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/dat-lai-mat-khau/`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, new_password: newPassword }),
+    });
+    return await response.json();
+  } catch (error) {
+    return { success: false, message: "Lỗi kết nối: " + error.message };
+  }
+};
+
 export const saveTokens = (accessToken, refreshToken) => {
   localStorage.setItem("access_token", accessToken);
   localStorage.setItem("refresh_token", refreshToken);
@@ -77,17 +116,43 @@ export const getRefreshToken = () => localStorage.getItem("refresh_token");
 export const clearTokens = () => {
   localStorage.removeItem("access_token");
   localStorage.removeItem("refresh_token");
+  localStorage.removeItem("user_info");
+  cachedUserInfo = null;
 };
 
 export const isAuthenticated = () => !!getAccessToken();
 
+let cachedUserInfo = null;
+
+const parseUserInfo = () => {
+  try {
+    const user = localStorage.getItem("user_info");
+    if (!user || user === "undefined") {
+      return null;
+    }
+    return JSON.parse(user);
+  } catch (error) {
+    localStorage.removeItem("user_info");
+    return null;
+  }
+};
+
 export const getUserInfo = () => {
-  const user = localStorage.getItem("user_info");
-  return user ? JSON.parse(user) : null;
+  if (cachedUserInfo === null) {
+    cachedUserInfo = parseUserInfo();
+  }
+  return cachedUserInfo;
 };
 
 export const saveUserInfo = (user) => {
-  localStorage.setItem("user_info", JSON.stringify(user));
+  try {
+    if (user && typeof user === "object") {
+      localStorage.setItem("user_info", JSON.stringify(user));
+      cachedUserInfo = user;
+    }
+  } catch (error) {
+    // Silently fail to avoid breaking the app
+  }
 };
 
 export const fetchWithAuth = async (url, options = {}) => {
@@ -110,5 +175,16 @@ export const fetchWithAuth = async (url, options = {}) => {
     return response;
   } catch (error) {
     throw error;
+  }
+};
+
+export const logoutUser = async () => {
+  try {
+    const response = await fetchWithAuth(`${API_BASE_URL}/dang-xuat/`, {
+      method: "POST",
+    });
+    return await response.json();
+  } catch (error) {
+    return { success: false, message: "Lỗi kết nối" };
   }
 };

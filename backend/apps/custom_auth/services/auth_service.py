@@ -1,23 +1,32 @@
 from django.contrib.auth.hashers import check_password
 from rest_framework_simplejwt.tokens import RefreshToken
-from auths.repositories.auth_repository import AuthRepository
-from auths.services.email_service import EmailService
+from apps.custom_auth.repositories.auth_repository import AuthRepository
+from apps.custom_auth.services.email_service import EmailService
 from django.core.cache import cache
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class AuthService:
 
     @staticmethod
     def login(email: str, password: str):
-        user = AuthRepository.get_user_by_email(email)
-
-        if not user:
+        # Luôn lấy user fresh từ database, không dùng cache
+        from apps.users.models import User
+        
+        try:
+            user = User.objects.get(email=email)
+        except User.DoesNotExist:
             return None, "Email không tồn tại"
 
         if not check_password(password, user.password_hash):
             return None, "Mật khẩu không đúng"
 
         refresh = RefreshToken.for_user(user)
+
+        # Debug log
+        logger.info(f"Login successful for {email}, role: {user.role}")
 
         return {
             "access": str(refresh.access_token),
@@ -26,7 +35,7 @@ class AuthService:
                 "id": str(user.id),
                 "email": user.email,
                 "fullName": user.full_name,
-                "role": user.role
+                "role": user.role or "user"
             }
         }, None
 
@@ -68,6 +77,8 @@ class AuthService:
 
         refresh = RefreshToken.for_user(user)
 
+        # Xóa cache để force reload user từ database lần sau
+        cache.delete(f"user_{email}")
         cache.delete(f"pending_register_{email}")
         cache.delete(f"otp_{email}")
 
@@ -78,7 +89,7 @@ class AuthService:
                 "id": str(user.id),
                 "email": user.email,
                 "fullName": user.full_name,
-                "role": user.role
+                "role": user.role or "user"
             }
         }, None
 
@@ -92,9 +103,11 @@ class AuthService:
 
     @staticmethod
     def google_login(email: str, full_name: str, **extra_fields):
-        user = AuthRepository.get_user_by_email(email)
+        from apps.users.models import User
         
-        if not user:
+        try:
+            user = User.objects.get(email=email)
+        except User.DoesNotExist:
             user, error = AuthRepository.create_user(
                 email=email,
                 password="",
@@ -107,6 +120,8 @@ class AuthService:
 
         refresh = RefreshToken.for_user(user)
 
+        logger.info(f"Google login successful for {email}, role: {user.role}")
+
         return {
             "access": str(refresh.access_token),
             "refresh": str(refresh),
@@ -114,6 +129,67 @@ class AuthService:
                 "id": str(user.id),
                 "email": user.email,
                 "fullName": user.full_name,
-                "role": user.role
+                "role": user.role or "user"
             }
         }, None
+
+    @staticmethod
+    def request_password_reset(email: str):
+        user = AuthRepository.get_user_by_email(email)
+        
+        if not user:
+            return None, "Email không tồn tại"
+        
+        EmailService.send_otp(email)
+        cache.set(f"pending_reset_{email}", email, timeout=600)
+        
+        return {"email": email}, None
+
+    @staticmethod
+    def verify_otp_for_reset(email: str, otp: str):
+        if not cache.get(f"pending_reset_{email}"):
+            return None, "Email không được tìm thấy trong phiên khôi phục"
+        
+        if not EmailService.verify_otp(email, otp):
+            return None, "OTP không đúng hoặc đã hết hạn"
+        
+        cache.set(f"reset_verified_{email}", email, timeout=600)
+        return {"email": email}, None
+
+    @staticmethod
+    def reset_password(email: str, new_password: str):
+        if len(new_password) < 8:
+            return None, "Mật khẩu phải có ít nhất 8 ký tự"
+        
+        if not cache.get(f"reset_verified_{email}"):
+            return None, "Vui lòng xác nhận OTP trước"
+        
+        from apps.users.models import User
+        
+        try:
+            user = User.objects.get(email=email)
+        except User.DoesNotExist:
+            return None, "Tài khoản không tồn tại"
+        
+        try:
+            user.set_password(new_password)
+            user.save()
+            
+            # Xóa cache để force reload user từ database lần sau
+            cache.delete(f"user_{email}")
+            
+            cache.delete(f"reset_verified_{email}")
+            cache.delete(f"pending_reset_{email}")
+            cache.delete(f"otp_{email}")
+            return {"success": True, "message": "Mật khẩu đã được đặt lại."}, None
+        except Exception as e:
+            return None, str(e)
+
+    @staticmethod
+    def logout(email: str):
+        cache.delete(f"user_{email}")
+        cache.delete(f"otp_{email}")
+        cache.delete(f"pending_reset_{email}")
+        cache.delete(f"reset_verified_{email}")
+        cache.delete(f"pending_register_{email}")
+        return {"success": True}
