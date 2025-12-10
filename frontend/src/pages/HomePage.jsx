@@ -1,12 +1,12 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import GlassCard from "../components/common/GlassCard";
-import CountUp from "../components/common/CountUp"; // Tận dụng component đếm số
+import CountUp from "../components/common/CountUp";
 import UserAvt from "../assets/img/image-removebg-preview-avt-user-1.png";
 import Career from "../assets/img/image-removebg-preview-career.png";
 import "../assets/css-custom/homepage.css";
 
-// --- DỮ LIỆU TĨNH (Đưa ra ngoài để component gọn hơn) ---
+//  DỮ LIỆU TĨNH 
 const features = [
   {
     icon: "📝",

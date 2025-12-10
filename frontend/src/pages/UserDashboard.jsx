@@ -83,7 +83,7 @@ const UserDashboard = () => {
                   Các hành động nhanh
                 </h5>
                 <div className="row g-3">
-                  <div className="col-md-3">
+                  <div className="col-md-4">
                     <button
                       className="btn btn-outline-primary w-100"
                       onClick={() => navigate("/trac-nghiem")}
@@ -92,19 +92,13 @@ const UserDashboard = () => {
                       Bài trắc nghiệm
                     </button>
                   </div>
-                  <div className="col-md-3">
+                  <div className="col-md-4">
                     <button className="btn btn-outline-secondary w-100">
                       <i className="bi bi-mortarboard me-2"></i>
                       Khóa học
                     </button>
                   </div>
-                  <div className="col-md-3">
-                    <button className="btn btn-outline-info w-100">
-                      <i className="bi bi-person-check me-2"></i>
-                      Tìm mentor
-                    </button>
-                  </div>
-                  <div className="col-md-3">
+                  <div className="col-md-4">
                     <button className="btn btn-outline-warning w-100">
                       <i className="bi bi-gear me-2"></i>
                       Cài đặt

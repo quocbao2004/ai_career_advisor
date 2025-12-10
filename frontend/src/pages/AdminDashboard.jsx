@@ -68,7 +68,7 @@ const AdminDashboard = () => {
       {/* 1. Hero Section */}
       <section className="admin-hero">
         <div>
-          <h1>Dashboard Thống Kê</h1>
+          <h1>Thống Kê</h1>
           <p style={{ opacity: 0.8 }}>
             Tổng quan hiệu suất hệ thống thời gian thực
           </p>
@@ -89,7 +89,6 @@ const AdminDashboard = () => {
       {/* 3. Main Charts Area */}
       <section className="admin-analysis-charts">
         <div className="analysis-chart-row">
-          {/* Chart 1: Tái sử dụng GlassCard */}
           <GlassCard style={{ padding: "24px" }}>
             <h3 style={{ margin: "0 0 20px 0" }}>Lưu lượng truy cập</h3>
             <div className="chart-container">

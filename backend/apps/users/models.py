@@ -168,6 +168,7 @@ class PersonalityTest(models.Model):
         db_table = 'personality_tests'
         verbose_name = "Personality Test"
         verbose_name_plural = "Personality Tests"
+        ordering = ['-taken_at']
 
     def __str__(self):
         return f"{self.user.full_name} - {self.test_type}"

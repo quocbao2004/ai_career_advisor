@@ -30,5 +30,6 @@ urlpatterns = [
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 
     path("api/auth/", include("apps.custom_auth.urls")),
+    path("api/assessments/", include("apps.assessments.urls")),
 
 ]

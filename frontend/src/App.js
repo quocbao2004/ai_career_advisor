@@ -4,8 +4,7 @@ import HomePage from "./pages/HomePage";
 import AdminDashboard from "./pages/AdminDashboard";
 import UserDashboard from "./pages/UserDashboard";
 import QuizSelection from "./pages/QuizSelection";
-import MBTIQuiz from "./pages/MBTIQuiz";
-import HollandQuiz from "./pages/HollandQuiz";
+import QuizGame from "./pages/QuizGame";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import ForgotPassWordPage from "./pages/ForgotPasswordPage";
@@ -37,7 +36,7 @@ function App() {
             {/* Dashboards - Protected */}
             <Route
               path="/trang-nguoi-dung"
-              element={<ProtectedRoute element={<UserDashboard />} requiredRole="user" />}
+              element={<ProtectedRoute element={<UserDashboard />}/>}
             />
             <Route
               path="/trang-quan-tri"
@@ -46,8 +45,7 @@ function App() {
 
             {/* Quiz Routes */}
             <Route path="/trac-nghiem" element={<QuizSelection />} />
-            <Route path="/trac-nghiem/mbti" element={<MBTIQuiz />} />
-            <Route path="/trac-nghiem/holland" element={<HollandQuiz />} />
+            <Route path="/trac-nghiem/:type" element={<QuizGame />} />
           </Routes>
         </MainLayout>
       </GoogleOAuthProvider>
