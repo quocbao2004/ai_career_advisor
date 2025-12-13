@@ -14,7 +14,7 @@ from pathlib import Path
 import sys
 from decouple import config
 import os
-
+from datetime import timedelta
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -55,11 +55,11 @@ INSTALLED_APPS = [
     # import
     'corsheaders',
     'dj_rest_auth',
-    'social_django',
     'pgvector.django',
     'rest_framework',
     'rest_framework_simplejwt',
     'rest_framework.authtoken',
+    # 'apps.ai.apps.AiConfig'
 
     #"unfold.contrib.filters",  # Tùy chọn thêm bộ lọc
     #"unfold.contrib.forms",    # Tùy chọn thêm form đẹp
@@ -173,6 +173,8 @@ SIMPLE_JWT = {
     'AUTH_COOKIE_HTTP_ONLY': True,
     'AUTH_COOKIE_PATH': '/',
     'AUTH_COOKIE_SAMESITE': 'Lax',
+    'ACCESS_TOKEN_LIFETIME': timedelta(days=5), 
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
 }
 
 # config email

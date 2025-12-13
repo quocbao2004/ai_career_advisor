@@ -63,6 +63,9 @@ class UserManager(BaseUserManager):
             raise ValueError('Superuser must have is_superuser=True.')
 
         return self.create_user(email, password, **extra_fields)
+    
+    def get_all_users(self):
+        return User.objects.filter(is_active=True)
 
 
 class User(AbstractBaseUser, PermissionsMixin):
@@ -114,7 +117,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 
 class MasterSkill(models.Model):
     id=models.AutoField(primary_key=True)
-    skill_name = models.CharField(max_length=100, unique=True)
+    skill_name = models.TextField(unique=True)
     type = models.CharField(max_length=50, default='hard_skill')
     description = models.TextField(blank=True, null=True)
 

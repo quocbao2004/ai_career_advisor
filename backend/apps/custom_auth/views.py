@@ -2,7 +2,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from apps.custom_auth.services.auth_service import AuthService
-from utils.permissions import IsUser
+from utils.permissions import IsAdminOrUser
 import jwt
 import logging
 
@@ -296,7 +296,7 @@ class ResetPasswordView(APIView):
 
 
 class LogoutView(APIView):
-    permission_classes = [IsUser]
+    permission_classes = [IsAdminOrUser]
 
     def post(self, request):
         try:

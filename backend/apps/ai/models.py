@@ -13,7 +13,7 @@ class KnowledgeBase(models.Model):
     content_type = models.CharField(max_length=50, choices=ContentType.choices)
     reference_id = models.CharField(max_length=100, blank=True, null=True)
     content_text = models.TextField()
-    embedding = VectorField(dimensions=1536)
+    embedding = VectorField(dimensions=768)
     metadata = models.JSONField(default=dict, blank=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
@@ -62,7 +62,7 @@ class ChatMessage(models.Model):
     id = models.UUIDField(primary_key=True,default=uuid.uuid4,editable=False)
     session = models.ForeignKey(ChatSession,on_delete=models.CASCADE,related_name='messages')
     role = models.CharField(max_length=10, choices=ROLE_CHOICES)
-    content = models.TextField()  # Nội dung chat
+    content = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
     feedback_score = models.SmallIntegerField(null=True, blank=True)
 
