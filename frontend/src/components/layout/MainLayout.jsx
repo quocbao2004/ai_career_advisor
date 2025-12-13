@@ -2,7 +2,7 @@ import React, { lazy, Suspense } from "react";
 import NeuralNetworkBackground from "../background/NeuralNetworkBackground";
 import Header from "../header";
 import Footer from "../footer";
-const AIChat = lazy(() => import("../AIChat"));
+// const AIChat = lazy(() => import("../../pages/AIChat"));
 
 const MainLayout = ({ children }) => {
   return (
@@ -19,9 +19,7 @@ const MainLayout = ({ children }) => {
         }}
       >
         <Header />
-        <Suspense fallback={null}>
-          <AIChat />
-        </Suspense>
+        <Suspense fallback={null}>{/* <AIChat /> */}</Suspense>
         <main style={{ flex: 1 }}>{children}</main>
         <Footer />
       </div>

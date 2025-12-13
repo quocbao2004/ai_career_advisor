@@ -1,0 +1,41 @@
+.user-container {
+  padding: 20px;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.user-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+}
+
+.user-table th,
+.user-table td {
+  padding: 12px 15px;
+  border: 1px solid #ddd;
+  text-align: left;
+}
+
+.user-table th {
+  background-color: #009879;
+  color: #ffffff;
+}
+
+.user-table tr:nth-child(even) {
+  background-color: #f3f3f3;
+}
+
+.btn-delete {
+  background-color: #ff4d4d;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.btn-delete:hover {
+  background-color: #ff1a1a;
+}

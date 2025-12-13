@@ -92,9 +92,6 @@ const Header = () => {
                     Trang quản trị
                   </Link>
                 </li>
-                <li className="nav-item">
-                  <a href="http://127.0.0.1:8000/admin/">Admin</a>
-                </li>
               </>
             )}
           </ul>
