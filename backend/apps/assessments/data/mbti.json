@@ -1,0 +1,1067 @@
+[
+  {
+    "id": 1,
+    "question": "Trong một buổi tiệc, bạn sẽ:",
+    "category": "EI",
+    "options": [
+      {
+        "text": "Thoải mái trò chuyện với tất cả mọi người, kể cả người lạ",
+        "value": "E"
+      },
+      {
+        "text": "Chỉ tương tác với những người bạn quen",
+        "value": "I"
+      }
+    ]
+  },
+  {
+    "id": 2,
+    "question": "Bạn thiên về:",
+    "category": "SN",
+    "options": [
+      {
+        "text": "Thực tế hơn là suy đoán",
+        "value": "S"
+      },
+      {
+        "text": "Suy đoán hơn là thực tế",
+        "value": "N"
+      }
+    ]
+  },
+  {
+    "id": 3,
+    "question": "Điều gì khiến bạn cảm thấy tệ hơn?",
+    "category": "SN",
+    "options": [
+      {
+        "text": "Đầu óc trên mây, viển vông và phi thực tế",
+        "value": "S"
+      },
+      {
+        "text": "Nhàm chán, đơn điệu",
+        "value": "N"
+      }
+    ]
+  },
+  {
+    "id": 4,
+    "question": "Bạn thấy ấn tượng hơn bởi:",
+    "category": "TF",
+    "options": [
+      {
+        "text": "Nguyên lý, nguyên tắc",
+        "value": "T"
+      },
+      {
+        "text": "Cảm xúc, tình cảm",
+        "value": "F"
+      }
+    ]
+  },
+  {
+    "id": 5,
+    "question": "Bạn dễ bị thuyết phục hơn bởi những sự việc:",
+    "category": "TF",
+    "options": [
+      {
+        "text": "Logic, dựa trên bằng chứng và lý lẽ",
+        "value": "T"
+      },
+      {
+        "text": "Cảm động, thiên về cảm xúc và tình người",
+        "value": "F"
+      }
+    ]
+  },
+  {
+    "id": 6,
+    "question": "Bạn thích làm việc:",
+    "category": "JP",
+    "options": [
+      {
+        "text": "Với thời hạn (deadline) rõ ràng",
+        "value": "J"
+      },
+      {
+        "text": "Tùy hứng, linh hoạt",
+        "value": "P"
+      }
+    ]
+  },
+  {
+    "id": 7,
+    "question": "Khi lựa chọn, bạn thường:",
+    "category": "JP",
+    "options": [
+      {
+        "text": "Xem xét kỹ lưỡng từ nhiều khía cạnh",
+        "value": "J"
+      },
+      {
+        "text": "Tin vào suy đoán và linh cảm của mình",
+        "value": "P"
+      }
+    ]
+  },
+  {
+    "id": 8,
+    "question": "Tại các buổi gặp mặt, bạn sẽ:",
+    "category": "EI",
+    "options": [
+      {
+        "text": "Muốn tận hưởng bữa tiệc và ở lại đến cuối cùng",
+        "value": "E"
+      },
+      {
+        "text": "Nhanh chóng thấy mệt mỏi và muốn ra về sớm",
+        "value": "I"
+      }
+    ]
+  },
+  {
+    "id": 9,
+    "question": "Tuýp người nào sẽ thu hút bạn hơn?",
+    "category": "SN",
+    "options": [
+      {
+        "text": "Người logic và thực tế",
+        "value": "S"
+      },
+      {
+        "text": "Người có khả năng tưởng tượng phong phú",
+        "value": "N"
+      }
+    ]
+  },
+  {
+    "id": 10,
+    "question": "Bạn hứng thú hơn với những sự việc:",
+    "category": "SN",
+    "options": [
+      {
+        "text": "Đã và đang xảy ra",
+        "value": "S"
+      },
+      {
+        "text": "Có khả năng xảy ra",
+        "value": "N"
+      }
+    ]
+  },
+  {
+    "id": 11,
+    "question": "Bạn thường đánh giá người khác dựa trên:",
+    "category": "TF",
+    "options": [
+      {
+        "text": "Quy định, nguyên tắc",
+        "value": "T"
+      },
+      {
+        "text": "Hoàn cảnh cụ thể",
+        "value": "F"
+      }
+    ]
+  },
+  {
+    "id": 12,
+    "question": "Khi tiếp cận người khác, bạn thường đánh giá họ dựa trên góc nhìn nào?",
+    "category": "TF",
+    "options": [
+      {
+        "text": "Khách quan",
+        "value": "T"
+      },
+      {
+        "text": "Chủ quan",
+        "value": "F"
+      }
+    ]
+  },
+  {
+    "id": 13,
+    "question": "Bạn thường là người:",
+    "category": "JP",
+    "options": [
+      {
+        "text": "Luôn đúng giờ",
+        "value": "J"
+      },
+      {
+        "text": "Thong thả, linh hoạt về thời gian",
+        "value": "P"
+      }
+    ]
+  },
+  {
+    "id": 14,
+    "question": "Sau khi trải qua một kỳ thi, bạn thường:",
+    "category": "JP",
+    "options": [
+      {
+        "text": "Cảm thấy nhẹ nhõm và bắt đầu lên lịch đi chơi",
+        "value": "P"
+      },
+      {
+        "text": "Lo lắng về kết quả sẽ đạt được",
+        "value": "J"
+      }
+    ]
+  },
+  {
+    "id": 15,
+    "question": "Trong nhóm, bạn thường là người:",
+    "category": "EI",
+    "options": [
+      {
+        "text": "Luôn nắm bắt thông tin kịp thời",
+        "value": "E"
+      },
+      {
+        "text": "Biết thông tin muộn hơn",
+        "value": "I"
+      }
+    ]
+  },
+  {
+    "id": 16,
+    "question": "Cách bạn giải quyết những công việc thường ngày là:",
+    "category": "SN",
+    "options": [
+      {
+        "text": "Làm theo cách thông thường",
+        "value": "S"
+      },
+      {
+        "text": "Làm theo cách của riêng mình",
+        "value": "N"
+      }
+    ]
+  },
+  {
+    "id": 17,
+    "question": "Theo bạn, các nhà văn nên:",
+    "category": "SN",
+    "options": [
+      {
+        "text": "Viết chính xác những gì họ nghĩ, diễn đạt một cách rõ ràng, nghĩa trên mặt chữ",
+        "value": "S"
+      },
+      {
+        "text": "Diễn đạt bằng biện pháp so sánh, liên tưởng, ví von thâm sâu",
+        "value": "N"
+      }
+    ]
+  },
+  {
+    "id": 18,
+    "question": "Điều gì thu hút bạn hơn?",
+    "category": "TF",
+    "options": [
+      {
+        "text": "Tính nhất quán trong tư tưởng",
+        "value": "T"
+      },
+      {
+        "text": "Mối quan hệ hài hòa giữa người với người",
+        "value": "F"
+      }
+    ]
+  },
+  {
+    "id": 19,
+    "question": "Bạn cảm thấy thoải mái hơn khi đưa ra nhận xét:",
+    "category": "TF",
+    "options": [
+      {
+        "text": "Dựa trên logic",
+        "value": "T"
+      },
+      {
+        "text": "Dựa trên quan điểm, giá trị cá nhân",
+        "value": "F"
+      }
+    ]
+  },
+  {
+    "id": 20,
+    "question": "Bạn thích những điều:",
+    "category": "JP",
+    "options": [
+      {
+        "text": "Theo kế hoạch và ổn định",
+        "value": "J"
+      },
+      {
+        "text": "Linh hoạt và có thể thay đổi",
+        "value": "P"
+      }
+    ]
+  },
+  {
+    "id": 21,
+    "question": "Một phút thật lòng với bản thân nhé. Bạn là người:",
+    "category": "JP",
+    "options": [
+      {
+        "text": "Nghiêm túc, quyết đoán",
+        "value": "J"
+      },
+      {
+        "text": "Dễ tính, thoải mái",
+        "value": "P"
+      }
+    ]
+  },
+  {
+    "id": 22,
+    "question": "Khi nói chuyện điện thoại, bạn:",
+    "category": "EI",
+    "options": [
+      {
+        "text": "Hiếm khi băn khoăn đến những điều mình sẽ nói",
+        "value": "E"
+      },
+      {
+        "text": "Thường chuẩn bị trước những điều mình sẽ nói",
+        "value": "I"
+      }
+    ]
+  },
+  {
+    "id": 23,
+    "question": "Theo bạn, các sự việc và hiện tượng:",
+    "category": "SN",
+    "options": [
+      {
+        "text": "Tự nói lên bản chất của chính nó",
+        "value": "S"
+      },
+      {
+        "text": "Tồn tại để minh họa cho các quy luật, quy tắc khác",
+        "value": "N"
+      }
+    ]
+  },
+  {
+    "id": 24,
+    "question": "Những người có tầm nhìn xa:",
+    "category": "SN",
+    "options": [
+      {
+        "text": "Ở mức độ nào đó, họ thường gây khó chịu cho người khác",
+        "value": "S"
+      },
+      {
+        "text": "Khá thú vị, lôi cuốn",
+        "value": "N"
+      }
+    ]
+  },
+  {
+    "id": 25,
+    "question": "Bạn là người:",
+    "category": "TF",
+    "options": [
+      {
+        "text": "Có cái đầu lạnh",
+        "value": "T"
+      },
+      {
+        "text": "Có trái tim ấm",
+        "value": "F"
+      }
+    ]
+  },
+  {
+    "id": 26,
+    "question": "Bạn cảm thấy tồi tệ hơn khi đối mặt với:",
+    "category": "TF",
+    "options": [
+      {
+        "text": "Sự bất công",
+        "value": "T"
+      },
+      {
+        "text": "Sự tàn nhẫn",
+        "value": "F"
+      }
+    ]
+  },
+  {
+    "id": 27,
+    "question": "Theo bạn, quyết định nên được đưa ra:",
+    "category": "JP",
+    "options": [
+      {
+        "text": "Dựa trên việc cân nhắc và lựa chọn kỹ lưỡng",
+        "value": "J"
+      },
+      {
+        "text": "Thuận theo tự nhiên, nước chảy mây trôi",
+        "value": "P"
+      }
+    ]
+  },
+  {
+    "id": 28,
+    "question": "Khi đi mua sắm, bạn thích cảm giác nào hơn?",
+    "category": "JP",
+    "options": [
+      {
+        "text": "Đã mua được thứ mình muốn",
+        "value": "J"
+      },
+      {
+        "text": "Đang trong quá trình lựa chọn",
+        "value": "P"
+      }
+    ]
+  },
+  {
+    "id": 29,
+    "question": "Trong công ty, bạn là người:",
+    "category": "EI",
+    "options": [
+      {
+        "text": "Khởi xướng các câu chuyện",
+        "value": "E"
+      },
+      {
+        "text": "Đợi người khác khởi xướng rồi tham gia vào",
+        "value": "I"
+      }
+    ]
+  },
+  {
+    "id": 30,
+    "question": "Với những kiến thức, quy luật đã được xã hội công nhận, bạn sẽ:",
+    "category": "SN",
+    "options": [
+      {
+        "text": "Tin tưởng không nghi ngờ",
+        "value": "S"
+      },
+      {
+        "text": "Không ngừng đặt nghi vấn về tính chính xác",
+        "value": "N"
+      }
+    ]
+  },
+  {
+    "id": 31,
+    "question": "Theo bạn, trẻ em thường không:",
+    "category": "SN",
+    "options": [
+      {
+        "text": "Tự mình phát huy hết năng lực",
+        "value": "S"
+      },
+      {
+        "text": "Khai thác tối đa trí tưởng tượng của mình",
+        "value": "N"
+      }
+    ]
+  },
+  {
+    "id": 32,
+    "question": "Khi mua xe hơi, bạn nghĩ yếu tố nào quan trọng hơn?",
+    "category": "TF",
+    "options": [
+      {
+        "text": "Nhu cầu sử dụng",
+        "value": "T"
+      },
+      {
+        "text": "Sở thích cá nhân",
+        "value": "F"
+      }
+    ]
+  },
+  {
+    "id": 33,
+    "question": "Tính cách của bạn nghiêng về:",
+    "category": "TF",
+    "options": [
+      {
+        "text": "Cứng rắn",
+        "value": "T"
+      },
+      {
+        "text": "Mềm mỏng",
+        "value": "F"
+      }
+    ]
+  },
+  {
+    "id": 34,
+    "question": "Khả năng nào đáng khâm phục hơn?",
+    "category": "JP",
+    "options": [
+      {
+        "text": "Tổ chức và làm việc bài bản, có phương pháp, hệ thống",
+        "value": "J"
+      },
+      {
+        "text": "Dễ dàng thích ứng và linh hoạt trong mọi tình huống",
+        "value": "P"
+      }
+    ]
+  },
+  {
+    "id": 35,
+    "question": "Bạn mong muốn điều gì hơn ở cấp trên?",
+    "category": "TF",
+    "options": [
+      {
+        "text": "Chuyên môn xuất sắc",
+        "value": "T"
+      },
+      {
+        "text": "Tư duy cởi mở",
+        "value": "F"
+      }
+    ]
+  },
+  {
+    "id": 36,
+    "question": "Khi đối mặt với những vấn đề mới, bạn thường cảm thấy:",
+    "category": "SN",
+    "options": [
+      {
+        "text": "Hào hứng, tràn đầy năng lượng",
+        "value": "N"
+      },
+      {
+        "text": "Mệt mỏi, nhanh chóng bị hút cạn sức lực",
+        "value": "S"
+      }
+    ]
+  },
+  {
+    "id": 37,
+    "question": "Tính cách của bạn thiên về:",
+    "category": "SN",
+    "options": [
+      {
+        "text": "Thực tế",
+        "value": "S"
+      },
+      {
+        "text": "Mơ mộng",
+        "value": "N"
+      }
+    ]
+  },
+  {
+    "id": 38,
+    "question": "Bạn sẽ quan tâm hơn đến:",
+    "category": "TF",
+    "options": [
+      {
+        "text": "Giá trị thực tế mà một người mang lại",
+        "value": "T"
+      },
+      {
+        "text": "Cảm nhận, suy nghĩ của đối phương",
+        "value": "F"
+      }
+    ]
+  },
+  {
+    "id": 39,
+    "question": "Điều gì làm bạn thoải mái hơn?",
+    "category": "JP",
+    "options": [
+      {
+        "text": "Thống nhất được hướng giải quyết cho một vấn đề (kết quả)",
+        "value": "J"
+      },
+      {
+        "text": "Thảo luận kỹ lưỡng về một vấn đề (quá trình)",
+        "value": "P"
+      }
+    ]
+  },
+  {
+    "id": 40,
+    "question": "Bạn sẽ lựa chọn công việc nào?",
+    "category": "TF",
+    "options": [
+      {
+        "text": "Công việc bạn không thực sự thích nhưng đem lại thu nhập cao",
+        "value": "T"
+      },
+      {
+        "text": "Công việc mà bạn hằng mơ ước nhưng thu nhập trung bình",
+        "value": "F"
+      }
+    ]
+  },
+  {
+    "id": 41,
+    "question": "Bạn thích được điều hướng công việc theo cách:",
+    "category": "JP",
+    "options": [
+      {
+        "text": "Giao việc hàng ngày, từng bước hoàn thành công việc",
+        "value": "J"
+      },
+      {
+        "text": "Giao việc trọn gói, bàn giao 100% sau khi hoàn thành",
+        "value": "P"
+      }
+    ]
+  },
+  {
+    "id": 42,
+    "question": "Bạn thường tìm kiếm những điều:",
+    "category": "JP",
+    "options": [
+      {
+        "text": "Được sắp xếp theo thứ tự rõ ràng",
+        "value": "J"
+      },
+      {
+        "text": "Ngẫu nhiên, tùy hứng",
+        "value": "P"
+      }
+    ]
+  },
+  {
+    "id": 43,
+    "question": "Bạn thường kết giao:",
+    "category": "EI",
+    "options": [
+      {
+        "text": "Với nhiều bạn nhưng không quá thân",
+        "value": "E"
+      },
+      {
+        "text": "Với ít bạn nhưng tình cảm khăng khít",
+        "value": "I"
+      }
+    ]
+  },
+  {
+    "id": 44,
+    "question": "Điều gì ảnh hưởng tới quyết định của bạn nhiều hơn?",
+    "category": "JP",
+    "options": [
+      {
+        "text": "Nguyên tắc, luật lệ",
+        "value": "J"
+      },
+      {
+        "text": "Tình hình thực tế",
+        "value": "P"
+      }
+    ]
+  },
+  {
+    "id": 45,
+    "question": "Bạn thấy hứng thú hơn với việc:",
+    "category": "SN",
+    "options": [
+      {
+        "text": "Sản xuất và phân phối",
+        "value": "S"
+      },
+      {
+        "text": "Thiết kế và nghiên cứu",
+        "value": "N"
+      }
+    ]
+  },
+  {
+    "id": 46,
+    "question": "Bạn thường được tán thưởng vì:",
+    "category": "TF",
+    "options": [
+      {
+        "text": "Là người có tư duy logic",
+        "value": "T"
+      },
+      {
+        "text": "Là người tinh tế, tình cảm",
+        "value": "F"
+      }
+    ]
+  },
+  {
+    "id": 47,
+    "question": "Bạn thấy điều gì giá trị hơn ở bản thân mình?",
+    "category": "TF",
+    "options": [
+      {
+        "text": "Tinh thần kiên định, vững vàng",
+        "value": "T"
+      },
+      {
+        "text": "Sự toàn tâm, cống hiến",
+        "value": "F"
+      }
+    ]
+  },
+  {
+    "id": 48,
+    "question": "Bạn đánh giá cao:",
+    "category": "JP",
+    "options": [
+      {
+        "text": "Tuyên bố cuối cùng, không thay đổi",
+        "value": "J"
+      },
+      {
+        "text": "Tuyên bố mang tính dự kiến, có thể thay đổi",
+        "value": "P"
+      }
+    ]
+  },
+  {
+    "id": 49,
+    "question": "Bạn thấy nhẹ nhõm hơn:",
+    "category": "JP",
+    "options": [
+      {
+        "text": "Sau khi đưa ra quyết định",
+        "value": "J"
+      },
+      {
+        "text": "Trước khi đưa ra quyết định",
+        "value": "P"
+      }
+    ]
+  },
+  {
+    "id": 50,
+    "question": "Bạn đánh giá bản thân là người như thế nào?",
+    "category": "EI",
+    "options": [
+      {
+        "text": "Tôi có thể dễ dàng bắt chuyện với người lạ",
+        "value": "E"
+      },
+      {
+        "text": "Tôi không có hứng thú trò chuyện với người lạ",
+        "value": "I"
+      }
+    ]
+  },
+  {
+    "id": 51,
+    "question": "Bạn có xu hướng tin tưởng vào:",
+    "category": "SN",
+    "options": [
+      {
+        "text": "Kinh nghiệm của mình",
+        "value": "S"
+      },
+      {
+        "text": "Linh cảm của mình",
+        "value": "N"
+      }
+    ]
+  },
+  {
+    "id": 52,
+    "question": "Bạn thường:",
+    "category": "SN",
+    "options": [
+      {
+        "text": "Giải quyết vấn đề một cách thực tế và hiệu quả",
+        "value": "S"
+      },
+      {
+        "text": "Nghĩ ra những giải pháp sáng tạo và độc đáo",
+        "value": "N"
+      }
+    ]
+  },
+  {
+    "id": 53,
+    "question": "Bạn thấy ấn tượng hơn khi tiếp xúc với một người:",
+    "category": "TF",
+    "options": [
+      {
+        "text": "Giàu lý trí",
+        "value": "T"
+      },
+      {
+        "text": "Giàu cảm xúc",
+        "value": "F"
+      }
+    ]
+  },
+  {
+    "id": 54,
+    "question": "Bạn đánh giá tính cách nào cao hơn?",
+    "category": "TF",
+    "options": [
+      {
+        "text": "Sự công bằng",
+        "value": "T"
+      },
+      {
+        "text": "Sự đồng cảm",
+        "value": "F"
+      }
+    ]
+  },
+  {
+    "id": 55,
+    "question": "Theo bạn, mọi chuyện sẽ diễn ra hợp lý hơn nếu:",
+    "category": "JP",
+    "options": [
+      {
+        "text": "Được chuẩn bị trước",
+        "value": "J"
+      },
+      {
+        "text": "Diễn ra tự nhiên",
+        "value": "P"
+      }
+    ]
+  },
+  {
+    "id": 56,
+    "question": "Trong một mối quan hệ:",
+    "category": "JP",
+    "options": [
+      {
+        "text": "Điều gì cũng có thể thương lượng và điều chỉnh lại",
+        "value": "J"
+      },
+      {
+        "text": "Nên để mọi chuyện diễn ra tự nhiên",
+        "value": "P"
+      }
+    ]
+  },
+  {
+    "id": 57,
+    "question": "Khi có số lạ gọi tới điện thoại của bạn, bạn sẽ:",
+    "category": "EI",
+    "options": [
+      {
+        "text": "Nhấc máy ngay để xem ai đang gọi",
+        "value": "E"
+      },
+      {
+        "text": "Chần chừ không nghe máy",
+        "value": "I"
+      }
+    ]
+  },
+  {
+    "id": 58,
+    "question": "Bạn đánh giá cao khả năng của mình hơn khi:",
+    "category": "SN",
+    "options": [
+      {
+        "text": "Đưa ra quyết định dựa trên số liệu thực tế",
+        "value": "S"
+      },
+      {
+        "text": "Đưa ra quyết định dựa trên trực giác và linh cảm",
+        "value": "N"
+      }
+    ]
+  },
+  {
+    "id": 59,
+    "question": "Bạn bị thu hút hơn với điều gì?",
+    "category": "SN",
+    "options": [
+      {
+        "text": "Những nguyên tắc cơ bản",
+        "value": "S"
+      },
+      {
+        "text": "Những ẩn ý sâu xa",
+        "value": "N"
+      }
+    ]
+  },
+  {
+    "id": 60,
+    "question": "Bạn không thích những người:",
+    "category": "TF",
+    "options": [
+      {
+        "text": "Quá cảm xúc (dễ bị tình cảm chi phối)",
+        "value": "T"
+      },
+      {
+        "text": "Quá lý trí (không dễ bị ảnh hưởng bởi yếu tố cảm xúc)",
+        "value": "F"
+      }
+    ]
+  },
+  {
+    "id": 61,
+    "question": "Bạn thuộc tuýp người:",
+    "category": "TF",
+    "options": [
+      {
+        "text": "Mạnh mẽ, quyết đoán, không dễ bị thuyết phục",
+        "value": "T"
+      },
+      {
+        "text": "Mềm mỏng, dễ bị thuyết phục",
+        "value": "F"
+      }
+    ]
+  },
+  {
+    "id": 62,
+    "question": "Trước một chuyến đi chơi, bạn thường:",
+    "category": "JP",
+    "options": [
+      {
+        "text": "Lên lịch trình chi tiết, rõ ràng",
+        "value": "J"
+      },
+      {
+        "text": "Tới đâu hay tới đó",
+        "value": "P"
+      }
+    ]
+  },
+  {
+    "id": 63,
+    "question": "Trong công việc, bạn thường:",
+    "category": "JP",
+    "options": [
+      {
+        "text": "Làm việc theo thói quen",
+        "value": "J"
+      },
+      {
+        "text": "Hay thay đổi, thích thử nghiệm những điều mới",
+        "value": "P"
+      }
+    ]
+  },
+  {
+    "id": 64,
+    "question": "Bạn nghĩ mình là người:",
+    "category": "EI",
+    "options": [
+      {
+        "text": "Cởi mở, dễ gần",
+        "value": "E"
+      },
+      {
+        "text": "Kín tiếng, khó đoán",
+        "value": "I"
+      }
+    ]
+  },
+  {
+    "id": 65,
+    "question": "Khi viết lách, bạn có xu hướng:",
+    "category": "SN",
+    "options": [
+      {
+        "text": "Viết về những điều thực tế (thiên về nghĩa đen)",
+        "value": "S"
+      },
+      {
+        "text": "Viết những áng văn bay bổng (thiên về nghĩa bóng)",
+        "value": "N"
+      }
+    ]
+  },
+  {
+    "id": 66,
+    "question": "Là một cấp trên, bạn cảm thấy điều gì khó hơn?",
+    "category": "TF",
+    "options": [
+      {
+        "text": "Bỏ qua yếu tố cảm xúc, công việc là quan trọng nhất",
+        "value": "F"
+      },
+      {
+        "text": "Hiểu và chia sẻ với cấp dưới",
+        "value": "T"
+      }
+    ]
+  },
+  {
+    "id": 67,
+    "question": "Bạn cảm thấy mình cần trở nên:",
+    "category": "TF",
+    "options": [
+      {
+        "text": "Tình cảm hơn",
+        "value": "T"
+      },
+      {
+        "text": "Lý trí hơn",
+        "value": "F"
+      }
+    ]
+  },
+  {
+    "id": 68,
+    "question": "Điều gì khiến bạn khó chấp nhận hơn?",
+    "category": "TF",
+    "options": [
+      {
+        "text": "Hành động thiếu suy nghĩ, gây ra sai phạm lớn",
+        "value": "T"
+      },
+      {
+        "text": "Sự chỉ trích, phê phán nghiêm khắc quá mức",
+        "value": "F"
+      }
+    ]
+  },
+  {
+    "id": 69,
+    "question": "Bạn sẽ lựa chọn:",
+    "category": "JP",
+    "options": [
+      {
+        "text": "Sự kiện đã được lên kế hoạch trước",
+        "value": "J"
+      },
+      {
+        "text": "Sự kiện chưa được lên kế hoạch trước",
+        "value": "P"
+      }
+    ]
+  },
+  {
+    "id": 70,
+    "question": "Phong cách làm việc của bạn là gì?",
+    "category": "JP",
+    "options": [
+      {
+        "text": "Cân nhắc thận trọng",
+        "value": "J"
+      },
+      {
+        "text": "Tự nhiên, tự phát",
+        "value": "P"
+      }
+    ]
+  },
+  {
+    "id": 71,
+    "question": "Vui lòng lựa chọn giới tính của bạn (Để hiển thị hình ảnh minh hoạ)",
+    "category": "Demographic",
+    "options": [
+      {
+        "text": "Nam",
+        "value": "Male"
+      },
+      {
+        "text": "Nữ",
+        "value": "Female"
+      }
+    ]
+  }
+]

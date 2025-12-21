@@ -9,7 +9,7 @@ const Header = () => {
   const location = useLocation();
   const [userInfo, setUserInfo] = useState(null);
 
-  // Update userInfo whenever location changes or component mounts
+  // Cập nhật userInfo bất cứ khi nào location thay đổi hoặc component mount
   useEffect(() => {
     setUserInfo(getUserInfo());
   }, [location]);
@@ -18,7 +18,7 @@ const Header = () => {
     try {
       await logoutUser();
     } catch (err) {
-      // still clear tokens even if logout call fails
+      // vẫn xóa token ngay cả khi logout call thất bại
     } finally {
       clearTokens();
       setUserInfo(null);
@@ -89,7 +89,7 @@ const Header = () => {
               <>
                 <li className="nav-item">
                   <Link className="nav-link" to="/trang-quan-tri">
-                    Trang quản trị
+                    Thống kê
                   </Link>
                 </li>
               </>

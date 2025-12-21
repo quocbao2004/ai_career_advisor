@@ -13,9 +13,10 @@ const QuizSelection = () => {
       vi: "Trắc Nghiệm Tính Cách MBTI",
       description:
         "Khám phá 16 nhóm tính cách Myers-Briggs. Xác định điểm mạnh, điểm yếu và môi trường làm việc lý tưởng.",
-      icon: "🧠",
-      questions: "12 Câu hỏi",
-      duration: "5 phút",
+      icon: "",
+      questions: "71 Câu hỏi",
+      duration: "12-15 phút",
+      difficulty: "Trung bình",
       color: "#4f46e5",
       btnColor: "linear-gradient(90deg, #4f46e5, #6366f1)",
     },
@@ -25,9 +26,10 @@ const QuizSelection = () => {
       vi: "Trắc Nghiệm Mật Mã Holland",
       description:
         "Xác định 6 nhóm sở thích nghề nghiệp (RIASEC). Tìm ra ngành nghề phù hợp nhất với năng lực tự nhiên.",
-      icon: "🎯",
-      questions: "10 Câu hỏi",
-      duration: "8 phút",
+      icon: "",
+      questions: "18 Câu hỏi",
+      duration: "5-7 phút",
+      difficulty: "Dễ",
       color: "#0891b2",
       btnColor: "linear-gradient(90deg, #0891b2, #06b6d4)",
     },
@@ -35,22 +37,22 @@ const QuizSelection = () => {
 
   const benefits = [
     {
-      icon: "🎯",
+      icon: "",
       title: "Tìm hướng đi",
       desc: "Xác định sở thích và năng lực thực sự",
     },
     {
-      icon: "📈",
+      icon: "",
       title: "Phát triển",
       desc: "Nhận lộ trình học tập cá nhân hóa",
     },
     {
-      icon: "💼",
+      icon: "",
       title: "Việc làm",
       desc: "Khám phá nghề nghiệp phù hợp xu hướng",
     },
     {
-      icon: "🚀",
+      icon: "",
       title: "Tương lai",
       desc: "Xây dựng kế hoạch dài hạn bền vững",
     },
@@ -91,8 +93,11 @@ const QuizSelection = () => {
                 <p className="quiz-desc">{quiz.description}</p>
 
                 <div className="quiz-tags">
-                  <span className="tag">📝 {quiz.questions}</span>
-                  <span className="tag">⏱️ {quiz.duration}</span>
+                  <span className="tag"> {quiz.questions}</span>
+                  <span className="tag"> {quiz.duration}</span>
+                  <span className={`tag difficulty difficulty-${quiz.id}`} style={{ color: quiz.color }}>
+                    {quiz.difficulty}
+                  </span>
                 </div>
 
                 <button

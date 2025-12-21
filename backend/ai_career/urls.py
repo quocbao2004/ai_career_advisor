@@ -21,6 +21,7 @@ from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
 )
+from apps.users import views as users_views
 
 
 urlpatterns = [
@@ -33,9 +34,12 @@ urlpatterns = [
 
     # auth
     path("api/auth/", include("apps.custom_auth.urls")),
+    path("api/assessments/", include("apps.assessments.urls")),
 
     # user
     path("api/users/", include("apps.users.urls")),
+
+    # profile convenience route removed per request
 
     # AI
     path("api/ai/", include("apps.ai.urls")),

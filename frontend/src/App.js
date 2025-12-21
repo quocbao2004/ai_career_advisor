@@ -2,10 +2,8 @@ import "./App.css";
 import { Routes, Route } from "react-router-dom";
 import HomePage from "./pages/HomePage";
 import AdminDashboard from "./pages/AdminDashboard";
-// import UserDashboard from "./pages/UserDashboard";
 import QuizSelection from "./pages/QuizSelection";
-import MBTIQuiz from "./pages/MBTIQuiz";
-import HollandQuiz from "./pages/HollandQuiz";
+import QuizGame from "./pages/QuizGame";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import ForgotPassWordPage from "./pages/ForgotPasswordPage";
@@ -27,7 +25,6 @@ import { GoogleOAuthProvider } from "@react-oauth/google";
 
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { Import } from "lucide-react";
 
 function App() {
   return (
@@ -47,10 +44,7 @@ function App() {
             <Route path="/dashboard" element={<RoleBasedRedirect />} />
 
             {/* Dashboards - Protected */}
-            {/* <Route
-                path="/trang-nguoi-dung"
-                element={<ProtectedRoute element={<UserDashboard />} />}
-              /> */}
+            {/* Profile route removed per request */}
             <Route path="/chat" element={<Chat />} />
             <Route
               path="/trang-quan-tri"
@@ -64,8 +58,8 @@ function App() {
 
             {/* Quiz Routes */}
             <Route path="/trac-nghiem" element={<QuizSelection />} />
-            <Route path="/trac-nghiem/mbti" element={<MBTIQuiz />} />
-            <Route path="/trac-nghiem/holland" element={<HollandQuiz />} />
+            <Route path="/trac-nghiem/mbti" element={<QuizGame />} />
+            <Route path="/trac-nghiem/holland" element={<QuizGame />} />
 
             {/* ADMIN */}
             <Route

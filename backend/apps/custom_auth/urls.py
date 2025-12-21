@@ -1,15 +1,7 @@
 from django.urls import path
-from apps.custom_auth.views import (
-    LoginView,
-    RegisterView,
-    VerifyOTPView,
-    ResendOTPView,
-    GoogleLoginView,
-    ForgotPasswordView,
-    VerifyResetOTPView,
-    ResetPasswordView,
-    LogoutView,
-)
+from apps.custom_auth.views import (LoginView,RegisterView,
+VerifyOTPView,ResendOTPView,GoogleLoginView,ForgotPasswordView,
+VerifyResetOTPView,ResetPasswordView,LogoutView,)
 
 urlpatterns = [
     path("dang-nhap/", LoginView.as_view(), name="dang-nhap"),
