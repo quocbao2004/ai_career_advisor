@@ -10,6 +10,7 @@ import {
   TrendingUp,
   MoreHorizontal,
   PlusCircle,
+  FileText, // Import thêm icon cho CV
 } from "lucide-react";
 
 import GlassCard from "../components/common/GlassCard";
@@ -18,8 +19,24 @@ import Sparkline from "../components/common/Sparkline";
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
+
+  // --- STATE ---
   const [users, setUsers] = useState([]);
-  const [loadingUsers, setLoadingUsers] = useState(true);
+  const [stats, setStats] = useState({
+    cards: {
+      total_users: 0,
+      new_users_7d: 0,
+      total_careers: 0,
+      total_industries: 0,
+      total_courses: 0,
+      total_cvs: 0,
+    },
+    chart: {
+      labels: [],
+      data: [], // Dữ liệu biểu đồ tháng
+    },
+  });
+  const [loading, setLoading] = useState(true);
 
   // --- 1. CONFIG: CÁC NÚT QUẢN LÝ (MODULES) ---
   const managementModules = [
@@ -28,7 +45,7 @@ const AdminDashboard = () => {
       title: "Cấu hình AI",
       icon: <Bot size={28} />,
       color: "#8b5cf6",
-      path: "/admin/ai-config",
+      path: "/trang-quan-tri/ai-config",
       btnText: "Config AI",
     },
     {
@@ -36,92 +53,133 @@ const AdminDashboard = () => {
       title: "Quản lý Khóa học",
       icon: <BookOpen size={28} />,
       color: "#f59e0b",
-      path: "/admin/courses",
+      path: "/trang-quan-tri/courses",
       btnText: "Xem khóa học",
     },
     {
       id: "careers",
-      title: "Quản lý dữ liệu Nghề nghiệp",
+      title: "Quản lý Nghề nghiệp",
       icon: <Briefcase size={28} />,
       color: "#ec4899",
-      path: "/admin/careers",
+      path: "/trang-quan-tri/careers",
       btnText: "Xem nghề",
     },
     {
       id: "skills",
-      title: "Quản lý dữ liệu kỹ năng",
+      title: "Quản lý Kỹ năng",
       icon: <Layers size={28} />,
       color: "#10b981",
-      path: "/admin/skills",
+      path: "/trang-quan-tri/skills",
       btnText: "Xem Skill",
+    },
+    {
+      id: "industries",
+      title: "Quản lý Ngành",
+      icon: <Layers size={28} />,
+      color: "#b0b910ff",
+      path: "/trang-quan-tri/industries",
+      btnText: "Xem Ngành",
     },
     {
       id: "import",
       title: "Import File Excel",
       icon: <Layers size={28} />,
       color: "#105cb9ff",
-      path: "/admin/import-data",
+      path: "/trang-quan-tri/import-data",
       btnText: "Import File",
     },
     {
       id: "export",
-      title: "Xuất Dữ Liệu Báo Cáo",
+      title: "Xuất Dữ Liệu",
       icon: <Layers size={28} />,
       color: "#6489b6ff",
-      path: "/admin/skills",
-      btnText: "Xuất File",
+      path: "/trang-quan-tri/skills",
+      btnText: "Xuất File",
     },
   ];
 
-  // --- 2. DỮ LIỆU BIỂU ĐỒ GIẢ LẬP ---
+  // --- 2. FETCH DATA (USERS & STATS) ---
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      try {
+        const token = localStorage.getItem("access_token");
+        const config = { headers: { Authorization: `Bearer ${token}` } };
+
+        // Gọi song song 2 API để tiết kiệm thời gian
+        const [usersRes, statsRes] = await Promise.all([
+          axios.get("http://127.0.0.1:8000/api/admin/users/", config),
+          axios.get("http://127.0.0.1:8000/api/admin/dashboard/stats/", config),
+        ]);
+
+        // Set User Data
+        setUsers(usersRes.data.data || usersRes.data);
+
+        // Set Stats Data
+        setStats(statsRes.data);
+      } catch (error) {
+        console.error("Lỗi tải dữ liệu dashboard:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDashboardData();
+  }, []);
+
+  // --- 3. DỮ LIỆU HIỂN THỊ (Map từ state stats) ---
   const systemMetrics = [
     {
-      title: "Người dùng",
-      value: users.length.toString(),
+      title: "Người dùng",
+      value: stats.cards.total_users.toLocaleString(),
       icon: <Users size={20} />,
       color: "#4f46e5",
-      spark: [10, 15, 20, 25, 30],
+      spark: [10, 15, 20, 25, 30], // Sparkline tĩnh hoặc cần API riêng
     },
     {
-      title: "Khóa học",
-      value: "1.2M",
-      icon: <Bot size={20} />,
+      title: "Thành viên mới (7 ngày)",
+      value: `+${stats.cards.new_users_7d}`,
+      icon: <TrendingUp size={20} />,
+      color: "#10b981", // Màu xanh lá growth
+      spark: [2, 5, 3, 8, 10],
+    },
+    {
+      title: "Ngành nghề",
+      value: stats.cards.total_industries.toString(),
+      icon: <Layers size={20} />,
+      color: "#f59e0b",
+      spark: [10, 12, 11, 14, 15],
+    },
+    {
+      title: "Nghề nghiệp (Job)",
+      value: stats.cards.total_careers.toString(),
+      icon: <Briefcase size={20} />,
+      color: "#ec4899",
+      spark: [5, 10, 8, 15, 20],
+    },
+    {
+      title: "Khóa học",
+      value: stats.cards.total_courses.toString(),
+      icon: <BookOpen size={20} />,
       color: "#0891b2",
       spark: [50, 60, 55, 70, 80],
     },
     {
-      title: "Nghề nghiệp",
-      value: "$8,200",
-      icon: <TrendingUp size={20} />,
+      title: "CV đã xử lý",
+      value: stats.cards.total_cvs.toString(),
+      icon: <FileText size={20} />,
       color: "#fbbf24",
       spark: [10, 20, 15, 25, 35],
     },
   ];
 
-  const chartData = useMemo(
-    () => [12, 19, 3, 5, 2, 3, 10, 15, 20, 25, 22, 30],
-    []
-  );
-
-  useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        const token = localStorage.getItem("access_token");
-        const config = { headers: { Authorization: `Bearer ${token}` } };
-        const response = await axios.get(
-          "http://127.0.0.1:8000/api/admin/users/",
-          config
-        );
-        const userList = response.data.data || response.data;
-        setUsers(userList);
-      } catch (error) {
-        console.error("Lỗi tải user:", error);
-      } finally {
-        setLoadingUsers(false);
-      }
-    };
-    fetchUsers();
-  }, []);
+  // Map dữ liệu biểu đồ từ API trả về
+  const chartData = useMemo(() => {
+    // Nếu API trả về mảng rỗng thì dùng mảng mặc định để tránh lỗi UI
+    if (!stats.chart.data || stats.chart.data.length === 0) {
+      return [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+    }
+    return stats.chart.data;
+  }, [stats]);
 
   return (
     <div className="container-fluid py-4 fade-in">
@@ -151,8 +209,11 @@ const AdminDashboard = () => {
           </div>
           {/* Biểu đồ chính */}
           <GlassCard style={{ padding: "20px" }}>
-            <h5 className="fw-bold mb-3">Lưu lượng truy cập hệ thống</h5>
+            <h5 className="fw-bold mb-3">
+              Tăng trưởng người dùng (Theo tháng)
+            </h5>
             <div style={{ height: "180px" }}>
+              {/* Truyền dữ liệu thật vào Sparkline */}
               <Sparkline data={chartData} color="#4f46e5" height={180} />
             </div>
           </GlassCard>
@@ -219,10 +280,14 @@ const AdminDashboard = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {loadingUsers ? (
+                  {loading ? (
                     <tr>
                       <td colSpan="5" className="text-center py-4">
-                        Đang tải dữ liệu...
+                        <div
+                          className="spinner-border text-primary"
+                          role="status"
+                        ></div>
+                        <p className="mt-2 text-muted">Đang tải dữ liệu...</p>
                       </td>
                     </tr>
                   ) : (
@@ -234,11 +299,11 @@ const AdminDashboard = () => {
                           <td className="ps-4">
                             <div className="d-flex align-items-center">
                               <div
-                                className="rounded-circle text-white d-flex justify-content-center align-items-center me-2"
+                                className="rounded-circle bg-secondary text-white d-flex justify-content-center align-items-center me-2"
                                 style={{ width: 32, height: 32 }}
                               >
                                 {user.full_name
-                                  ? user.full_name.charAt(0)
+                                  ? user.full_name.charAt(0).toUpperCase()
                                   : "U"}
                               </div>
                               <span className="fw-bold">
@@ -253,12 +318,14 @@ const AdminDashboard = () => {
                                 user.is_superuser ? "bg-danger" : "bg-primary"
                               }`}
                             >
-                              {user.role || "NULL"}
+                              {user.is_superuser ? "Admin" : "User"}
                             </span>
                           </td>
                           <td>
                             {user.date_joined
-                              ? new Date(user.date_joined).toLocaleDateString()
+                              ? new Date(user.date_joined).toLocaleDateString(
+                                  "vi-VN"
+                                )
                               : "N/A"}
                           </td>
                           <td className="text-end pe-4">

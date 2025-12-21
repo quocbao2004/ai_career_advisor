@@ -37,7 +37,7 @@ const CourseManagement = () => {
     url: "",
     price: "",
     duration_hours: "",
-    level: "Beginner",
+    level: "beginner",
   };
   const [formData, setFormData] = useState(initialFormState);
   const [editId, setEditId] = useState(null);
@@ -117,7 +117,7 @@ const CourseManagement = () => {
       fetchCourses();
     } catch (error) {
       console.error(error);
-      const msg = error.response?.data?.detail || "Có lỗi xảy ra";
+      const msg = error.response?.data?.message || "Có lỗi xảy ra";
       toast.error(msg);
     }
   };
@@ -152,11 +152,11 @@ const CourseManagement = () => {
 
   const getLevelBadgeClass = (level) => {
     switch (level) {
-      case "Beginner":
+      case "beginner":
         return "badge bg-success";
-      case "Intermediate":
+      case "intermediate":
         return "badge bg-warning text-dark";
-      case "Advanced":
+      case "advanced":
         return "badge bg-danger";
       default:
         return "badge bg-secondary";

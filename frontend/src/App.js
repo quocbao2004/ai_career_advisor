@@ -17,6 +17,7 @@ import DataImport from "./pages/DataImport";
 import CourseManagement from "./pages/CourseManagement";
 import MasterSkillManagement from "./pages/MasterSkillManagement";
 import CareerManagement from "./pages/CareerManagement";
+import IndustryManagement from "./pages/IndustryManagement";
 import Chat from "./pages/AIChat";
 
 import "./assets/css-custom/main.css";
@@ -71,10 +72,26 @@ function App() {
               path="/admin/xem-danh-sach-nguoi-dung"
               element={<UserManager />}
             />
-            <Route path="/admin/import-data" element={<DataImport />} />
-            <Route path="/admin/careers" element={<CareerManagement />} />
-            <Route path="/admin/courses" element={<CourseManagement />} />
-            <Route path="/admin/skills" element={<MasterSkillManagement />} />
+            <Route
+              path="/trang-quan-tri/import-data"
+              element={<DataImport />}
+            />
+            <Route
+              path="/trang-quan-tri/careers"
+              element={<CareerManagement />}
+            />
+            <Route
+              path="/trang-quan-tri/courses"
+              element={<CourseManagement />}
+            />
+            <Route
+              path="/trang-quan-tri/skills"
+              element={<MasterSkillManagement />}
+            />
+            <Route
+              path="/trang-quan-tri/industries"
+              element={<IndustryManagement />}
+            />
           </Routes>
         </MainLayout>
         <ToastContainer

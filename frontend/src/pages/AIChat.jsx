@@ -1,234 +1,368 @@
 import React, { useState, useRef, useEffect } from "react";
 import axios from "axios";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import {
+  Send,
+  Plus,
+  MessageSquare,
+  MoreHorizontal,
+  Edit2,
+  Trash2,
+  X,
+  Check,
+  Bot,
+  User,
+  Sparkles,
+} from "lucide-react"; // Import icon xịn
 import "../assets/css-custom/ai-chat.css";
-import Bot from "../assets/img/Gemini_Generated_Image_.png";
 
-const AIChatPage = () => {
-  const [messages, setMessages] = useState([
-    {
-      id: 1,
-      text: "Xin chào! Tôi là AI Career Advisor. Tôi có thể giúp bạn định hướng nghề nghiệp, gợi ý khóa học và sửa CV. Bạn cần tôi giúp gì hôm nay?",
-      sender: "ai",
-      timestamp: new Date(),
-    },
-  ]);
+const AIChat = () => {
+  // --- STATE ---
+  const [sessions, setSessions] = useState([]);
+  const [currentSessionId, setCurrentSessionId] = useState(null);
+  const [messages, setMessages] = useState([]);
   const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true); // Responsive mobile
+
+  // State quản lý Edit/Delete/Model
+  const [selectedModel, setSelectedModel] = useState("gemini-1.5-flash");
+  const [editingSessionId, setEditingSessionId] = useState(null);
+  const [editTitle, setEditTitle] = useState("");
+
+  // Refs & Token
   const messagesEndRef = useRef(null);
+  const token = localStorage.getItem("access_token");
+  const BASE_URL = "http://127.0.0.1:8000/api/ai";
 
-  // URL API
-  const API_URL = "http://127.0.0.1:8000/api/ai/chat/";
+  const AVAILABLE_MODELS = [
+    { id: "gemini-2.5-flash", name: "Gemini 2.5 Flash (Nhanh)" },
+    { id: "gemini-2.5-flash-lite", name: "Gemini 2.5 Flash Lite" },
+  ];
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
-
+  // --- API & LOGIC (Giữ nguyên logic cũ, chỉ cập nhật UI) ---
+  useEffect(() => {
+    fetchSessions();
+  }, []);
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+  useEffect(() => {
+    if (currentSessionId) {
+      fetchSessionMessages(currentSessionId);
+    } else {
+      setMessages([]); // Reset về trống để hiện màn hình Welcome
+    }
+  }, [currentSessionId]);
 
-  const handleSendMessage = async () => {
-    if (!inputValue.trim()) return;
-
-    const userPrompt = inputValue;
-    setInputValue("");
-
-    // Add user message
-    const userMessage = {
-      id: Date.now(),
-      text: userPrompt,
-      sender: "user",
-      timestamp: new Date(),
-    };
-    setMessages((prev) => [...prev, userMessage]);
-    setIsLoading(true);
-
+  const fetchSessions = async () => {
     try {
-      const token = localStorage.getItem("access_token");
-      const response = await axios.post(
-        API_URL,
-        { prompt: userPrompt },
+      const res = await axios.get(`${BASE_URL}/chat/sessions/`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setSessions(res.data.data || res.data);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const fetchSessionMessages = async (sid) => {
+    setIsLoading(true);
+    try {
+      const res = await axios.get(
+        `${BASE_URL}/chat/sessions/${sid}/messages/`,
         {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
+          headers: { Authorization: `Bearer ${token}` },
         }
       );
-
-      const aiResponseText = response.data.response;
-      const aiMessage = {
-        id: Date.now() + 1,
-        text: aiResponseText,
-        sender: "ai",
-        timestamp: new Date(),
-      };
-      setMessages((prev) => [...prev, aiMessage]);
-    } catch (error) {
-      console.error("Lỗi AI:", error);
-      let errorMessageText =
-        "Xin lỗi, hệ thống đang bận. Vui lòng thử lại sau.";
-
-      if (error.response?.status === 401) {
-        errorMessageText = "Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.";
-      }
-
-      const errorMessage = {
-        id: Date.now() + 1,
-        text: errorMessageText,
-        sender: "ai",
-        timestamp: new Date(),
-      };
-      setMessages((prev) => [...prev, errorMessage]);
+      const mapped = res.data.map((m) => ({
+        id: m.id,
+        text: m.content,
+        sender: m.role === "user" ? "user" : "ai",
+      }));
+      setMessages(mapped);
+    } catch (err) {
+      console.error(err);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleKeyPress = (e) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      handleSendMessage();
+  const handleSendMessage = async () => {
+    if (!inputValue.trim()) return;
+    const prompt = inputValue;
+    setInputValue("");
+    setMessages((prev) => [
+      ...prev,
+      { id: Date.now(), text: prompt, sender: "user" },
+    ]);
+    setIsLoading(true);
+
+    try {
+      const res = await axios.post(
+        `${BASE_URL}/chat/message/`,
+        {
+          prompt,
+          session_id: currentSessionId,
+          model: selectedModel,
+        },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      const data = res.data;
+      setMessages((prev) => [
+        ...prev,
+        { id: Date.now() + 1, text: data.response, sender: "ai" },
+      ]);
+
+      if (!currentSessionId && data.new_session_id) {
+        setCurrentSessionId(data.new_session_id);
+        setSessions((prev) => [
+          { id: data.new_session_id, title: data.new_session_title },
+          ...prev,
+        ]);
+      }
+    } catch (err) {
+      setMessages((prev) => [
+        ...prev,
+        { id: Date.now(), text: "⚠️ Lỗi kết nối server.", sender: "ai" },
+      ]);
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  // Hàm render nội dung tin nhắn (để xử lý xuống dòng)
-  const renderMessageContent = (text) => {
-    return text.split("\n").map((str, index, array) => (
-      <React.Fragment key={index}>
-        {str}
-        {index === array.length - 1 ? null : <br />}
-      </React.Fragment>
-    ));
+  // --- ACTIONS: RENAME / DELETE ---
+  const handleRename = async (sid) => {
+    if (!editTitle.trim()) return setEditingSessionId(null);
+    try {
+      await axios.patch(
+        `${BASE_URL}/chat/sessions/${sid}/`,
+        { title: editTitle },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      setSessions((prev) =>
+        prev.map((s) => (s.id === sid ? { ...s, title: editTitle } : s))
+      );
+      setEditingSessionId(null);
+    } catch (e) {
+      alert("Lỗi đổi tên");
+    }
   };
 
+  const handleDelete = async (e, sid) => {
+    e.stopPropagation();
+    if (!window.confirm("Xóa cuộc hội thoại này?")) return;
+    try {
+      await axios.delete(`${BASE_URL}/chat/sessions/${sid}/`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setSessions((prev) => prev.filter((s) => s.id !== sid));
+      if (currentSessionId === sid) setCurrentSessionId(null);
+    } catch (e) {
+      alert("Lỗi xóa");
+    }
+  };
+
+  const scrollToBottom = () =>
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+
+  // --- RENDER ---
   return (
-    <div className="ai-page-wrapper">
-      {/* --- 1. HEADER --- */}
-      <div className="chat-page-header">
-        <div className="header-left">
-          <div className="avatar-circle">
-            <span>✨</span>
-          </div>
-          <div className="header-info">
-            <h5>AI Career Advisor</h5>
-            <div className="header-status">
-              <span className="status-dot"></span>
-              Sử dụng mô hình Gemini 2.5 Flash
-            </div>
-          </div>
+    <div className="chat-layout">
+      {/* --- SIDEBAR --- */}
+      <aside className={`sidebar ${isSidebarOpen ? "open" : "closed"}`}>
+        <div className="sidebar-header">
+          <button
+            className="btn-new-chat"
+            onClick={() => setCurrentSessionId(null)}
+          >
+            <Plus size={18} /> <span>New Chat</span>
+          </button>
         </div>
-        {/* Có thể thêm nút Setting hoặc Menu ở đây nếu cần */}
-      </div>
 
-      {/* --- 2. BODY CHAT --- */}
-      <div className="chat-page-body">
-        <div className="chat-container">
-          {messages.map((message) => (
-            <div key={message.id} className={`message-row ${message.sender}`}>
-              {/* Avatar chỉ hiện cho AI */}
-              {message.sender === "ai" && (
-                <div className="avatar-sm">
-                  <img src={Bot} alt="" />
+        <div className="session-list">
+          <div className="list-label">Gần đây</div>
+          {sessions.map((session) => (
+            <div
+              key={session.id}
+              className={`session-item ${
+                currentSessionId === session.id ? "active" : ""
+              }`}
+              onClick={() => setCurrentSessionId(session.id)}
+            >
+              <MessageSquare size={16} className="session-icon" />
+
+              {editingSessionId === session.id ? (
+                <div className="edit-input-group">
+                  <input
+                    autoFocus
+                    value={editTitle}
+                    onChange={(e) => setEditTitle(e.target.value)}
+                    onClick={(e) => e.stopPropagation()}
+                    onKeyDown={(e) =>
+                      e.key === "Enter" && handleRename(session.id)
+                    }
+                  />
+                  <button
+                    className="icon-btn small check"
+                    onClick={() => handleRename(session.id)}
+                  >
+                    <Check size={14} />
+                  </button>
+                  <button
+                    className="icon-btn small cancel"
+                    onClick={() => setEditingSessionId(null)}
+                  >
+                    <X size={14} />
+                  </button>
                 </div>
-              )}
-
-              <div style={{ maxWidth: "75%" }}>
-                <div
-                  className={`bubble ${
-                    message.sender === "user" ? "user-bubble" : "ai-bubble"
-                  }`}
-                >
-                  <div className="bubble-content">
-                    {renderMessageContent(message.text)}
+              ) : (
+                <>
+                  <span className="session-title">
+                    {session.title || "New Conversation"}
+                  </span>
+                  <div className="session-actions">
+                    <button
+                      className="icon-btn"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setEditingSessionId(session.id);
+                        setEditTitle(session.title);
+                      }}
+                    >
+                      <Edit2 size={14} />
+                    </button>
+                    <button
+                      className="icon-btn delete"
+                      onClick={(e) => handleDelete(e, session.id)}
+                    >
+                      <Trash2 size={14} />
+                    </button>
                   </div>
-                </div>
-                <div
-                  className={`message-time ${
-                    message.sender === "user" ? "text-end" : ""
-                  }`}
-                >
-                  {message.timestamp.toLocaleTimeString("vi-VN", {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })}
-                </div>
-              </div>
+                </>
+              )}
             </div>
           ))}
+        </div>
 
-          {/* Loading Indicator */}
+        {/* User Profile Mini (Optional footer for sidebar) */}
+        <div className="sidebar-footer">
+          <div className="user-mini">
+            <div className="avatar-circle small">
+              <User size={16} />
+            </div>
+            <span>User Account</span>
+          </div>
+        </div>
+      </aside>
+
+      {/* --- MAIN CHAT AREA --- */}
+      <main className="chat-main">
+        {/* HEADER TOOLBAR */}
+        <header className="chat-header">
+          <div className="model-selector-wrapper">
+            <Sparkles size={18} className="sparkle-icon" />
+            <select
+              value={selectedModel}
+              onChange={(e) => setSelectedModel(e.target.value)}
+              className="model-select"
+            >
+              {AVAILABLE_MODELS.map((m) => (
+                <option key={m.id} value={m.id}>
+                  {m.name}
+                </option>
+              ))}
+            </select>
+          </div>
+        </header>
+
+        {/* MESSAGES LIST */}
+        <div className="messages-container">
+          {messages.length === 0 ? (
+            <div className="empty-state">
+              <div className="bot-logo-large">
+                <Bot size={48} />
+              </div>
+              <h3>Tôi có thể giúp gì cho sự nghiệp của bạn?</h3>
+              <p>
+                Hãy hỏi về lộ trình học, review CV, hoặc định hướng nghề nghiệp.
+              </p>
+              <div className="suggestions">
+                <button
+                  onClick={() => setInputValue("Lộ trình học Python cho AI?")}
+                >
+                  Lộ trình Python AI
+                </button>
+                <button
+                  onClick={() => setInputValue("Cách viết CV xin thực tập?")}
+                >
+                  Viết CV Intern
+                </button>
+              </div>
+            </div>
+          ) : (
+            messages.map((msg) => (
+              <div key={msg.id} className={`message-row ${msg.sender}`}>
+                <div className="avatar-circle">
+                  {msg.sender === "ai" ? <Bot size={20} /> : <User size={20} />}
+                </div>
+                <div className="bubble">
+                  {msg.sender === "ai" ? (
+                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                      {msg.text}
+                    </ReactMarkdown>
+                  ) : (
+                    msg.text
+                  )}
+                </div>
+              </div>
+            ))
+          )}
+
           {isLoading && (
             <div className="message-row ai">
-              <div className="avatar-sm">
-                <img src={Bot} alt="" />
+              <div className="avatar-circle">
+                <Bot size={20} />
               </div>
-              <div className="bubble ai-bubble">
-                <div className="typing-indicator">
-                  <span></span>
-                  <span></span>
-                  <span></span>
-                </div>
+              <div className="bubble loading">
+                <span className="dot"></span>
+                <span className="dot"></span>
+                <span className="dot"></span>
               </div>
             </div>
           )}
-
           <div ref={messagesEndRef} />
         </div>
-      </div>
 
-      {/* --- 3. FOOTER INPUT --- */}
-      <div className="chat-page-footer">
-        <div className="input-wrapper">
-          <div className="custom-input-group">
+        {/* INPUT AREA */}
+        <div className="input-area-wrapper">
+          <div className="input-container">
             <input
-              type="text"
-              className="chat-input"
-              placeholder="Nhập câu hỏi của bạn (Ví dụ: Lộ trình học ReactJS)..."
+              placeholder="Nhập câu hỏi cho AI..."
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
-              onKeyPress={handleKeyPress}
+              onKeyDown={(e) => e.key === "Enter" && handleSendMessage()}
               disabled={isLoading}
-              autoFocus
             />
             <button
-              className="btn-send"
+              className={`btn-send ${!inputValue.trim() ? "disabled" : ""}`}
               onClick={handleSendMessage}
               disabled={isLoading || !inputValue.trim()}
-              title="Gửi tin nhắn"
             >
-              {/* Icon Send Vector */}
-              <svg
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M22 2L11 13"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-                <path
-                  d="M22 2L15 22L11 13L2 9L22 2Z"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
+              <Send size={18} />
             </button>
           </div>
-          <div className="footer-note">
-            AI có thể mắc lỗi. Vui lòng kiểm chứng lại các thông tin quan trọng.
+          <div className="disclaimer">
+            AI có thể mắc lỗi. Vui lòng kiểm tra lại thông tin quan trọng.
           </div>
         </div>
-      </div>
+      </main>
     </div>
   );
 };
 
-export default AIChatPage;
+export default AIChat;
