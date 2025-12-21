@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 import GlassCard from "../components/common/GlassCard";
 import assessmentApi from "../api/assessmentApi";
 import { getAccessToken } from "../api/authApi";
@@ -9,6 +9,8 @@ import "../assets/css-custom/quiz-game.css";
 const QuizGame = () => {
   const { type } = useParams(); // "mbti" hoặc "holland"
   const navigate = useNavigate();
+  const location = useLocation();
+  
   
   const [questions, setQuestions] = useState([]);
   const [currentQuestion, setCurrentQuestion] = useState(0);
@@ -18,7 +20,25 @@ const QuizGame = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const config = getQuizConfig(type?.toLowerCase());
+  // Determine quiz type: prefer route param, fallback to last path segment
+  const rawTypeFromParams = type ? String(type).trim() : "";
+  const lastPathSegment = (() => {
+    try {
+      const parts = (location && location.pathname ? location.pathname : window.location.pathname).split("/").filter(Boolean);
+      return parts.length ? parts[parts.length - 1] : "";
+    } catch (e) {
+      return "";
+    }
+  })();
+
+  const normalizedType = (rawTypeFromParams || lastPathSegment) ? String(rawTypeFromParams || lastPathSegment).trim().toLowerCase() : "";
+  let config = getQuizConfig(normalizedType);
+
+  // Fallback heuristics for slightly different type values
+  if (!config) {
+    if (normalizedType.includes("mbti")) config = getQuizConfig("mbti");
+    else if (normalizedType.includes("holland") || normalizedType.includes("holland")) config = getQuizConfig("holland");
+  }
 
   useEffect(() => {
     const token = getAccessToken();
@@ -46,7 +66,7 @@ const QuizGame = () => {
         }
       } catch (err) {
         setError("Lỗi kết nối");
-        console.error(err);
+        // logging removed
       } finally {
         setLoading(false);
       }
@@ -61,6 +81,7 @@ const QuizGame = () => {
       <div className="quiz-wrapper">
         <GlassCard className="quiz-start-card">
           <p className="text-danger">Quiz type không hợp lệ</p>
+          <p className="text-white-50 small">Hỗ trợ: "mbti", "holland"</p>
         </GlassCard>
       </div>
     );
@@ -86,12 +107,13 @@ const QuizGame = () => {
       const response = await assessmentApi.submitAssessment(config.apiType, finalAnswers);
       if (response.success) {
         setResult(response.result);
+        // result is stored in state; no devtools logging
       } else {
         setError("Lỗi khi lưu kết quả. Vui lòng thử lại.");
       }
     } catch (err) {
       setError("Lỗi kết nối khi gửi kết quả.");
-      console.error(err);
+      // logging removed
     } finally {
       setLoading(false);
     }
@@ -137,7 +159,7 @@ const QuizGame = () => {
     return (
       <div className="quiz-wrapper">
         <GlassCard className="quiz-start-card fade-in-up">
-          <div className="quiz-icon-large">{config.icon}</div>
+          <div className="quiz-icon-large"></div>
           <h2>{config.title}</h2>
           <p className="text-white-50">
             {config.description} qua {questions.length} câu hỏi.
@@ -194,7 +216,7 @@ const QuizGame = () => {
               <p className="result-desc">{typeInfo.description || ""}</p>
 
               <div className="result-section-box">
-                <h4>💼 Nghề nghiệp phù hợp</h4>
+                <h4> Nghề nghiệp phù hợp</h4>
                 <div className="tags-container">
                   {Array.isArray(typeInfo.careers) && typeInfo.careers.length > 0 ? (
                     typeInfo.careers.map((career, idx) => (
@@ -361,7 +383,7 @@ const QuizGame = () => {
   }
 
   const progress = ((currentQuestion + 1) / questions.length) * 100;
-  const questionKey = type.toLowerCase() === "holland" ? "prompt" : "question";
+  const questionKey = normalizedType === "holland" ? "prompt" : "question";
   const questionText = question[questionKey];
   
   // Kiểm tra văn bản câu hỏi có tồn tại hay không
@@ -394,8 +416,8 @@ const QuizGame = () => {
           <h3 className="question-text">{questionText}</h3>
           <div className="options-grid">
             {question.options?.map((option, idx) => {
-              const answerValue = type.toLowerCase() === "holland" 
-                ? option.group_code 
+              const answerValue = normalizedType === "holland"
+                ? option.group_code
                 : option.value;
               
               return (

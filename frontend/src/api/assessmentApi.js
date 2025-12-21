@@ -86,7 +86,6 @@ const assessmentApi = {
       return data;
     } catch (error) {
       const apiError = handleApiError(error, 'Tải câu hỏi');
-      console.error('getQuestions error:', apiError.message);
       throw apiError;
     }
   },
@@ -127,7 +126,6 @@ const assessmentApi = {
       return data;
     } catch (error) {
       const apiError = handleApiError(error, 'Gửi trắc nghiệm');
-      console.error('submitAssessment error:', apiError.message);
       throw apiError;
     }
   },
@@ -151,7 +149,6 @@ const assessmentApi = {
       return validateResponse(response, 'Lấy chi tiết kết quả', ['result']);
     } catch (error) {
       const apiError = handleApiError(error, 'Lấy chi tiết kết quả');
-      console.error('getResultDetail error:', apiError.message);
       throw apiError;
     }
   },
@@ -178,7 +175,6 @@ const assessmentApi = {
       return validateResponse(response, 'Lấy lịch sử', ['results']);
     } catch (error) {
       const apiError = handleApiError(error, 'Lấy lịch sử');
-      console.error('getHistory error:', apiError.message);
       throw apiError;
     }
   },
@@ -197,7 +193,6 @@ const assessmentApi = {
       return validateResponse(response, 'Lấy hồ sơ', ['profile']);
     } catch (error) {
       const apiError = handleApiError(error, 'Lấy hồ sơ');
-      console.error('getProfile error:', apiError.message);
       throw apiError;
     }
   },
@@ -222,7 +217,6 @@ const assessmentApi = {
       return validateResponse(response, 'Lưu vào hồ sơ', ['profile']);
     } catch (error) {
       const apiError = handleApiError(error, 'Lưu vào hồ sơ');
-      console.error('saveToProfile error:', apiError.message);
       throw apiError;
     }
   },

@@ -10,12 +10,20 @@
     "@testing-library/user-event": "^13.5.0",
     "axios": "^1.12.2",
     "bootstrap-icons": "^1.13.1",
+    "chart.js": "^4.5.1",
+    "lucide-react": "^0.555.0",
     "react": "^19.2.0",
     "react-bootstrap": "^2.10.10",
+    "react-chartjs-2": "^5.3.1",
     "react-dom": "^19.2.0",
+    "react-markdown": "^10.1.0",
     "react-router-dom": "^7.9.5",
     "react-scripts": "5.0.1",
-    "web-vitals": "^2.1.4"
+    "react-toastify": "^11.0.5",
+    "remark-gfm": "^4.0.1",
+    "sweetalert2": "^11.26.3",
+    "web-vitals": "^2.1.4",
+    "xlsx": "^0.18.5"
   },
   "scripts": {
     "start": "react-scripts start",

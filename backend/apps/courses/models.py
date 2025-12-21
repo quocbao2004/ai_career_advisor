@@ -16,7 +16,7 @@ class Course(models.Model):
     title = models.CharField(max_length=200)
     provider = models.CharField(max_length=100, blank=True, null=True)  # VD: Udemy, Coursera
     description = models.TextField(blank=True, null=True)
-    url = models.URLField(max_length=500, blank=True, null=True)  # Link học
+    url = models.URLField(max_length=500, blank=True, null=True) 
 
     # Các thông số hỗ trợ tính toán lộ trình
     price = models.DecimalField(max_digits=10, decimal_places=2, default=0)

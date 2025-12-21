@@ -8,7 +8,6 @@ from apps.users.models import MasterSkill
 # 1. INDUSTRY (Ngành nghề)
 # ==========================================
 class Industry(models.Model):
-    # FIX LỖI: Đã xóa dấu phẩy thừa ở cuối dòng dưới
     name = models.CharField(max_length=100, unique=True, null=False)
     description = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)

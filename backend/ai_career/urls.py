@@ -21,15 +21,27 @@ from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
 )
+from apps.users import views as users_views
 
 
 urlpatterns = [
+    # admin
     path('admin/', admin.site.urls),
     path('api/admin/', include('apps.admin.urls')),
+    # token
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 
+    # auth
     path("api/auth/", include("apps.custom_auth.urls")),
     path("api/assessments/", include("apps.assessments.urls")),
+
+    # user
+    path("api/users/", include("apps.users.urls")),
+
+    # profile convenience route removed per request
+
+    # AI
+    path("api/ai/", include("apps.ai.urls")),
 
 ]
