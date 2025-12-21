@@ -74,8 +74,8 @@ const Header = () => {
               </Link>
             </li>
             <li className="nav-item">
-              <Link className="nav-link" to="/dinh-huong-nghe-nghiep">
-                Nghề nghiệp phù hợp
+              <Link className="nav-link" to="/chat">
+                Nhận tư vấn với AI
               </Link>
             </li>
             {userInfo && userInfo.role === "user" && (

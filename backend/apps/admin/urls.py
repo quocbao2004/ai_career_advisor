@@ -9,5 +9,8 @@ urlpatterns = [
     path('master-skills/', views.get_and_post_master_skill),
     path('master-skills/<int:id>/', views.delete_or_put_master_skill),
     path('careers/', views.career_list_create, name='career-list-create'),
-    path('industries/', views.get_industries, name='get-industries'),
+    path('careers/<int:id>/', views.delete_or_edit_career),
+    path('industries/', views.get_or_post_industry),
+    path('industries/<int:id>/', views.delete_or_edit_industry),
+    path('dashboard/stats/', views.get_dashboard_stats),
 ]
