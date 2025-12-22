@@ -27,7 +27,6 @@ import { GoogleOAuthProvider } from "@react-oauth/google";
 
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { Import } from "lucide-react";
 
 function App() {
   return (

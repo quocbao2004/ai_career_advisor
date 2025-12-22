@@ -2,6 +2,7 @@ from django.core.management.base import BaseCommand
 from django.contrib.auth import get_user_model
 from apps.ai.models import KnowledgeBase
 from apps.courses.models import Course
+from apps.users.models import PersonalityTest
 from apps.career.models import Career, Industry, MasterSkill
 from utils.ai_service import get_embedding
 
@@ -156,6 +157,32 @@ class Command(BaseCommand):
 
             self.save_to_knowledge_base(user.id, 'user_profile', content, metadata)
 
+    def process_test(self):
+        tests = PersonalityTest.objects.all()
+        self.stdout.write(f'\nTìm thấy {tests.count()} bài test tính cách.')
+
+        for test in tests:
+            user = test.user
+            details_text = ""
+            if test.raw_result:
+                if isinstance(test.raw_result, dict):
+                     details_text = "; ".join([f"{k}: {v}" for k, v in test.raw_result.items()])
+                else:                         
+                    details_text = str(test.raw_result)
+            content = (
+                f"Kết quả bài trắc nghiệm tính cách ({test.test_type}) của {user.full_name}. "
+                f"Kết quả tóm tắt: {test.summary_code}. "
+                f"Chi tiết phân tích: {details_text}. "
+                f"Ngày thực hiện: {test.taken_at.strftime('%d/%m/%Y')}."
+            )
+            
+            metadata = {
+                "user_id": str(user.id),
+                "test_type": test.test_type,
+                "summary_code": test.summary_code
+            }
+
+            self.save_to_knowledge_base(test.id, 'personality_result', content, metadata)
     # ---------------------------------------------------------
     # HÀM LƯU CHUNG (QUAN TRỌNG)
     # ---------------------------------------------------------
