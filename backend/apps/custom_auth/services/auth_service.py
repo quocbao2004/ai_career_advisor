@@ -1,6 +1,5 @@
 from django.contrib.auth.hashers import check_password
 from rest_framework_simplejwt.tokens import RefreshToken
-from apps.custom_auth.repositories.auth_repository import AuthRepository
 from apps.custom_auth.services.email_service import EmailService
 from django.core.cache import cache
 import logging
@@ -19,6 +18,12 @@ class AuthService:
             user = User.objects.get(email=email)
         except User.DoesNotExist:
             return None, "Email không tồn tại"
+
+        if user.is_deleted:
+            return None, "Tài khoản đã bị xóa"
+
+        if not user.is_active:
+            return None, "Tài khoản đã bị vô hiệu hóa"
 
         if not check_password(password, user.password_hash):
             return None, "Mật khẩu không đúng"
@@ -41,20 +46,22 @@ class AuthService:
 
     @staticmethod
     def register(email: str, password: str, full_name: str):
-        if AuthRepository.user_exists(email):
+        from apps.users.models import User
+        
+        if User.objects.filter(email=email).exists():
             return None, "Email này đã được đăng ký"
 
         if len(password) < 8:
             return None, "Mật khẩu phải có ít nhất 8 ký tự"
 
-        user, error = AuthRepository.create_user(
-            email=email,
-            password=password,
-            full_name=full_name
-        )
-
-        if error:
-            return None, error
+        try:
+            user = User.objects.create_user(
+                email=email,
+                password=password,
+                full_name=full_name
+            )
+        except Exception as e:
+            return None, str(e)
 
         EmailService.send_otp(email)
 
@@ -68,11 +75,14 @@ class AuthService:
 
     @staticmethod
     def verify_otp_and_complete_register(email: str, otp: str):
+        from apps.users.models import User
+        
         if not EmailService.verify_otp(email, otp):
             return None, "OTP không đúng hoặc đã hết hạn"
 
-        user = AuthRepository.get_user_by_email(email)
-        if not user:
+        try:
+            user = User.objects.get(email=email)
+        except User.DoesNotExist:
             return None, "Tài khoản không tồn tại"
 
         refresh = RefreshToken.for_user(user)
@@ -108,15 +118,15 @@ class AuthService:
         try:
             user = User.objects.get(email=email)
         except User.DoesNotExist:
-            user, error = AuthRepository.create_user(
-                email=email,
-                password="",
-                full_name=full_name,
-                **extra_fields
-            )
-            
-            if error:
-                return None, error
+            try:
+                user = User.objects.create_user(
+                    email=email,
+                    password="",
+                    full_name=full_name,
+                    **extra_fields
+                )
+            except Exception as e:
+                return None, str(e)
 
         refresh = RefreshToken.for_user(user)
 
@@ -135,9 +145,11 @@ class AuthService:
 
     @staticmethod
     def request_password_reset(email: str):
-        user = AuthRepository.get_user_by_email(email)
+        from apps.users.models import User
         
-        if not user:
+        try:
+            user = User.objects.get(email=email)
+        except User.DoesNotExist:
             return None, "Email không tồn tại"
         
         EmailService.send_otp(email)

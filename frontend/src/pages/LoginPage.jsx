@@ -4,6 +4,7 @@ import { GoogleLogin } from "@react-oauth/google";
 import GlassCard from "../components/common/GlassCard";
 import Logo from "../components/logo";
 import { loginUser, saveTokens, saveUserInfo, googleLogin } from "../api/authApi";
+import assessmentApi from "../api/assessmentApi";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import "../assets/css-custom/loginpage.css";
 
@@ -43,14 +44,37 @@ const LoginPage = () => {
       if (result.success) {
         saveTokens(result.access, result.refresh);
         saveUserInfo(result.user);
-        // Điều hướng dựa trên role
-        if (result.user.role === "admin") {
-          navigate("/trang-quan-tri", { replace: true });
-        } else if (result.user.role === "user") {
-          navigate("/trang-nguoi-dung", { replace: true });
-        } else {
-          navigate("/", { replace: true });
-        }
+
+        const postLoginRedirect = async (user) => {
+          // Admins go to admin panel immediately
+          if (user.role === "admin") {
+            navigate("/trang-quan-tri", { replace: true });
+            return;
+          }
+
+          // For normal users, fetch assessment profile to decide
+          try {
+            const profileResp = await assessmentApi.getProfile();
+            const profile = profileResp.profile || {};
+
+            const hasAssessment = !!(
+              profile.holland_result ||
+              profile.mbti_result ||
+              (Array.isArray(profile.recent_results) && profile.recent_results.length > 0)
+            );
+
+            if (hasAssessment) {
+              navigate("/trang-nguoi-dung", { replace: true });
+            } else {
+              navigate("/trac-nghiem", { replace: true });
+            }
+          } catch (err) {
+            // If profile fetch fails, fall back to dashboard
+            navigate("/trang-nguoi-dung", { replace: true });
+          }
+        };
+
+        postLoginRedirect(result.user);
       } else {
         setError(result.message || "Đăng nhập thất bại");
       }
@@ -70,14 +94,34 @@ const LoginPage = () => {
       if (result.success) {
         saveTokens(result.access, result.refresh);
         saveUserInfo(result.user);
-        // Điều hướng dựa trên role
-        if (result.user.role === "admin") {
-          navigate("/trang-quan-tri", { replace: true });
-        } else if (result.user.role === "user") {
-          navigate("/trang-nguoi-dung", { replace: true });
-        } else {
-          navigate("/", { replace: true });
-        }
+        // reuse same redirect logic as normal login
+        const postLoginRedirect = async (user) => {
+          if (user.role === "admin") {
+            navigate("/trang-quan-tri", { replace: true });
+            return;
+          }
+
+          try {
+            const profileResp = await assessmentApi.getProfile();
+            const profile = profileResp.profile || {};
+
+            const hasAssessment = !!(
+              profile.holland_result ||
+              profile.mbti_result ||
+              (Array.isArray(profile.recent_results) && profile.recent_results.length > 0)
+            );
+
+            if (hasAssessment) {
+              navigate("/trang-nguoi-dung", { replace: true });
+            } else {
+              navigate("/trac-nghiem", { replace: true });
+            }
+          } catch (err) {
+            navigate("/trang-nguoi-dung", { replace: true });
+          }
+        };
+
+        postLoginRedirect(result.user);
       } else {
         setError(result.message || "Lỗi đăng nhập Google");
       }

@@ -1,6 +1,21 @@
 
 const API_BASE_URL = "http://localhost:8000/api/auth";
 
+export const saveTokens = (accessToken, refreshToken) => {
+  localStorage.setItem("access_token", accessToken);
+  localStorage.setItem("refresh_token", refreshToken);
+};
+
+export const getAccessToken = () => localStorage.getItem("access_token");
+export const getRefreshToken = () => localStorage.getItem("refresh_token");
+
+export const clearTokens = () => {
+  localStorage.removeItem("access_token");
+  localStorage.removeItem("refresh_token");
+  localStorage.removeItem("user_info");
+  cachedUserInfo = null;
+};
+
 export const registerUser = async (email, password, full_name) => {
   try {
     const response = await fetch(`${API_BASE_URL}/dang-ky/`, {
@@ -105,20 +120,7 @@ export const resetPassword = async (email, newPassword) => {
   }
 };
 
-export const saveTokens = (accessToken, refreshToken) => {
-  localStorage.setItem("access_token", accessToken);
-  localStorage.setItem("refresh_token", refreshToken);
-};
 
-export const getAccessToken = () => localStorage.getItem("access_token");
-export const getRefreshToken = () => localStorage.getItem("refresh_token");
-
-export const clearTokens = () => {
-  localStorage.removeItem("access_token");
-  localStorage.removeItem("refresh_token");
-  localStorage.removeItem("user_info");
-  cachedUserInfo = null;
-};
 
 export const isAuthenticated = () => !!getAccessToken();
 
@@ -126,16 +128,25 @@ let cachedUserInfo = null;
 
 const parseUserInfo = () => {
   try {
-    const user = localStorage.getItem("user_info");
-    if (!user || user === "undefined") {
+    const raw = localStorage.getItem("user_info");
+
+    if (!raw || raw === "undefined" || raw === "null") {
       return null;
     }
-    return JSON.parse(user);
+
+    const user = JSON.parse(raw);
+
+    if (typeof user !== "object" || user === null) {
+      return null;
+    }
+
+    return user;
   } catch (error) {
     localStorage.removeItem("user_info");
     return null;
   }
 };
+
 
 export const getUserInfo = () => {
   if (cachedUserInfo === null) {
@@ -169,8 +180,15 @@ export const fetchWithAuth = async (url, options = {}) => {
   try {
     const response = await fetch(url, { ...options, headers });
     if (response.status === 401) {
-      clearTokens();
-      window.location.href = "/dang-nhap";
+      const refreshed = await refreshAccessToken();
+      if (refreshed) {
+        const newAccessToken = getAccessToken();
+        headers["Authorization"] = `Bearer ${newAccessToken}`;
+        return fetch(url, { ...options, headers });
+      } else {
+        clearTokens();
+        window.location.href = "/dang-nhap";
+      }
     }
     return response;
   } catch (error) {
@@ -178,12 +196,54 @@ export const fetchWithAuth = async (url, options = {}) => {
   }
 };
 
+export const refreshAccessToken = async () => {
+  try {
+    const refreshToken = getRefreshToken();
+    if (!refreshToken) {
+      return false;
+    }
+
+    const response = await fetch("http://localhost:8000/api/token/refresh/", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ refresh: refreshToken }),
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      localStorage.setItem("access_token", data.access);
+      if (data.refresh) {
+        localStorage.setItem("refresh_token", data.refresh);
+      }
+      return true;
+    } else {
+      clearTokens();
+      return false;
+    }
+  } catch (error) {
+    clearTokens();
+    return false;
+  }
+};
+
 export const logoutUser = async () => {
   try {
+    const refreshToken=getRefreshToken();
     const response = await fetchWithAuth(`${API_BASE_URL}/dang-xuat/`, {
       method: "POST",
+      headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({ refresh: refreshToken }),
     });
-    return await response.json();
+    if (response.ok) {
+      clearTokens();
+    }
+    let data;
+    try {
+      data = await response.json();
+    } catch {
+      data = { success: response.ok };
+    }
+    return data;
   } catch (error) {
     return { success: false, message: "Lỗi kết nối" };
   }

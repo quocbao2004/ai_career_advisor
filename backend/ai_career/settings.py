@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     'apps.users',
     'apps.learning_paths',
     'apps.custom_auth',
+    'apps.assessments',
 
     # import
     'corsheaders',
@@ -168,6 +169,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = 'users.User'
 
 SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(hours=1),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
     'AUTH_COOKIE': 'access_token',  # cookie name
     'AUTH_COOKIE_SECURE': False,    # True in production
     'AUTH_COOKIE_HTTP_ONLY': True,

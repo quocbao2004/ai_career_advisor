@@ -1,12 +1,13 @@
 /* 1. CONTAINER CHUNG */
 .quiz-wrapper {
-  min-height: 85vh; /* Chiều cao tối thiểu để căn giữa màn hình */
+  min-height: 85vh;
   display: flex;
   justify-content: center;
   align-items: center;
   padding: 20px;
   position: relative;
-  z-index: 10; /* Đảm bảo nổi lên trên background */
+  z-index: 10;
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.5) 0%, rgba(30, 41, 59, 0.5) 100%);
 }
 
 /* 2. MÀN HÌNH BẮT ĐẦU (START SCREEN) */
@@ -14,16 +15,27 @@
   text-align: center;
   max-width: 550px;
   width: 100%;
-  padding: 50px 40px !important; /* Padding rộng rãi */
+  padding: 50px 40px !important;
   display: flex;
   flex-direction: column;
   align-items: center;
+  animation: slideInDown 0.6s ease-out;
+}
+
+@keyframes slideInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .quiz-icon-large {
   font-size: 4.5rem;
   margin-bottom: 24px;
-  /* Hiệu ứng icon bay bay */
   animation: floatIcon 3s ease-in-out infinite;
   filter: drop-shadow(0 0 20px rgba(124, 58, 237, 0.3));
 }
@@ -58,7 +70,19 @@
 /* 3. THANH TIẾN TRÌNH (PROGRESS BAR) */
 .quiz-playing-container {
   width: 100%;
-  max-width: 650px; /* Độ rộng tối đa của câu hỏi */
+  max-width: 650px;
+  animation: fadeIn 0.6s ease-out 0.2s both;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .quiz-progress-container {
@@ -67,7 +91,7 @@
 
 .progress-bar-bg {
   height: 8px;
-  background: rgba(255, 255, 255, 0.1); /* Nền mờ */
+  background: rgba(255, 255, 255, 0.1);
   border-radius: 10px;
   overflow: hidden;
   margin-bottom: 8px;
@@ -77,8 +101,9 @@
 .progress-bar-fill {
   height: 100%;
   border-radius: 10px;
-  transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1); /* Chuyển động mượt */
+  transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+  background: linear-gradient(90deg, #4f46e5, #7c3aed);
 }
 
 .progress-text {
@@ -93,6 +118,18 @@
 .question-card {
   padding: 40px !important;
   margin-bottom: 20px;
+  animation: fadeInUp 0.5s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .question-text {
@@ -119,11 +156,12 @@
   text-align: left;
   font-size: 1.05rem;
   cursor: pointer;
-  transition: all 0.25s ease;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   display: flex;
   align-items: center;
   position: relative;
   overflow: hidden;
+  backdrop-filter: blur(10px);
 }
 
 /* Label A/B nhỏ bên trái */
@@ -131,7 +169,7 @@
   background: rgba(255, 255, 255, 0.1);
   width: 36px;
   height: 36px;
-  min-width: 36px; /* Giữ cứng kích thước */
+  min-width: 36px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -140,14 +178,20 @@
   font-weight: 800;
   font-size: 0.95rem;
   color: #fff;
+  transition: all 0.25s ease;
 }
 
 /* Hover Effect cho nút chọn */
 .option-btn:hover {
   background: rgba(255, 255, 255, 0.15);
-  border-color: #818cf8; /* Màu tím sáng */
-  transform: translateX(6px);
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  border-color: #818cf8;
+  transform: translateX(8px);
+  box-shadow: 0 8px 20px rgba(129, 140, 248, 0.2);
+}
+
+.option-btn:hover .option-label {
+  background: #818cf8;
+  transform: scale(1.1);
 }
 
 .option-btn:active {
@@ -156,9 +200,21 @@
 
 /* 5. MÀN HÌNH KẾT QUẢ (RESULT SCREEN) */
 .quiz-result-card {
-  max-width: 900px; /* Rộng hơn để chứa nhiều thông tin */
+  max-width: 900px;
   width: 100%;
   padding: 50px !important;
+  animation: slideInUp 0.6s ease-out;
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .result-badge {
@@ -167,15 +223,29 @@
   border-radius: 30px;
   font-size: 0.9rem;
   font-weight: 700;
-  color: #fff; /* Chữ luôn trắng */
+  color: #fff;
   margin-bottom: 20px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  }
+  50% {
+    box-shadow: 0 4px 25px rgba(79, 70, 229, 0.4);
+  }
 }
 
 .result-title-main {
   font-size: 2.5rem;
   font-weight: 800;
   margin-bottom: 16px;
+  background: linear-gradient(135deg, #ffffff 0%, #a5b4fc 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .result-desc {
@@ -193,6 +263,12 @@
   padding: 24px;
   margin-top: 20px;
   border: 1px solid rgba(255, 255, 255, 0.05);
+  transition: all 0.3s ease;
+}
+
+.result-section-box:hover {
+  background: rgba(0, 0, 0, 0.3);
+  border-color: rgba(255, 255, 255, 0.1);
 }
 
 .result-section-box h4 {
@@ -215,11 +291,14 @@
   border-radius: 50px;
   font-size: 0.95rem;
   font-weight: 600;
-  transition: transform 0.2s;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  backdrop-filter: blur(10px);
 }
 
 .career-tag:hover {
-  transform: translateY(-3px);
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
 }
 
 /* 6. RIÊNG CHO HOLLAND QUIZ (Grid 3 cột) */
@@ -228,26 +307,51 @@
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   gap: 24px;
   margin-top: 30px;
+  animation: fadeIn 0.8s ease-out 0.4s both;
 }
 
 .holland-item-box {
   background: rgba(255, 255, 255, 0.03);
-  border: 1px solid; /* Màu border set inline trong JS */
+  border: 1px solid;
   border-radius: 16px;
   padding: 24px;
   text-align: center;
-  transition: transform 0.3s;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.holland-item-box::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+  transition: left 0.5s ease;
+  z-index: 0;
+}
+
+.holland-item-box:hover::before {
+  left: 100%;
 }
 
 .holland-item-box:hover {
-  background: rgba(255, 255, 255, 0.06);
-  transform: translateY(-5px);
+  background: rgba(255, 255, 255, 0.08);
+  transform: translateY(-8px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3);
 }
 
 .holland-emoji {
-  font-size: 2.5rem;
+  font-size: 2.8rem;
   margin-bottom: 12px;
   display: block;
+  transition: transform 0.3s ease;
+}
+
+.holland-item-box:hover .holland-emoji {
+  transform: scale(1.2) rotateZ(10deg);
 }
 
 .career-tag-small {
@@ -255,9 +359,14 @@
   font-size: 0.75rem;
   padding: 4px 10px;
   border-radius: 6px;
-  color: #fff; /* Chữ trắng trên nền màu */
+  color: #fff;
   font-weight: 600;
   margin: 4px;
+  transition: all 0.3s ease;
+}
+
+.career-tag-small:hover {
+  transform: scale(1.1);
 }
 
 /* 7. BUTTONS CHUNG */
@@ -270,14 +379,33 @@
   font-size: 1rem;
   cursor: pointer;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-  transition: all 0.2s ease;
+  transition: all 0.3s ease;
   min-width: 160px;
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(90deg, #4f46e5, #6366f1);
+}
+
+.btn-quiz-primary::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.1);
+  transition: left 0.3s ease;
+  z-index: -1;
 }
 
 .btn-quiz-primary:hover {
   transform: translateY(-3px);
   filter: brightness(1.1);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+}
+
+.btn-quiz-primary:hover::before {
+  left: 0;
 }
 
 .btn-quiz-outline {
@@ -288,12 +416,31 @@
   border-radius: 50px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-quiz-outline::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.08);
+  transition: left 0.3s ease;
+  z-index: -1;
 }
 
 .btn-quiz-outline:hover {
   border-color: #fff;
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.05);
+  transform: translateY(-2px);
+}
+
+.btn-quiz-outline:hover::before {
+  left: 0;
 }
 
 .btn-text-only {
@@ -304,12 +451,13 @@
   margin-top: 20px;
   cursor: pointer;
   font-size: 0.9rem;
-  transition: color 0.2s;
+  transition: all 0.3s ease;
 }
 
 .btn-text-only:hover {
   color: #f1f5f9;
   text-decoration: underline;
+  transform: translateY(-2px);
 }
 
 .quiz-actions-row {
@@ -317,6 +465,7 @@
   gap: 16px;
   justify-content: center;
   margin-top: 40px;
+  animation: fadeInUp 0.6s ease-out 0.3s both;
 }
 
 /* 8. ANIMATION */
@@ -324,42 +473,133 @@
   animation: fadeInUp 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
 }
 
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
 /* Mobile Responsive */
 @media (max-width: 768px) {
   .quiz-wrapper {
     padding: 15px;
   }
+
   .quiz-start-card,
   .question-card,
   .quiz-result-card {
     padding: 30px 20px !important;
   }
+
   .quiz-icon-large {
     font-size: 3.5rem;
   }
+
+  .question-text {
+    font-size: 1.2rem;
+  }
+
+  .option-btn {
+    padding: 14px 16px;
+    font-size: 0.95rem;
+  }
+
+  .option-label {
+    width: 32px;
+    height: 32px;
+    font-size: 0.85rem;
+    margin-right: 16px;
+  }
+
   .result-title-main {
     font-size: 1.8rem;
   }
-  .holland-grid {
-    grid-template-columns: 1fr;
+
+  .result-desc {
+    font-size: 1rem;
   }
+
+  .holland-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
   .quiz-start-actions,
   .quiz-actions-row {
     flex-direction: column;
   }
+
   .btn-quiz-primary,
   .btn-quiz-outline {
     width: 100%;
+    padding: 12px 24px;
+  }
+}
+
+@media (max-width: 480px) {
+  .quiz-wrapper {
+    padding: 10px;
+  }
+
+  .quiz-start-card,
+  .question-card,
+  .quiz-result-card {
+    padding: 20px 15px !important;
+  }
+
+  .quiz-icon-large {
+    font-size: 2.5rem;
+  }
+
+  .quiz-start-card h2 {
+    font-size: 1.5rem;
+  }
+
+  .question-text {
+    font-size: 1.1rem;
+  }
+
+  .option-btn {
+    padding: 12px 14px;
+    font-size: 0.9rem;
+  }
+
+  .option-label {
+    width: 28px;
+    height: 28px;
+    font-size: 0.75rem;
+    margin-right: 12px;
+  }
+
+  .result-title-main {
+    font-size: 1.5rem;
+  }
+
+  .result-desc {
+    font-size: 0.9rem;
+    margin-bottom: 20px;
+  }
+
+  .result-section-box {
+    padding: 16px;
+  }
+
+  .career-tag {
+    padding: 6px 12px;
+    font-size: 0.85rem;
+  }
+
+  .holland-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .holland-emoji {
+    font-size: 2rem;
+  }
+
+  .btn-quiz-primary,
+  .btn-quiz-outline {
+    padding: 10px 20px;
+    font-size: 0.9rem;
+    min-width: auto;
+  }
+
+  .quiz-actions-row {
+    gap: 8px;
+    margin-top: 24px;
   }
 }
