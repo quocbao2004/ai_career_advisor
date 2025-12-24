@@ -2,7 +2,7 @@ import json
 import os
 from pathlib import Path
 from django.core.cache import cache
-from apps.assessments.repositories import AssessmentRepository
+from apps.assessments.repositories.assessment_repository import AssessmentRepository
 
 #Holland
 class HollandAssessmentService:

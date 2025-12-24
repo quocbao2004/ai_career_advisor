@@ -76,7 +76,7 @@
 }
 
 .btn-outline-gold {
-  border: 1px solid rgba(255,255,255,0.18);
+  border: 1px solid rgba(255, 255, 255, 0.18);
   color: #ffffff;
   background: transparent;
   border-radius: 6px;
@@ -94,7 +94,23 @@
 /* scrolled lighter variant (optional) */
 .custom-navbar.scrolled {
   background: linear-gradient(135deg, #5b4de3 0%, #6f3fb8 100%);
-  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+.dropdown-item {
+  transition: all 0.2s;
+  font-size: 0.95rem;
+}
+
+.dropdown-item:hover {
+  background-color: #f8f9fa; /* Hoặc màu tối nếu dùng dark mode */
+  padding-left: 1.5rem; /* Hiệu ứng trượt nhẹ sang phải khi hover */
+}
+
+/* Đảm bảo avatar luôn tròn */
+#dropdownUserAvatar img {
+  object-fit: cover;
+  border: 2px solid #d4af37; /* Màu vàng gold giống theme của bạn */
 }
 
 /* Mobile */
