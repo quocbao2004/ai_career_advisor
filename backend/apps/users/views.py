@@ -1,5 +1,5 @@
 from apps.users.models import User, MasterSkill
-from apps.users.serializers import UserSerializer, MasterSkillSerializer
+from apps.users.serializers import UserSerializer, MasterSkillSerializer, UserProfileSerializer
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework import status
@@ -9,7 +9,6 @@ from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
 from django.utils.text import get_valid_filename
 
-# Profile-related API endpoints removed. Keeping administrative endpoints only.
 @api_view(['DELETE'])
 @permission_classes([IsAdminUser])  
 def delete_user(request):
@@ -37,3 +36,24 @@ def delete_user(request):
             {"success": False, "message": "Lỗi hệ thống", "error": str(e)}, 
             status=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
+
+@api_view(['GET', 'PUT'])
+@permission_classes([IsAdminOrUser])
+def profile(request):
+    try:
+        user = request.user
+    except Exception:
+        return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+
+    if request.method == 'GET':
+        serializer = UserProfileSerializer(user)
+        return Response(serializer.data)
+    
+    elif request.method == 'PUT':
+        serializer = UserProfileSerializer(user, data=request.data, partial=True)
+        
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

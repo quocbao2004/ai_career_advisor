@@ -17,6 +17,7 @@ import MasterSkillManagement from "./pages/MasterSkillManagement";
 import CareerManagement from "./pages/CareerManagement";
 import IndustryManagement from "./pages/IndustryManagement";
 import Chat from "./pages/AIChat";
+import UserProfile from "./pages/UserProfile";
 
 import "./assets/css-custom/main.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
@@ -34,14 +35,12 @@ function App() {
           <Routes>
             {/* Home */}
             <Route path="/" element={<HomePage />} />
+            <Route path="/dashboard" element={<UserProfile />} />
 
             {/* Auth */}
             <Route path="/dang-nhap" element={<LoginPage />} />
             <Route path="/dang-ky" element={<RegisterPage />} />
             <Route path="/quen-mat-khau" element={<ForgotPassWordPage />} />
-
-            {/* Redirect dựa trên role */}
-            <Route path="/dashboard" element={<RoleBasedRedirect />} />
 
             {/* Dashboards - Protected */}
             {/* Profile route removed per request */}

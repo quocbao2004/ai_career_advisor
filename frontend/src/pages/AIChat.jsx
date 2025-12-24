@@ -27,7 +27,7 @@ const AIChat = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true); // Responsive mobile
 
   // State quản lý Edit/Delete/Model
-  const [selectedModel, setSelectedModel] = useState("gemini-1.5-flash");
+  const [selectedModel, setSelectedModel] = useState("gemini-2.5-flash");
   const [editingSessionId, setEditingSessionId] = useState(null);
   const [editTitle, setEditTitle] = useState("");
 
@@ -37,7 +37,7 @@ const AIChat = () => {
   const BASE_URL = "http://127.0.0.1:8000/api/ai";
 
   const AVAILABLE_MODELS = [
-    { id: "gemini-2.5-flash", name: "Gemini 2.5 Flash (Nhanh)" },
+    { id: "gemini-2.5-flash", name: "Gemini 2.5 Flash" },
     { id: "gemini-2.5-flash-lite", name: "Gemini 2.5 Flash Lite" },
   ];
 
@@ -126,7 +126,7 @@ const AIChat = () => {
     } catch (err) {
       setMessages((prev) => [
         ...prev,
-        { id: Date.now(), text: "⚠️ Lỗi kết nối server.", sender: "ai" },
+        { id: Date.now(), text: " Lỗi kết nối server.", sender: "ai" },
       ]);
     } finally {
       setIsLoading(false);

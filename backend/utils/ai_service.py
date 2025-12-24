@@ -2,6 +2,7 @@ import os
 import google.generativeai as genai
 from django.conf import settings
 from dotenv import load_dotenv
+from apps.ai.models import KnowledgeBase
 
 load_dotenv()
 
@@ -31,3 +32,15 @@ def get_embedding(text):
     except Exception as e:
         print(f"Lỗi tạo embedding với Gemini: {e}")
         return None
+    
+# Tìm nghĩa tương đồng
+def search_vector_db(query_embedding, top_k = 5):
+    if not query_embedding:
+        return []
+    
+    try:
+        data = KnowledgeBase.objects.alias('embedding', query_embedding).order_by('distance')[:top_k]
+        return [doc.content for doc in data]
+    except Exception as e:
+        print(f"Lỗi get embedding với Gemini: {e}")
+        return []

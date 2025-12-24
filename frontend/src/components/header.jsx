@@ -4,12 +4,14 @@ import Logo from "./logo";
 import { getUserInfo, clearTokens, logoutUser } from "../api/authApi";
 import "../assets/css-custom/header.css";
 
+// Bạn có thể import ảnh mặc định từ folder assets hoặc dùng link online
+const DEFAULT_AVATAR = "https://cdn-icons-png.flaticon.com/512/149/149071.png";
+
 const Header = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [userInfo, setUserInfo] = useState(null);
 
-  // Cập nhật userInfo bất cứ khi nào location thay đổi hoặc component mount
   useEffect(() => {
     setUserInfo(getUserInfo());
   }, [location]);
@@ -18,7 +20,7 @@ const Header = () => {
     try {
       await logoutUser();
     } catch (err) {
-      // vẫn xóa token ngay cả khi logout call thất bại
+      // Ignore error
     } finally {
       clearTokens();
       setUserInfo(null);
@@ -75,48 +77,96 @@ const Header = () => {
             </li>
             <li className="nav-item">
               <Link className="nav-link" to="/chat">
-                Nhận tư vấn với AI
+                Nhận tư vấn với AI
               </Link>
             </li>
-            {userInfo && userInfo.role === "user" && (
-              <li className="nav-item">
-                <Link className="nav-link" to="/trang-nguoi-dung">
-                  Trang người dùng
-                </Link>
-              </li>
-            )}
-            {userInfo && userInfo.role === "admin" && (
-              <>
-                <li className="nav-item">
-                  <Link className="nav-link" to="/trang-quan-tri">
-                    Thống kê
-                  </Link>
-                </li>
-              </>
-            )}
           </ul>
         </div>
 
-        {/* Nút xác thực hoặc User Menu */}
+        {/* --- PHẦN ĐÃ CHỈNH SỬA: User Menu Dropdown --- */}
         <div className="d-flex align-items-center gap-2">
           {userInfo ? (
-            <>
-              <span className="text-white small">
-                Xin chào, {userInfo.fullName}
-              </span>
-              <button
-                className="btn btn-outline-gold btn-sm"
-                onClick={handleLogout}
+            <div className="dropdown">
+              {/* Nút Avatar để kích hoạt Dropdown */}
+              <a
+                href="#"
+                className="d-flex align-items-center text-white text-decoration-none dropdown-toggle"
+                id="dropdownUserAvatar"
+                data-bs-toggle="dropdown"
+                aria-expanded="false"
               >
-                Đăng xuất
-              </button>
-            </>
+                <img
+                  src={userInfo.avatar || DEFAULT_AVATAR}
+                  alt="Avatar"
+                  width="40"
+                  height="40"
+                  className="rounded-circle border border-2 border-warning" // Thêm viền vàng cho đẹp
+                  style={{ objectFit: "cover" }}
+                />
+                <span className="ms-2 d-none d-lg-inline fw-bold small text-dark">
+                  {userInfo.fullName}
+                </span>
+              </a>
+
+              {/* Menu Dropdown */}
+              <ul
+                className="dropdown-menu dropdown-menu-end shadow" // dropdown-menu-dark nếu muốn nền đen
+                aria-labelledby="dropdownUserAvatar"
+                style={{ minWidth: "200px" }}
+              >
+                {/* Header trong dropdown hiển thị tên */}
+                <li className="px-3 py-2 border-bottom">
+                  <div className="fw-bold text-truncate">
+                    {userInfo.fullName}
+                  </div>
+                  <small className="text-muted">@{userInfo.role}</small>
+                </li>
+
+                {/* Các mục điều hướng */}
+                {userInfo.role === "user" ||
+                  (userInfo.role === "admin" && (
+                    <li>
+                      <Link className="dropdown-item py-2" to="/dashboard">
+                        <i className="bi bi-speedometer2 me-2"></i> Dashboard
+                      </Link>
+                    </li>
+                  ))}
+
+                {userInfo.role === "admin" && (
+                  <li>
+                    <Link className="dropdown-item py-2" to="/trang-quan-tri">
+                      <i className="bi bi-gear-fill me-2"></i> Trang quản trị
+                    </Link>
+                  </li>
+                )}
+
+                <li>
+                  <Link className="dropdown-item py-2" to="/cai-dat">
+                    <i className="bi bi-sliders me-2"></i> Cài đặt
+                  </Link>
+                </li>
+
+                <li>
+                  <hr className="dropdown-divider" />
+                </li>
+
+                {/* Nút Đăng xuất */}
+                <li>
+                  <button
+                    className="dropdown-item text-danger py-2"
+                    onClick={handleLogout}
+                  >
+                    <i className="bi bi-box-arrow-right me-2"></i> Đăng xuất
+                  </button>
+                </li>
+              </ul>
+            </div>
           ) : (
             <>
               <Link className="btn btn-outline-gold" to="/dang-nhap">
                 Đăng nhập
               </Link>
-              <Link className="btn btn-gold" to="/dang-ky">
+              <Link className="btn btn-gold ms-2" to="/dang-ky">
                 Đăng ký
               </Link>
             </>
