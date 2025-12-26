@@ -10,8 +10,7 @@ const QuizGame = () => {
   const { type } = useParams(); // "mbti" hoặc "holland"
   const navigate = useNavigate();
   const location = useLocation();
-  
-  
+
   const [questions, setQuestions] = useState([]);
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState({});
@@ -24,20 +23,35 @@ const QuizGame = () => {
   const rawTypeFromParams = type ? String(type).trim() : "";
   const lastPathSegment = (() => {
     try {
-      const parts = (location && location.pathname ? location.pathname : window.location.pathname).split("/").filter(Boolean);
+      const parts = (
+        location && location.pathname
+          ? location.pathname
+          : window.location.pathname
+      )
+        .split("/")
+        .filter(Boolean);
       return parts.length ? parts[parts.length - 1] : "";
     } catch (e) {
       return "";
     }
   })();
 
-  const normalizedType = (rawTypeFromParams || lastPathSegment) ? String(rawTypeFromParams || lastPathSegment).trim().toLowerCase() : "";
+  const normalizedType =
+    rawTypeFromParams || lastPathSegment
+      ? String(rawTypeFromParams || lastPathSegment)
+          .trim()
+          .toLowerCase()
+      : "";
   let config = getQuizConfig(normalizedType);
 
   // Fallback heuristics for slightly different type values
   if (!config) {
     if (normalizedType.includes("mbti")) config = getQuizConfig("mbti");
-    else if (normalizedType.includes("holland") || normalizedType.includes("holland")) config = getQuizConfig("holland");
+    else if (
+      normalizedType.includes("holland") ||
+      normalizedType.includes("holland")
+    )
+      config = getQuizConfig("holland");
   }
 
   useEffect(() => {
@@ -104,7 +118,10 @@ const QuizGame = () => {
   const submitQuiz = async (finalAnswers) => {
     try {
       setLoading(true);
-      const response = await assessmentApi.submitAssessment(config.apiType, finalAnswers);
+      const response = await assessmentApi.submitAssessment(
+        config.apiType,
+        finalAnswers
+      );
       if (response.success) {
         setResult(response.result);
         // result is stored in state; no devtools logging
@@ -190,18 +207,20 @@ const QuizGame = () => {
     // Kết quả MBTI (một loại tính cách)
     if (config.resultDisplay === "single") {
       const typeInfo = config.types?.[resultCode];
-      
+
       // Kiểm tra loại MBTI có tồn tại hay không
       if (!typeInfo) {
         return (
           <div className="quiz-wrapper">
             <GlassCard className="quiz-result-card fade-in-up">
-              <p className="text-danger">Lỗi: Loại tính cách \"{resultCode}\" không tồn tại</p>
+              <p className="text-danger">
+                Lỗi: Loại tính cách \"{resultCode}\" không tồn tại
+              </p>
             </GlassCard>
           </div>
         );
       }
-      
+
       return (
         <div className="quiz-wrapper">
           <GlassCard className="quiz-result-card fade-in-up">
@@ -212,13 +231,16 @@ const QuizGame = () => {
               >
                 {resultCode}
               </span>
-              <h1 className="result-title-main">{typeInfo.vi || "Loại tính cách"}</h1>
+              <h1 className="result-title-main">
+                {typeInfo.vi || "Loại tính cách"}
+              </h1>
               <p className="result-desc">{typeInfo.description || ""}</p>
 
               <div className="result-section-box">
                 <h4> Nghề nghiệp phù hợp</h4>
                 <div className="tags-container">
-                  {Array.isArray(typeInfo.careers) && typeInfo.careers.length > 0 ? (
+                  {Array.isArray(typeInfo.careers) &&
+                  typeInfo.careers.length > 0 ? (
                     typeInfo.careers.map((career, idx) => (
                       <span
                         key={idx}
@@ -243,7 +265,7 @@ const QuizGame = () => {
                 </button>
                 <button
                   className="btn-quiz-outline"
-                  onClick={() => navigate("/trang-nguoi-dung")}
+                  onClick={() => navigate("/dashboard")}
                 >
                   Đến Dashboard
                 </button>
@@ -257,7 +279,11 @@ const QuizGame = () => {
     // Kết quả Holland (lưới 3 mục)
     if (config.resultDisplay === "grid") {
       // Kiểm tra định dạng mã kết quả
-      if (!resultCode || typeof resultCode !== "string" || resultCode.length === 0) {
+      if (
+        !resultCode ||
+        typeof resultCode !== "string" ||
+        resultCode.length === 0
+      ) {
         return (
           <div className="quiz-wrapper">
             <GlassCard className="quiz-result-card fade-in-up">
@@ -266,28 +292,30 @@ const QuizGame = () => {
           </div>
         );
       }
-      
-      const topThree = resultCode.split("").slice(0, 3).filter(code => code && config.types?.[code]);
-      
+
+      const topThree = resultCode
+        .split("")
+        .slice(0, 3)
+        .filter((code) => code && config.types?.[code]);
+
       // Kiểm tra chúng tôi có ít nhất một mã hợp lệ
       if (topThree.length === 0) {
         return (
           <div className="quiz-wrapper">
             <GlassCard className="quiz-result-card fade-in-up">
-              <p className="text-danger">Lỗi: Không tìm thấy nhóm sở thích phù hợp</p>
+              <p className="text-danger">
+                Lỗi: Không tìm thấy nhóm sở thích phù hợp
+              </p>
             </GlassCard>
           </div>
         );
       }
-      
+
       return (
         <div className="quiz-wrapper">
           <GlassCard className="quiz-result-card fade-in-up">
             <div style={{ textAlign: "center" }}>
-              <span
-                className="result-badge"
-                style={{ background: "#0891b2" }}
-              >
+              <span className="result-badge" style={{ background: "#0891b2" }}>
                 {resultCode}
               </span>
               <h1 className="result-title-main">Kết Quả Holland</h1>
@@ -306,13 +334,28 @@ const QuizGame = () => {
                       style={{ borderColor: holland.color }}
                     >
                       <span className="holland-emoji">{holland.emoji}</span>
-                      <h4 style={{ color: holland.color, marginBottom: "12px" }}>
+                      <h4
+                        style={{ color: holland.color, marginBottom: "12px" }}
+                      >
                         {holland.name}
                       </h4>
-                      <p style={{ fontSize: "0.9rem", color: "#cbd5e1", marginBottom: "12px" }}>
+                      <p
+                        style={{
+                          fontSize: "0.9rem",
+                          color: "#cbd5e1",
+                          marginBottom: "12px",
+                        }}
+                      >
                         {holland.description}
                       </p>
-                      <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: "6px" }}>
+                      <div
+                        style={{
+                          display: "flex",
+                          flexWrap: "wrap",
+                          justifyContent: "center",
+                          gap: "6px",
+                        }}
+                      >
                         {holland.careers.map((career, idx) => (
                           <span
                             key={idx}
@@ -334,7 +377,7 @@ const QuizGame = () => {
                 </button>
                 <button
                   className="btn-quiz-outline"
-                  onClick={() => navigate("/trang-nguoi-dung")}
+                  onClick={() => navigate("/dashboard")}
                 >
                   Đến Dashboard
                 </button>
@@ -363,7 +406,10 @@ const QuizGame = () => {
       <div className="quiz-wrapper">
         <GlassCard className="quiz-start-card">
           <p className="text-danger">Lỗi: Vượt quá số câu hỏi</p>
-          <button className="btn-quiz-primary" onClick={() => window.location.reload()}>
+          <button
+            className="btn-quiz-primary"
+            onClick={() => window.location.reload()}
+          >
             Reload
           </button>
         </GlassCard>
@@ -385,7 +431,7 @@ const QuizGame = () => {
   const progress = ((currentQuestion + 1) / questions.length) * 100;
   const questionKey = normalizedType === "holland" ? "prompt" : "question";
   const questionText = question[questionKey];
-  
+
   // Kiểm tra văn bản câu hỏi có tồn tại hay không
   if (!questionText) {
     return (
@@ -416,17 +462,18 @@ const QuizGame = () => {
           <h3 className="question-text">{questionText}</h3>
           <div className="options-grid">
             {question.options?.map((option, idx) => {
-              const answerValue = normalizedType === "holland"
-                ? option.group_code
-                : option.value;
-              
+              const answerValue =
+                normalizedType === "holland" ? option.group_code : option.value;
+
               return (
                 <button
                   key={idx}
                   className="option-btn"
                   onClick={() => handleAnswer(answerValue)}
                 >
-                  <span className="option-label">{String.fromCharCode(65 + idx)}</span>
+                  <span className="option-label">
+                    {String.fromCharCode(65 + idx)}
+                  </span>
                   {option.text}
                 </button>
               );

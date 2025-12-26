@@ -1,20 +1,16 @@
-# apps/ai/signals.py
 
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 from django.contrib.auth import get_user_model
 
-# Import các Models nguồn
 from apps.career.models import Career, Industry, MasterSkill
 from apps.courses.models import Course
 from apps.users.models import PersonalityTest
 import json
 
-# Import Model đích (Vector DB)
 from apps.ai.models import KnowledgeBase
 
-# Import hàm tạo vector
-from utils.ai_service import get_embedding
+from apps.ai.ai_service import get_embedding
 
 User = get_user_model()
 
@@ -24,7 +20,6 @@ User = get_user_model()
 def sync_embedding(instance, content_type, text_content, metadata):
     """Hàm này chịu trách nhiệm gọi AI và lưu vào DB"""
     try:
-        # 1. Gọi Gemini để lấy vector
         vector = get_embedding(text_content)
         
         if vector:
@@ -173,6 +168,7 @@ def update_personality_vector(sender, instance, created, **kwargs):
 @receiver(post_delete, sender=Industry)
 @receiver(post_delete, sender=MasterSkill)
 @receiver(post_delete, sender=User)
+@receiver(post_delete, sender=PersonalityTest)
 def delete_vector(sender, instance, **kwargs):
     """
     Khi xóa dữ liệu gốc, tự động xóa luôn vector tương ứng
@@ -186,7 +182,8 @@ def delete_vector(sender, instance, **kwargs):
         'Course': 'course',
         'Industry': 'industry',
         'MasterSkill': 'skill',
-        'User': 'user_profile'
+        'User': 'user_profile',
+        'PersonalityTest': 'personalityTest'
     }
     
     c_type = type_map.get(model_name)

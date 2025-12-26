@@ -6,13 +6,14 @@ from django.db import connection
 from django.shortcuts import get_object_or_404
 import os
 from utils.permissions import IsAdminOrUser
-from utils.ai_service import get_embedding, search_vector_db
+from apps.ai.ai_service import get_embedding, search_vector_db,create_full_prompt_chat, create_rag_context, get_history_message, get_info_user
 from apps.ai.models import ChatMessage, ChatSession 
 from dotenv import load_dotenv
 
 from .models import ChatSession, ChatMessage, KnowledgeBase
 from .serializers import ChatMessageSerializer, ChatSessionSerializer
 from apps.users.models import PersonalityTest
+
 
 load_dotenv()
 
@@ -65,9 +66,7 @@ def chat_message(request):
     model_key = request.data.get('model', 'gemini-2.5-flash')
     if not prompt:
         return Response({"message": "Vui lòng nhập nội dung tin nhắn"}, status=400)
-    personality_test = PersonalityTest.objects.filter(user=user).order_by('-taken_at').first()
-    personality_code = personality_test.summary_code if personality_test else "Chưa làm test"
-    
+    print(session_id)
     # XỬ LÝ SESSION 
     new_session_created = False
     if session_id:
@@ -82,99 +81,22 @@ def chat_message(request):
 
     # LOGIC AI
     ai_response_text = ""
-    
     try:
         # LẤY THÔNG TIN CÁ NHÂN 
-        user_skills = getattr(user, 'skills', "Chưa cập nhật")
-        current_job = getattr(user, 'current_job_title', None)
-        education = getattr(user, 'education_level', None)
-
         is_profile_missing = False
-        if not current_job or not education or current_job == "Chưa cập nhật":
-            is_profile_missing = True
-        
-        user_profile_context = f"""
-        - Tên: {user.full_name or 'Người dùng'}
-        - Công việc hiện tại: {current_job}
-        - Trình độ học vấn: {education}
-        - Kỹ năng nổi bật: {user_skills}
-        - Loại tính cách (MBTI/Holland): {personality_code}
-        """
+        current_job = getattr(user, 'current_job_title', None)
+        user_profile_context, is_profile_missing = get_info_user(user, is_profile_missing=is_profile_missing)
 
         # LẤY LỊCH SỬ CHAT (HISTORY)
-        history_msgs = ChatMessage.objects.filter(session=session).order_by('-created_at')[:10]
-        chat_history_text = "\n".join([f"- {'User' if m.role == 'user' else 'Advisor'}: {m.content}" for m in history_msgs])
-
+        chat_history_text = get_history_message(session=session)
+        
         rag_context = ""
-        try:
-            embedding_vector = get_embedding(prompt)
-            if embedding_vector:
-                rag_docs = search_vector_db(embedding_vector, 5)
-                if rag_docs:
-                    context_content = "\n".join([f"- {doc}" for doc in rag_docs])
-                    rag_context = f"""
-                                Dưới đây là các thông tin chuyên môn được tìm thấy trong cơ sở dữ liệu, 
-                                hãy ưu tiên sử dụng nó để trả lời:
-                                {context_content}
-                                """
+        try:  
+            rag_context = create_rag_context(prompt=prompt)
         except Exception as e:
             rag_context = ""
         
-        if is_profile_missing:
-            full_prompt = f"""
-        Bạn là **AI Career Advisor**. Bạn nhận thấy User **chưa cập nhật hồ sơ** (Công việc/Học vấn).
-        
-        MỤC TIÊU CỦA BẠN LÚC NÀY:
-        1. Đừng vội trả lời kiến thức chuyên sâu. Hãy đóng vai người dẫn đường thân thiện.
-        2. Chào họ (nếu đây là tin nhắn đầu) và giải thích rằng để tư vấn tốt, bạn cần hiểu họ.
-        3. Đặt 2-3 câu hỏi ngắn gọn để khai thác thông tin (Ví dụ: "Bạn quan tâm lĩnh vực nào?", "Bạn đã từng làm công việc gì chưa?").
-        4. Giọng điệu: Nhiệt tình, khích lệ (như một người anh/chị đi trước).
-        5. Nhắc họ cập nhật thông tin trên website để bạn hỗ trợ tốt hơn. 
-        
-        Thông tin hiện có: {user_profile_context}
-
-        LỊCH SỬ CHAT (Context):
-            {chat_history_text}
-
-        USER VỪA NÓI: "{prompt}"
-        """
-        else:
-            full_prompt = f"""
-### VAI TRÒ CỦA BẠN
-Bạn là **AI Career Advisor** - một chuyên gia tư vấn nghề nghiệp cao cấp, tận tâm và sâu sắc. 
-Nhiệm vụ của bạn là giúp người dùng định hướng sự nghiệp, phát triển kỹ năng và giải quyết các vướng mắc trong công việc.
-
-### THÔNG TIN NGƯỜI DÙNG (USER PROFILE)
-Hãy sử dụng thông tin này để cá nhân hóa câu trả lời:
-{user_profile_context}
-
-### DỮ LIỆU CHUYÊN MÔN (RAG CONTEXT)
-Sử dụng thông tin sau làm cơ sở chính xác để trả lời (nếu liên quan):
-{rag_context or 'Không có dữ liệu chuyên môn cụ thể, hãy dùng kiến thức tổng quát.'}
-
-### LỊCH SỬ TRÒ CHUYỆN
-{chat_history_text}
-
-### YÊU CẦU TRẢ LỜI (INSTRUCTIONS)
-1. **Phân tích sâu:** Đừng chỉ trả lời bề mặt. Hãy phân tích câu hỏi dựa trên *Profile* và *Lịch sử chat* của người dùng.
-2. **Cá nhân hóa:** Xưng hô phù hợp, nhắc lại bối cảnh của người dùng (ví dụ: "Với kinh nghiệm làm {current_job} của bạn...").
-3. **Hành động cụ thể:** Luôn đưa ra lời khuyên có thể thực hiện được (Actionable insights), ví dụ: lộ trình học, kỹ năng cần bổ sung, hoặc sửa CV.
-4. **Phong cách:** Chuyên nghiệp nhưng gần gũi (Mentor tone). Khích lệ người dùng.
-5. **Dữ liệu:** Nếu thông tin trong 'RAG CONTEXT' trả lời được câu hỏi, hãy ưu tiên dùng nó. Nếu không, hãy dùng kiến thức rộng của bạn nhưng phải đảm bảo chính xác.
-6. **Định dạng:** Sử dụng Markdown (Bold, List, Heading) để trình bày rõ ràng, dễ đọc.
-7. **TUYỆT ĐỐI KHÔNG TRẢ LỜI NHỮNG THÔNG TIN NGOÀI LĨNH VỰC LIÊN QUAN NGHỀ NGHIỆP NHƯ: Hôm nay ăn gì, trời hôm nay đẹp nhỉ, giải phương trình này,...
-### NGUYÊN TẮC TRẢ LỜI (BẮT BUỘC)
-1.  **KHÔNG DONG DÀI:** Trả lời trực diện, súc tích. Tránh những đoạn văn mở bài/kết bài sáo rỗng (như "Cảm ơn câu hỏi...", "Tôi rất vui...").
-2.  **CẤU TRÚC RÕ RÀNG:** Sử dụng **Gạch đầu dòng (Bullet points)** để chia nhỏ ý. Người dùng không muốn đọc những đoạn văn dài ngoằng ("Wall of text").
-3.  **NHIỆT TÌNH & QUAN TÂM:** Dùng giọng văn khích lệ, thấu hiểu khó khăn của người dùng (Empathy), nhưng vẫn chuyên nghiệp.
-4.  **DẪN DẮT (GUIDING):** Đừng chỉ đưa thông tin. Hãy **chọn lọc** thông tin quan trọng nhất với bối cảnh hiện tại của user.
-5.  **ACTION-ORIENTED:** Luôn kết thúc bằng 1 câu hỏi gợi mở hoặc 1 bước hành động cụ thể tiếp theo để user biết phải làm gì.
-
-### CÂU HỎI HIỆN TẠI CỦA NGƯỜI DÙNG
-"{prompt}"
-
-### CÂU TRẢ LỜI CỦA BẠN:
-"""
+        full_prompt = create_full_prompt_chat(is_profile_missing, user_profile_context=user_profile_context, chat_history_text=chat_history_text,prompt=prompt,rag_context=rag_context, current_job=current_job)
 
         # GỌI GEMINI MODEL
         model = genai.GenerativeModel(model_key)
@@ -190,7 +112,6 @@ Sử dụng thông tin sau làm cơ sở chính xác để trả lời (nếu li
         traceback.print_exc()
         ai_response_text = "Hệ thống đang gặp sự cố gián đoạn. Vui lòng thử lại sau giây lát."
 
-    # LƯU & TRẢ VỀ
     ChatMessage.objects.create(session=session, role='assistant', content=ai_response_text)
     
     return Response({

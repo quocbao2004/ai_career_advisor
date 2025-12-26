@@ -4,7 +4,7 @@ from apps.ai.models import KnowledgeBase
 from apps.courses.models import Course
 from apps.users.models import PersonalityTest
 from apps.career.models import Career, Industry, MasterSkill
-from utils.ai_service import get_embedding
+from apps.ai.ai_service import get_embedding
 
 # Cố gắng import UserSkill, nếu chưa có model này thì bỏ qua
 try:

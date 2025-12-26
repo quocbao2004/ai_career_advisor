@@ -4,7 +4,6 @@ import Logo from "./logo";
 import { getUserInfo, clearTokens, logoutUser } from "../api/authApi";
 import "../assets/css-custom/header.css";
 
-// Bạn có thể import ảnh mặc định từ folder assets hoặc dùng link online
 const DEFAULT_AVATAR = "https://cdn-icons-png.flaticon.com/512/149/149071.png";
 
 const Header = () => {
@@ -83,11 +82,9 @@ const Header = () => {
           </ul>
         </div>
 
-        {/* --- PHẦN ĐÃ CHỈNH SỬA: User Menu Dropdown --- */}
         <div className="d-flex align-items-center gap-2">
           {userInfo ? (
             <div className="dropdown">
-              {/* Nút Avatar để kích hoạt Dropdown */}
               <a
                 href="#"
                 className="d-flex align-items-center text-white text-decoration-none dropdown-toggle"
@@ -100,7 +97,7 @@ const Header = () => {
                   alt="Avatar"
                   width="40"
                   height="40"
-                  className="rounded-circle border border-2 border-warning" // Thêm viền vàng cho đẹp
+                  className="rounded-circle border border-2 border-warning"
                   style={{ objectFit: "cover" }}
                 />
                 <span className="ms-2 d-none d-lg-inline fw-bold small text-dark">
@@ -108,13 +105,11 @@ const Header = () => {
                 </span>
               </a>
 
-              {/* Menu Dropdown */}
               <ul
-                className="dropdown-menu dropdown-menu-end shadow" // dropdown-menu-dark nếu muốn nền đen
+                className="dropdown-menu dropdown-menu-end shadow"
                 aria-labelledby="dropdownUserAvatar"
                 style={{ minWidth: "200px" }}
               >
-                {/* Header trong dropdown hiển thị tên */}
                 <li className="px-3 py-2 border-bottom">
                   <div className="fw-bold text-truncate">
                     {userInfo.fullName}
@@ -122,7 +117,6 @@ const Header = () => {
                   <small className="text-muted">@{userInfo.role}</small>
                 </li>
 
-                {/* Các mục điều hướng */}
                 {userInfo.role === "user" ||
                   (userInfo.role === "admin" && (
                     <li>
