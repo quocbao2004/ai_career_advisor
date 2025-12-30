@@ -96,9 +96,9 @@ def update_user_vector(sender, instance, **kwargs):
     content = (
         f"Hồ sơ người dùng: {instance.full_name}. "
         f"Vai trò: {instance.role}. "
-        f"Công việc: {instance.current_job_title}. "
-        f"Học vấn: {instance.education_level}. "
-        f"Bio: {instance.bio}."
+        f"Công việc: {instance.profile.current_job_title}. "
+        f"Học vấn: {instance.profile.education_level}. "
+        f"Bio: {instance.profile.bio}."
     )
     
     metadata = {

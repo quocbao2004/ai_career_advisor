@@ -132,3 +132,19 @@ class UserInterest(models.Model):
 
     def __str__(self):
         return f"{self.user.full_name} likes {self.keyword}"
+    
+class UserSkill(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="skills")
+    skill_name = models.CharField(max_length=100)
+    proficiency_level=models.IntegerField(
+        default=1,
+        validators=[MinValueValidator(1), MaxValueValidator(5)],
+        help_text="1: Cơ bản, 2: Sơ cấp, 3: Trung cấp, 4: Cao cấp, 5: Chuyên gia"
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    class Meta:
+        db_table = 'user_skills'
+        unique_together = ('user', 'skill_name')
+
+    def __str__(self):
+        return f"{self.skill_name} ({self.proficiency_level})"
