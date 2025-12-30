@@ -80,7 +80,7 @@ const QuizGame = () => {
           setLoading(false);
           return;
         }
-        if (response.success) {
+        if (response.questions && Array.isArray(response.questions) && response.questions.length > 0) {
           setQuestions(response.questions);
         } else {
           setError("Không thể tải câu hỏi. Vui lòng thử lại.");
@@ -205,51 +205,44 @@ const QuizGame = () => {
   if (result) {
     const resultCode = result.result_code;
 
-    // Kết quả MBTI (một loại tính cách)
+    // MBTI: Hiển thị từ backend trả về
     if (config.resultDisplay === "single") {
-      const typeInfo = config.types?.[resultCode];
-
-      // Kiểm tra loại MBTI có tồn tại hay không
-      if (!typeInfo) {
+      const mbtiDesc = result.result_details?.mbti_description;
+      const careers = mbtiDesc?.suitable_careers || [];
+      if (!mbtiDesc) {
         return (
           <div className="quiz-wrapper">
             <GlassCard className="quiz-result-card fade-in-up">
               <p className="text-danger">
-                Lỗi: Loại tính cách \"{resultCode}\" không tồn tại
+                Lỗi: Không có mô tả MBTI cho mã "{resultCode}"
               </p>
             </GlassCard>
           </div>
         );
       }
-
       return (
         <div className="quiz-wrapper">
           <GlassCard className="quiz-result-card fade-in-up">
             <div style={{ textAlign: "center" }}>
               <span
                 className="result-badge"
-                style={{ background: typeInfo.color || "#6366f1" }}
+                style={{ background: "#6366f1" }}
               >
                 {resultCode}
               </span>
               <h1 className="result-title-main">
-                {typeInfo.vi || "Loại tính cách"}
+                {mbtiDesc.name || "Loại tính cách"}
               </h1>
-              <p className="result-desc">{typeInfo.description || ""}</p>
-
+              <p className="result-desc">{mbtiDesc.description || ""}</p>
               <div className="result-section-box">
                 <h4> Nghề nghiệp phù hợp</h4>
                 <div className="tags-container">
-                  {Array.isArray(typeInfo.careers) &&
-                  typeInfo.careers.length > 0 ? (
-                    typeInfo.careers.map((career, idx) => (
+                  {careers.length > 0 ? (
+                    careers.map((career, idx) => (
                       <span
                         key={idx}
                         className="career-tag"
-                        style={{
-                          background: `${typeInfo.color || "#6366f1"}40`,
-                          color: typeInfo.color || "#6366f1",
-                        }}
+                        style={{ background: `#6366f140`, color: "#6366f1" }}
                       >
                         {career}
                       </span>
@@ -259,7 +252,6 @@ const QuizGame = () => {
                   )}
                 </div>
               </div>
-
               <div className="quiz-actions-row">
                 <button className="btn-quiz-primary" onClick={handleReset}>
                   Làm lại
@@ -277,14 +269,9 @@ const QuizGame = () => {
       );
     }
 
-    // Kết quả Holland (lưới 3 mục)
+    // Holland: Hiển thị từ backend trả về
     if (config.resultDisplay === "grid") {
-      // Kiểm tra định dạng mã kết quả
-      if (
-        !resultCode ||
-        typeof resultCode !== "string" ||
-        resultCode.length === 0
-      ) {
+      if (!resultCode || typeof resultCode !== "string" || resultCode.length === 0) {
         return (
           <div className="quiz-wrapper">
             <GlassCard className="quiz-result-card fade-in-up">
@@ -293,13 +280,10 @@ const QuizGame = () => {
           </div>
         );
       }
-
       const topThree = resultCode
         .split("")
         .slice(0, 3)
-        .filter((code) => code && config.types?.[code]);
-
-      // Kiểm tra chúng tôi có ít nhất một mã hợp lệ
+        .filter((code) => code && result.result_details?.[code]);
       if (topThree.length === 0) {
         return (
           <div className="quiz-wrapper">
@@ -311,7 +295,6 @@ const QuizGame = () => {
           </div>
         );
       }
-
       return (
         <div className="quiz-wrapper">
           <GlassCard className="quiz-result-card fade-in-up">
@@ -323,21 +306,20 @@ const QuizGame = () => {
               <p className="result-desc">
                 Ba nhóm sở thích chính của bạn là {topThree.join(", ")}
               </p>
-
               <div className="holland-grid">
                 {topThree.map((code) => {
-                  const holland = config.types?.[code];
+                  const holland = result.result_details?.[code];
                   if (!holland) return null;
+                  const desc = holland.description;
+                  const careers = desc?.suitable_careers || [];
                   return (
                     <div
                       key={code}
                       className="holland-item-box"
-                      style={{ borderColor: holland.color }}
+                      style={{ borderColor: "#0891b2" }}
                     >
-                      <span className="holland-emoji">{holland.emoji}</span>
-                      <h4
-                        style={{ color: holland.color, marginBottom: "12px" }}
-                      >
+                      <span className="holland-emoji">{desc?.emoji || code}</span>
+                      <h4 style={{ color: "#0891b2", marginBottom: "12px" }}>
                         {holland.name}
                       </h4>
                       <p
@@ -347,7 +329,7 @@ const QuizGame = () => {
                           marginBottom: "12px",
                         }}
                       >
-                        {holland.description}
+                        {desc?.description}
                       </p>
                       <div
                         style={{
@@ -357,11 +339,11 @@ const QuizGame = () => {
                           gap: "6px",
                         }}
                       >
-                        {holland.careers.map((career, idx) => (
+                        {careers.map((career, idx) => (
                           <span
                             key={idx}
                             className="career-tag-small"
-                            style={{ background: holland.color }}
+                            style={{ background: "#0891b2" }}
                           >
                             {career}
                           </span>
@@ -371,7 +353,6 @@ const QuizGame = () => {
                   );
                 })}
               </div>
-
               <div className="quiz-actions-row">
                 <button className="btn-quiz-primary" onClick={handleReset}>
                   Làm lại

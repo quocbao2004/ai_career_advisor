@@ -1,11 +1,12 @@
+from apps.users.models import User, UserProfile, UserSkill
+from apps.users.serializers import UserProfileSerializer
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
 from apps.users.services.test_service import HollandTestService, MBTITestService, TestResultService
 from utils.permissions import IsAdminUser, IsAdminOrUser
-from apps.users.models import User
-from apps.users.serializers import UserProfileSerializer
+from apps.ai.ai_service import get_embedding
 
 @api_view(['DELETE'])
 @permission_classes([IsAdminUser])  
@@ -38,24 +39,60 @@ def delete_user(request):
 @api_view(['GET', 'PUT'])
 @permission_classes([IsAdminOrUser])
 def profile(request):
-    try:
-        user = request.user
-    except Exception:
-        return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+    user = request.user
+    profile_instance, created = UserProfile.objects.get_or_create(user=user)
 
+    # --- METHOD GET ---
     if request.method == 'GET':
-        serializer = UserProfileSerializer(user)
+        serializer = UserProfileSerializer(profile_instance)
         return Response(serializer.data)
     
+    # --- METHOD PUT ---
     elif request.method == 'PUT':
-        serializer = UserProfileSerializer(user, data=request.data, partial=True)
+        serializer = UserProfileSerializer(profile_instance, data=request.data, partial=True)
         
         if serializer.is_valid():
-            serializer.save()
+            updated_profile = serializer.save()
+            
+            # === LOGIC TẠO EMBEDDING (RAG) ===
+            try:
+                # 1. Lấy chuỗi sở thích
+                interests_qs = user.interests.all()
+                interests_str = ", ".join([i.keyword for i in interests_qs])
+
+                # 2. Lấy chuỗi Kỹ năng (MỚI THÊM)
+                skills_qs = UserSkill.objects.filter(user=user)
+                skills_str = ", ".join([f"{s.skill_name} (Level {s.proficiency_level}/5)" for s in skills_qs])
+                
+                # 3. Tạo nội dung để embed
+                text_content = f"""
+                Job Title: {updated_profile.current_job_title or 'Unknown'}
+                Education: {updated_profile.get_education_level_display() or 'Unknown'}
+                Bio: {updated_profile.bio or ''}
+                Skills: {skills_str} 
+                Interests: {interests_str}
+                MBTI: {updated_profile.mbti_result or ''}
+                Holland Code: {updated_profile.holland_result or ''}
+                """.strip()
+
+                print(f"Embedding Content for {user.email}:\n{text_content}") # Debug xem nội dung đúng chưa
+
+                # 4. Gọi AI tạo Vector
+                vector = get_embedding(text_content, task_type="retrieval_document")
+                
+                if vector:
+                    updated_profile.profile_vector = vector
+                    updated_profile.save(update_fields=['profile_vector'])
+                    print(f"Updated vector for user {user.email}")
+                    
+            except Exception as e:
+                print(f"Error updating vector: {e}")
+
             return Response(serializer.data, status=status.HTTP_200_OK)
         
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
+        else:
+            print("Validation Error:", serializer.errors)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_holland_test_questions(request):
@@ -77,9 +114,8 @@ def submit_test(request):
     if not test_type or not answers:
         return Response({"error": "Thiếu loại bài test hoặc đáp án"}, status=status.HTTP_400_BAD_REQUEST)
     try:
-        profile = TestResultService.save_test_result(user, test_type, answers)
-        result_code = profile.mbti_result if test_type.upper() == "MBTI" else profile.holland_result
-        return Response({"success": True, "result_code": result_code})
+        calc_result = TestResultService.save_test_result(user, test_type, answers)
+        return Response({"success": True, "result": calc_result})
     except Exception as e:
         return Response({"error": f"Lỗi hệ thống: {str(e)}"}, status=status.HTTP_400_BAD_REQUEST)
 
