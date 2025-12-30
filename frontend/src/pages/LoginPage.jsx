@@ -4,7 +4,7 @@ import { GoogleLogin } from "@react-oauth/google";
 import GlassCard from "../components/common/GlassCard";
 import Logo from "../components/logo";
 import { loginUser, saveTokens, saveUserInfo, googleLogin } from "../api/authApi";
-import assessmentApi from "../api/assessmentApi";
+import { getTestResult } from "../api/testApi";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import "../assets/css-custom/loginpage.css";
 
@@ -54,16 +54,8 @@ const LoginPage = () => {
 
           // For normal users, fetch assessment profile to decide
           try {
-            const profileResp = await assessmentApi.getProfile();
-            const profile = profileResp.profile || {};
-
-            const hasAssessment = !!(
-              profile.holland_result ||
-              profile.mbti_result ||
-              (Array.isArray(profile.recent_results) && profile.recent_results.length > 0)
-            );
-
-            if (hasAssessment) {
+            const testResp = await getTestResult();
+            if (testResp.success && (testResp.mbti_result || testResp.holland_result)) {
               navigate("/trang-nguoi-dung", { replace: true });
             } else {
               navigate("/trac-nghiem", { replace: true });
@@ -102,16 +94,8 @@ const LoginPage = () => {
           }
 
           try {
-            const profileResp = await assessmentApi.getProfile();
-            const profile = profileResp.profile || {};
-
-            const hasAssessment = !!(
-              profile.holland_result ||
-              profile.mbti_result ||
-              (Array.isArray(profile.recent_results) && profile.recent_results.length > 0)
-            );
-
-            if (hasAssessment) {
+            const testResp = await getTestResult();
+            if (testResp.success && (testResp.mbti_result || testResp.holland_result)) {
               navigate("/trang-nguoi-dung", { replace: true });
             } else {
               navigate("/trac-nghiem", { replace: true });

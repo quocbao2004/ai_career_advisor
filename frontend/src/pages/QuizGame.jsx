@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import GlassCard from "../components/common/GlassCard";
-import assessmentApi from "../api/assessmentApi";
+import * as testApi from "../api/testApi";
 import { getAccessToken } from "../api/authApi";
 import { getQuizConfig } from "../assets/js/quizConfig";
 import "../assets/css-custom/quiz-game.css";
@@ -19,7 +19,6 @@ const QuizGame = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // Determine quiz type: prefer route param, fallback to last path segment
   const rawTypeFromParams = type ? String(type).trim() : "";
   const lastPathSegment = (() => {
     try {
@@ -47,12 +46,11 @@ const QuizGame = () => {
   // Fallback heuristics for slightly different type values
   if (!config) {
     if (normalizedType.includes("mbti")) config = getQuizConfig("mbti");
-    else if (
-      normalizedType.includes("holland") ||
-      normalizedType.includes("holland")
-    )
-      config = getQuizConfig("holland");
+    else if (normalizedType.includes("holland")) config = getQuizConfig("holland");
   }
+
+  // Đảm bảo apiType luôn là 'MBTI' hoặc 'HOLLAND' (chữ hoa)
+  const apiType = config?.apiType?.toUpperCase();
 
   useEffect(() => {
     const token = getAccessToken();
@@ -72,7 +70,16 @@ const QuizGame = () => {
     const loadQuestions = async () => {
       try {
         setLoading(true);
-        const response = await assessmentApi.getQuestions(config.apiType);
+        let response;
+        if (apiType === "HOLLAND") {
+          response = await testApi.getHollandQuestions();
+        } else if (apiType === "MBTI") {
+          response = await testApi.getMBTIQuestions();
+        } else {
+          setError("Loại bài test không hợp lệ");
+          setLoading(false);
+          return;
+        }
         if (response.success) {
           setQuestions(response.questions);
         } else {
@@ -80,14 +87,13 @@ const QuizGame = () => {
         }
       } catch (err) {
         setError("Lỗi kết nối");
-        // logging removed
       } finally {
         setLoading(false);
       }
     };
 
     loadQuestions();
-  }, [config]);
+  }, [config, apiType]);
 
   // Trả về sớm sau khi tất cả hooks được gọi
   if (!config) {
@@ -118,19 +124,14 @@ const QuizGame = () => {
   const submitQuiz = async (finalAnswers) => {
     try {
       setLoading(true);
-      const response = await assessmentApi.submitAssessment(
-        config.apiType,
-        finalAnswers
-      );
+      const response = await testApi.submitTest(apiType, finalAnswers);
       if (response.success) {
         setResult(response.result);
-        // result is stored in state; no devtools logging
       } else {
         setError("Lỗi khi lưu kết quả. Vui lòng thử lại.");
       }
     } catch (err) {
       setError("Lỗi kết nối khi gửi kết quả.");
-      // logging removed
     } finally {
       setLoading(false);
     }

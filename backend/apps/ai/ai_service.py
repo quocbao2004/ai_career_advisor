@@ -53,7 +53,7 @@ def search_vector_db(query_embedding, top_k=5):
 def get_info_user(user, is_profile_missing):
     user_skills = getattr(user, 'skills', "Chưa cập nhật")
     current_job = getattr(user.profile, 'current_job_title', None)
-    education = getattr(user, 'education_level', None)
+    education = getattr(user.profile, 'education_level', None)
 
     
     if not current_job or not education:

@@ -1,13 +1,11 @@
-from apps.users.models import User
-from apps.users.serializers import UserSerializer, UserProfileSerializer
 from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
+from apps.users.services.test_service import HollandTestService, MBTITestService, TestResultService
 from utils.permissions import IsAdminUser, IsAdminOrUser
-from django.contrib.auth.hashers import make_password
-from django.core.files.storage import default_storage
-from django.core.files.base import ContentFile
-from django.utils.text import get_valid_filename
+from apps.users.models import User
+from apps.users.serializers import UserProfileSerializer
 
 @api_view(['DELETE'])
 @permission_classes([IsAdminUser])  
@@ -57,3 +55,37 @@ def profile(request):
             return Response(serializer.data, status=status.HTTP_200_OK)
         
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_holland_test_questions(request):
+    questions = HollandTestService.get_questions_for_frontend()
+    return Response({"questions": questions})
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_mbti_test_questions(request):
+    questions = MBTITestService.get_questions_for_frontend()
+    return Response({"questions": questions})
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def submit_test(request):
+    user = request.user
+    test_type = request.data.get("test_type")
+    answers = request.data.get("answers")
+    if not test_type or not answers:
+        return Response({"error": "Thiếu loại bài test hoặc đáp án"}, status=status.HTTP_400_BAD_REQUEST)
+    try:
+        profile = TestResultService.save_test_result(user, test_type, answers)
+        result_code = profile.mbti_result if test_type.upper() == "MBTI" else profile.holland_result
+        return Response({"success": True, "result_code": result_code})
+    except Exception as e:
+        return Response({"error": f"Lỗi hệ thống: {str(e)}"}, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_test_result(request):
+    user = request.user
+    result = TestResultService.get_user_test_profile(user)
+    return Response(result)
