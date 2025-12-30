@@ -141,6 +141,7 @@ class UserSkill(models.Model):
         validators=[MinValueValidator(1), MaxValueValidator(5)],
         help_text="1: Cơ bản, 2: Sơ cấp, 3: Trung cấp, 4: Cao cấp, 5: Chuyên gia"
     )
+    embedding=VectorField(dimensions=768,null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     class Meta:
         db_table = 'user_skills'

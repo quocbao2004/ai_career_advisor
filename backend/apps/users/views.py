@@ -1,5 +1,5 @@
-from apps.users.models import User, UserProfile
-from apps.users.serializers import UserSerializer, UserProfileSerializer
+from apps.users.models import User, UserProfile, UserSkill
+from apps.users.serializers import UserProfileSerializer
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework import status
@@ -45,33 +45,49 @@ def profile(request):
         serializer = UserProfileSerializer(profile_instance)
         return Response(serializer.data)
     
+    # --- METHOD PUT ---
     elif request.method == 'PUT':
-        print(2)
         serializer = UserProfileSerializer(profile_instance, data=request.data, partial=True)
-        print(2)
         
         if serializer.is_valid():
             updated_profile = serializer.save()
+            
+            # === LOGIC TẠO EMBEDDING (RAG) ===
             try:
+                # 1. Lấy chuỗi sở thích
                 interests_qs = user.interests.all()
-                print(1)
                 interests_str = ", ".join([i.keyword for i in interests_qs])
-                print(1)                
+
+                # 2. Lấy chuỗi Kỹ năng (MỚI THÊM)
+                skills_qs = UserSkill.objects.filter(user=user)
+                skills_str = ", ".join([f"{s.skill_name} (Level {s.proficiency_level}/5)" for s in skills_qs])
+                
+                # 3. Tạo nội dung để embed
                 text_content = f"""
                 Job Title: {updated_profile.current_job_title or 'Unknown'}
                 Education: {updated_profile.get_education_level_display() or 'Unknown'}
                 Bio: {updated_profile.bio or ''}
-                MBTI: {updated_profile.mbti_result or ''}
-                Holland: {updated_profile.holland_result or ''}
+                Skills: {skills_str} 
                 Interests: {interests_str}
+                MBTI: {updated_profile.mbti_result or ''}
+                Holland Code: {updated_profile.holland_result or ''}
                 """.strip()
-                print(1)  
+
+                print(f"Embedding Content for {user.email}:\n{text_content}") # Debug xem nội dung đúng chưa
+
+                # 4. Gọi AI tạo Vector
                 vector = get_embedding(text_content, task_type="retrieval_document")
+                
                 if vector:
                     updated_profile.profile_vector = vector
                     updated_profile.save(update_fields=['profile_vector'])
                     print(f"Updated vector for user {user.email}")
+                    
             except Exception as e:
                 print(f"Error updating vector: {e}")
+
             return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+        else:
+            print("Validation Error:", serializer.errors)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
