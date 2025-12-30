@@ -6,7 +6,6 @@ import {
   Send,
   Plus,
   MessageSquare,
-  MoreHorizontal,
   Edit2,
   Trash2,
   X,
@@ -14,7 +13,7 @@ import {
   Bot,
   User,
   Sparkles,
-} from "lucide-react"; // Import icon xịn
+} from "lucide-react";
 import "../assets/css-custom/ai-chat.css";
 
 const AIChat = () => {
@@ -24,15 +23,18 @@ const AIChat = () => {
   const [messages, setMessages] = useState([]);
   const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true); // Responsive mobile
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
   // State quản lý Edit/Delete/Model
   const [selectedModel, setSelectedModel] = useState("gemini-2.5-flash");
   const [editingSessionId, setEditingSessionId] = useState(null);
   const [editTitle, setEditTitle] = useState("");
 
-  // Refs & Token
+  // Refs
   const messagesEndRef = useRef(null);
+  // Dùng ref này để chặn useEffect fetch lại tin nhắn khi vừa tạo session mới
+  const isCreatingSession = useRef(false);
+
   const token = localStorage.getItem("access_token");
   const BASE_URL = "http://127.0.0.1:8000/api/ai";
 
@@ -41,18 +43,30 @@ const AIChat = () => {
     { id: "gemini-2.5-flash-lite", name: "Gemini 2.5 Flash Lite" },
   ];
 
-  // --- API & LOGIC (Giữ nguyên logic cũ, chỉ cập nhật UI) ---
+  // --- API & LOGIC ---
+
+  // 1. Load danh sách sessions khi vào trang
   useEffect(() => {
     fetchSessions();
   }, []);
+
+  // 2. Scroll xuống cuối khi có tin nhắn mới
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+  // 3. Load tin nhắn khi đổi session
   useEffect(() => {
     if (currentSessionId) {
-      fetchSessionMessages(currentSessionId);
+      // Nếu vừa mới tạo session xong (isCreatingSession = true) thì KHÔNG fetch lại
+      // để tránh mất tin nhắn vừa chat hoặc reload không cần thiết.
+      if (isCreatingSession.current) {
+        isCreatingSession.current = false; // Reset cờ
+      } else {
+        fetchSessionMessages(currentSessionId);
+      }
     } else {
-      setMessages([]); // Reset về trống để hiện màn hình Welcome
+      setMessages([]); // Reset về màn hình Welcome
     }
   }, [currentSessionId]);
 
@@ -91,8 +105,11 @@ const AIChat = () => {
 
   const handleSendMessage = async () => {
     if (!inputValue.trim()) return;
+
     const prompt = inputValue;
     setInputValue("");
+
+    // UI Optimistic Update (Hiện tin nhắn user ngay)
     setMessages((prev) => [
       ...prev,
       { id: Date.now(), text: prompt, sender: "user" },
@@ -104,29 +121,48 @@ const AIChat = () => {
         `${BASE_URL}/chat/message/`,
         {
           prompt,
-          session_id: currentSessionId,
+          session_id: currentSessionId, // Gửi null nếu là tin đầu
           model: selectedModel,
         },
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
       const data = res.data;
+
+      // Hiện tin nhắn AI phản hồi
       setMessages((prev) => [
         ...prev,
         { id: Date.now() + 1, text: data.response, sender: "ai" },
       ]);
 
-      if (!currentSessionId && data.new_session_id) {
-        setCurrentSessionId(data.new_session_id);
+      // --- FIX LOGIC TẠO SESSION Ở ĐÂY ---
+      // Kiểm tra nếu chưa có session ID hiện tại VÀ backend trả về session_id mới
+      if (!currentSessionId && data.session_id) {
+        // Đánh dấu là đang tạo session để chặn useEffect fetch lại
+        isCreatingSession.current = true;
+
+        // Cập nhật ID phiên làm việc
+        setCurrentSessionId(data.session_id);
+
+        // Cập nhật Sidebar ngay lập tức
         setSessions((prev) => [
-          { id: data.new_session_id, title: data.new_session_title },
+          {
+            id: data.session_id,
+            title: data.session_title || "New Conversation",
+          },
           ...prev,
         ]);
       }
+      // ------------------------------------
     } catch (err) {
+      console.error(err);
       setMessages((prev) => [
         ...prev,
-        { id: Date.now(), text: " Lỗi kết nối server.", sender: "ai" },
+        {
+          id: Date.now(),
+          text: "Lỗi kết nối server hoặc AI không phản hồi.",
+          sender: "ai",
+        },
       ]);
     } finally {
       setIsLoading(false);
@@ -249,7 +285,6 @@ const AIChat = () => {
           ))}
         </div>
 
-        {/* User Profile Mini (Optional footer for sidebar) */}
         <div className="sidebar-footer">
           <div className="user-mini">
             <div className="avatar-circle small">

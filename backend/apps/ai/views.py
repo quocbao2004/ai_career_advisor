@@ -12,7 +12,7 @@ from dotenv import load_dotenv
 
 from .models import ChatSession, ChatMessage, KnowledgeBase
 from .serializers import ChatMessageSerializer, ChatSessionSerializer
-from apps.users.models import PersonalityTest
+
 
 
 load_dotenv()

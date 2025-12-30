@@ -1,5 +1,5 @@
-from apps.users.models import User, MasterSkill
-from apps.users.serializers import UserSerializer, MasterSkillSerializer, UserProfileSerializer
+from apps.users.models import User
+from apps.users.serializers import UserSerializer, UserProfileSerializer
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework import status

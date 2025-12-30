@@ -117,14 +117,13 @@ const Header = () => {
                   <small className="text-muted">@{userInfo.role}</small>
                 </li>
 
-                {userInfo.role === "user" ||
-                  (userInfo.role === "admin" && (
-                    <li>
-                      <Link className="dropdown-item py-2" to="/dashboard">
-                        <i className="bi bi-speedometer2 me-2"></i> Dashboard
-                      </Link>
-                    </li>
-                  ))}
+                {(userInfo.role === "user" || userInfo.role === "admin") && (
+                  <li>
+                    <Link className="dropdown-item py-2" to="/dashboard">
+                      <i className="bi bi-speedometer2 me-2"></i> Dashboard
+                    </Link>
+                  </li>
+                )}
 
                 {userInfo.role === "admin" && (
                   <li>

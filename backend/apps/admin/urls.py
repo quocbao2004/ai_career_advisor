@@ -6,8 +6,6 @@ urlpatterns = [
     path('courses/', views.course_list_create),
     path('import-data/', views.import_data),
     path('courses/<int:id>/', views.edit_courses),
-    path('master-skills/', views.get_and_post_master_skill),
-    path('master-skills/<int:id>/', views.delete_or_put_master_skill),
     path('careers/', views.career_list_create, name='career-list-create'),
     path('careers/<int:id>/', views.delete_or_edit_career),
     path('industries/', views.get_or_post_industry),

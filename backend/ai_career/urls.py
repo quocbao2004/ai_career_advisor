@@ -34,7 +34,6 @@ urlpatterns = [
 
     # auth
     path("api/auth/", include("apps.custom_auth.urls")),
-    path("api/assessments/", include("apps.assessments.urls")),
 
     # user
     path("api/users/", include("apps.users.urls")),

@@ -1,14 +1,12 @@
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from utils.permissions import IsAdminUser, IsAdminOrUser
-from apps.users.models import User, MasterSkill
-from apps.courses.models import Course
-from apps.career.models import Career, Industry
+from apps.users.models import User
+from apps.career.models import Career, Industry, Course
 
 
-from apps.users.serializers import UserSerializer, MasterSkillSerializer
-from apps.courses.serializers import CourseSerializer
-from apps.career.serializers import IndustrySerializer, CareerSerializer
+from apps.users.serializers import UserSerializer
+from apps.career.serializers import IndustrySerializer, CareerSerializer, CourseSerializer
 
 
 from rest_framework.response import Response
@@ -116,7 +114,6 @@ def import_data(request):
 
 
             'courses': CourseSerializer,
-            'master_skills': MasterSkillSerializer
         }
         TargetSerializer = serializer_map.get(model_name)
         if not TargetSerializer:
@@ -180,58 +177,7 @@ def import_data(request):
             "error": str(e)
         },status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     
-@api_view(['GET', 'POST'])
-@permission_classes([IsAdminOrUser])
-def get_and_post_master_skill(request):
-    try:
-        if request.method == 'GET':
-            master_skills = MasterSkill.objects.all()
-            serializer = MasterSkillSerializer(master_skills, many=True)
-            return Response({
-                    "message": "Lấy danh sách thành công",
-                    "data": serializer.data
-                },status=status.HTTP_200_OK)
-        if request.method == 'POST':
-            serializer = MasterSkillSerializer(data=request.data)
-            if serializer.is_valid():
-                serializer.save()
-                return Response({
-                    "message": "OK",
-                    "data": serializer.data
-                },status=status.HTTP_200_OK)
-    except Exception as e:
-        return Response({
-            "error": str(e),
-            "message": "Lỗi hệ thống"
-        },status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-@api_view(['DELETE', 'PUT'])
-@permission_classes([IsAdminUser])
-def delete_or_put_master_skill(request, id):
-    try:
-        master_skill = MasterSkill.objects.get(id=id)
-        if not master_skill:
-            return Response({
-                "message": "ID not found"
-            },status=status.HTTP_400_BAD_REQUEST)
-        if request.method == 'DELETE':
-            result = master_skill.delete()
-            return Response({
-                "message": "OK"
-            },status=status.HTTP_200_OK)
-        elif request.method == 'PUT':
-            serializer = MasterSkillSerializer(master_skill, data=request.data)
-            if serializer.is_valid():
-                result = serializer.save()
-                return Response({
-                    "message": "OK"
-                }, status=status.HTTP_200_OK)
-    except Exception as e:
-        return Response({
-            "error": str(e),
-            "message": "Da xay ra loi"
-        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-    
 @api_view(['GET', 'POST'])
 @permission_classes([IsAdminOrUser])
 def career_list_create(request):

@@ -3,9 +3,7 @@ from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 from django.contrib.auth import get_user_model
 
-from apps.career.models import Career, Industry, MasterSkill
-from apps.courses.models import Course
-from apps.users.models import PersonalityTest
+from apps.career.models import Career, Industry, Course
 import json
 
 from apps.ai.models import KnowledgeBase
@@ -86,16 +84,6 @@ def update_industry_vector(sender, instance, **kwargs):
     sync_embedding(instance, 'industry', content, metadata)
 
 # =======================================================
-# 4. XỬ LÝ SKILL (KỸ NĂNG)
-# =======================================================
-@receiver(post_save, sender=MasterSkill)
-def update_skill_vector(sender, instance, **kwargs):
-    content = f"Kỹ năng: {instance.skill_name}. Loại: {instance.type}. Mô tả: {instance.description}"
-    metadata = {"name": instance.skill_name}
-    
-    sync_embedding(instance, 'skill', content, metadata)
-
-# =======================================================
 # 5. XỬ LÝ USER PROFILE (Chỉ user active mới embed)
 # =======================================================
 @receiver(post_save, sender=User)
@@ -122,53 +110,12 @@ def update_user_vector(sender, instance, **kwargs):
     sync_embedding(instance, 'user_profile', content, metadata)
 
 # =======================================================
-#  XỬ LÝ Bài test
-# =======================================================
-@receiver(post_save, sender=PersonalityTest)
-def update_personality_vector(sender, instance, created, **kwargs):
-    """
-    Khi user làm bài test xong, đẩy kết quả vào Vector DB.
-    """
-    user = instance.user
-    
-    # 1. Xử lý JSON raw_result thành văn bản đọc được
-    # Giả sử raw_result lưu: {"strengths": "Tư duy logic", "weaknesses": "Ít nói"}
-    details_text = ""
-    if instance.raw_result:
-        # Cách đơn giản: Flatten JSON thành chuỗi
-        if isinstance(instance.raw_result, dict):
-             details_text = "; ".join([f"{k}: {v}" for k, v in instance.raw_result.items()])
-        else:
-             details_text = str(instance.raw_result)
-
-    # 2. Tạo nội dung cho AI đọc (Embedding Content)
-    content = (
-        f"Kết quả bài trắc nghiệm tính cách ({instance.test_type}) của {user.full_name}. "
-        f"Kết quả tóm tắt: {instance.summary_code}. " # Ví dụ: INTJ
-        f"Chi tiết phân tích: {details_text}. "
-        f"Ngày thực hiện: {instance.taken_at.strftime('%d/%m/%Y')}."
-    )
-    
-    # 3. Metadata để lọc nếu cần
-    metadata = {
-        "user_id": str(user.id),
-        "test_type": instance.test_type,
-        "summary_code": instance.summary_code
-    }
-    
-    # 4. Gọi hàm sync (Lưu ý: dùng content_type khác để phân biệt với profile chính)
-    sync_embedding(instance, 'personality_result', content, metadata)
-
-
-# =======================================================
 # 6. XỬ LÝ XÓA (DELETE) - DÙNG CHUNG
 # =======================================================
 @receiver(post_delete, sender=Career)
 @receiver(post_delete, sender=Course)
 @receiver(post_delete, sender=Industry)
-@receiver(post_delete, sender=MasterSkill)
 @receiver(post_delete, sender=User)
-@receiver(post_delete, sender=PersonalityTest)
 def delete_vector(sender, instance, **kwargs):
     """
     Khi xóa dữ liệu gốc, tự động xóa luôn vector tương ứng

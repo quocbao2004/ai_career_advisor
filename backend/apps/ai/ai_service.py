@@ -4,8 +4,7 @@ from django.conf import settings
 from dotenv import load_dotenv
 from apps.ai.models import KnowledgeBase
 from pgvector.django import CosineDistance
-from ..ai.models import KnowledgeBase, ChatMessage, ChatSession 
-from ..users.models import PersonalityTest
+from ..ai.models import KnowledgeBase, ChatMessage, ChatSession
 
 load_dotenv()
 
@@ -52,10 +51,8 @@ def search_vector_db(query_embedding, top_k=5):
 
 
 def get_info_user(user, is_profile_missing):
-    personality_test = PersonalityTest.objects.filter(user=user).order_by('-taken_at').first()
-    personality_code = personality_test.summary_code if personality_test else "Chưa làm test"
     user_skills = getattr(user, 'skills', "Chưa cập nhật")
-    current_job = getattr(user, 'current_job_title', None)
+    current_job = getattr(user.profile, 'current_job_title', None)
     education = getattr(user, 'education_level', None)
 
     
@@ -67,7 +64,6 @@ def get_info_user(user, is_profile_missing):
         - Công việc hiện tại: {current_job}
         - Trình độ học vấn: {education}
         - Kỹ năng nổi bật: {user_skills}
-        - Loại tính cách (MBTI/Holland): {personality_code}
         """
     return user_profile_context, is_profile_missing
 

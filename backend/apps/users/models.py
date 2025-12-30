@@ -3,6 +3,7 @@ from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, BaseUserManager
 from django.utils.translation import gettext_lazy as _
 from django.core.validators import MinValueValidator, MaxValueValidator
+from pgvector.django import VectorField
 
 # ==========================================
 # 1. ENUMS (Lựa chọn)
@@ -75,15 +76,6 @@ class User(AbstractBaseUser, PermissionsMixin):
     password_hash = models.TextField()
     role = models.CharField(max_length=10, choices=Role.choices, default=Role.USER)
 
-    # Profile Fields 
-    avatar_url = models.TextField(blank=True, null=True)
-    phone_number = models.CharField(max_length=20, blank=True, null=True)
-    gender = models.CharField(max_length=10, choices=Gender.choices, blank=True, null=True)
-    dob = models.DateField(blank=True, null=True)
-    bio = models.TextField(blank=True, null=True)
-    education_level = models.CharField(max_length=20, choices=EducationLevel.choices, blank=True, null=True)
-    current_job_title = models.CharField(max_length=100, blank=True, null=True)
-    linkedin_url = models.URLField(blank=True, null=True)
 
     # System Fields
     is_active = models.BooleanField(default=True)
@@ -115,38 +107,21 @@ class User(AbstractBaseUser, PermissionsMixin):
     def password(self, value):
         self.password_hash = value
 
-class MasterSkill(models.Model):
-    id=models.AutoField(primary_key=True)
-    skill_name = models.TextField(unique=True)
-    type = models.CharField(max_length=50, default='hard_skill')
-    description = models.TextField(blank=True, null=True)
-
-    class Meta:
-        db_table = 'master_skills'
-
-    def __str__(self):
-        return self.skill_name
-
-
-class UserSkill(models.Model):
-    user = models.ForeignKey(User,on_delete=models.CASCADE,db_column='user_id',related_name='skills')
-    skill = models.ForeignKey(MasterSkill,on_delete=models.CASCADE,db_column='skill_id',related_name='user_skills')
-
-    proficiency_level = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(5)])
-    verified = models.BooleanField(default=False)
-
-    class Meta:
-        db_table = 'user_skills'
-        unique_together = ('user', 'skill') 
-        verbose_name = "User Skill"
-        verbose_name_plural = "User Skills"
-
-    def __str__(self):
-        return f"{self.user.full_name} - {self.skill.skill_name}"
-
+class UserProfile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
+    phone_number = models.CharField(max_length=20, blank=True, null=True)
+    gender = models.CharField(max_length=10, choices=Gender.choices, blank=True, null=True)
+    dob = models.DateField(blank=True, null=True)
+    bio = models.TextField(blank=True, null=True)
+    education_level = models.CharField(max_length=20, choices=EducationLevel.choices, blank=True, null=True)
+    current_job_title = models.CharField(max_length=100, blank=True, null=True)
+    linkedin_url = models.URLField(blank=True, null=True)
+    mbti_result = models.CharField(max_length=10, blank=True, null=True)
+    holland_result = models.CharField(max_length=10, blank=True, null=True)
+    profile_vector = VectorField(dimensions=768, null=True)
 
 class UserInterest(models.Model):
-    user = models.ForeignKey(User,on_delete=models.CASCADE,db_column='user_id',related_name="interests")
+    user = models.ForeignKey(User,on_delete=models.CASCADE,related_name="interests")
     keyword = models.CharField(max_length=100)
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -157,21 +132,3 @@ class UserInterest(models.Model):
 
     def __str__(self):
         return f"{self.user.full_name} likes {self.keyword}"
-
-
-class PersonalityTest(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='personality_tests')
-    test_type = models.CharField(max_length=20, choices=TestType.choices)
-    raw_result = models.JSONField(blank=True, null=True)
-    summary_code = models.CharField(max_length=10, blank=True, null=True)  # VD: INTJ
-    taken_at = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        db_table = 'personality_tests'
-        verbose_name = "Personality Test"
-        verbose_name_plural = "Personality Tests"
-        ordering = ['-taken_at']
-
-    def __str__(self):
-        return f"{self.user.full_name} - {self.test_type}"

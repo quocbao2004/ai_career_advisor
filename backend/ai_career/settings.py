@@ -47,11 +47,9 @@ INSTALLED_APPS = [
     # custom app
     'apps.ai',
     'apps.career',
-    'apps.courses',
     'apps.users',
     'apps.learning_paths',
     'apps.custom_auth',
-    'apps.assessments',
 
     # import
     'corsheaders',
