@@ -157,7 +157,6 @@ class GoogleLoginView(APIView):
 
         try:
             decoded = jwt.decode(token, options={"verify_signature": False})
-            
             email = decoded.get("email")
             full_name = decoded.get("name", "")
             
@@ -168,7 +167,6 @@ class GoogleLoginView(APIView):
                 }, status=status.HTTP_400_BAD_REQUEST)
 
             data, error = AuthService.google_login(email, full_name)
-
             if error:
                 return Response({
                     "success": False,

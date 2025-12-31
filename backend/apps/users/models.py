@@ -119,6 +119,8 @@ class UserProfile(models.Model):
     mbti_result = models.CharField(max_length=10, blank=True, null=True)
     holland_result = models.CharField(max_length=10, blank=True, null=True)
     profile_vector = VectorField(dimensions=768, null=True)
+    def __str__(self):
+        return self.user.email
 
 class UserInterest(models.Model):
     user = models.ForeignKey(User,on_delete=models.CASCADE,related_name="interests")
