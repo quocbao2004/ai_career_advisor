@@ -96,8 +96,8 @@ def profile(request):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_holland_test_questions(request):
-    questions = HollandTestService.get_questions_for_frontend()
-    return Response({"questions": questions})
+    data = HollandTestService.get_questions_for_frontend()
+    return Response(data)
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])

@@ -84,7 +84,13 @@ def chat_message(request):
     try:
         # LẤY THÔNG TIN CÁ NHÂN 
         is_profile_missing = False
-        current_job = getattr(user.profile, 'current_job_title', None)
+        try:
+            profile = user.profile
+        except:
+            from apps.users.models import UserProfile
+            profile, _ = UserProfile.objects.get_or_create(user=user)
+        
+        current_job = getattr(profile, 'current_job_title', None)
         user_profile_context, is_profile_missing = get_info_user(user, is_profile_missing=is_profile_missing)
 
         # LẤY LỊCH SỬ CHAT (HISTORY)

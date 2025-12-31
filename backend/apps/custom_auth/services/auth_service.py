@@ -3,6 +3,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from apps.custom_auth.services.email_service import EmailService
 from django.core.cache import cache
 import logging
+import random
 
 logger = logging.getLogger(__name__)
 
@@ -29,9 +30,6 @@ class AuthService:
             return None, "Mật khẩu không đúng"
 
         refresh = RefreshToken.for_user(user)
-
-        # Debug log
-        logger.info(f"Login successful for {email}, role: {user.role}")
 
         return {
             "access": str(refresh.access_token),
@@ -113,24 +111,50 @@ class AuthService:
 
     @staticmethod
     def google_login(email: str, full_name: str, **extra_fields):
-        from apps.users.models import User
+        from apps.users.models import User, UserProfile
+        from django.db import transaction
+        
+        is_new_user = False
         
         try:
             user = User.objects.get(email=email)
         except User.DoesNotExist:
             try:
-                user = User.objects.create_user(
-                    email=email,
-                    password="",
-                    full_name=full_name,
-                    **extra_fields
-                )
+                # Sử dụng transaction để đảm bảo User và UserProfile được tạo cùng lúc
+                with transaction.atomic():
+                    # Mật khẩu mặc định cho tài khoản Google
+                    default_password = "12345678"
+                    
+                    user = User.objects.create_user(
+                        email=email,
+                        password=default_password,
+                        full_name=full_name,
+                        **extra_fields
+                    )
+                    # Tạo UserProfile ngay lập tức trong cùng transaction
+                    profile, created = UserProfile.objects.get_or_create(user=user)
+                    if created:
+                        logger.info(f"UserProfile created for new Google user: {email}")
+                    
+                    is_new_user = True
             except Exception as e:
+                logger.error(f"Error creating Google user {email}: {e}")
                 return None, str(e)
 
-        refresh = RefreshToken.for_user(user)
+        # Đảm bảo user có profile trước khi tiếp tục - dùng get_or_create an toàn hơn hasattr
+        try:
+            profile, created = UserProfile.objects.get_or_create(user=user)
+            if created:
+                logger.warning(f"Created missing profile for existing user: {email}")
+        except Exception as e:
+            logger.error(f"Failed to create profile for {email}: {e}")
+            return None, f"Không thể tạo profile: {str(e)}"
 
-        logger.info(f"Google login successful for {email}, role: {user.role}")
+        # Gửi email mật khẩu mặc định cho user mới
+        if is_new_user:
+            EmailService.send_password_email(email, "12345678")
+
+        refresh = RefreshToken.for_user(user)
 
         return {
             "access": str(refresh.access_token),

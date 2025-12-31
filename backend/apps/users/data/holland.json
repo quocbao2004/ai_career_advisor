@@ -1,0 +1,53 @@
+{
+    "options": [
+      { "label": "Rất không phù hợp", "score": 0 },
+      { "label": "Không phù hợp", "score": 1 },
+      { "label": "Bình thường", "score": 2 },
+      { "label": "Phù hợp", "score": 3 },
+      { "label": "Rất phù hợp", "score": 4 }
+    ],
+  "questions": [
+    { "id": "R1", "dimension": "R", "content": "Tôi thích làm việc với máy móc và dụng cụ." },
+    { "id": "R2", "dimension": "R", "content": "Tôi thích vận động tay chân hơn là ngồi một chỗ." },
+    { "id": "R3", "dimension": "R", "content": "Tôi tự tin sửa chữa hoặc lắp ráp các thiết bị." },
+    { "id": "R4", "dimension": "R", "content": "Tôi thích làm việc ngoài trời." },
+    { "id": "R5", "dimension": "R", "content": "Tôi thích công việc có kết quả cụ thể, nhìn thấy được." },
+    { "id": "R6", "dimension": "R", "content": "Tôi thích sử dụng công cụ hoặc thiết bị kỹ thuật." },
+
+    { "id": "I1", "dimension": "I", "content": "Tôi thích phân tích và giải quyết vấn đề phức tạp." },
+    { "id": "I2", "dimension": "I", "content": "Tôi thích nghiên cứu và tìm hiểu nguyên nhân của sự việc." },
+    { "id": "I3", "dimension": "I", "content": "Tôi có khả năng suy nghĩ logic." },
+    { "id": "I4", "dimension": "I", "content": "Tôi thích làm việc độc lập." },
+    { "id": "I5", "dimension": "I", "content": "Tôi thích khoa học, công nghệ hoặc học thuật." },
+    { "id": "I6", "dimension": "I", "content": "Tôi thích đọc tài liệu chuyên môn hoặc nghiên cứu." },
+
+    { "id": "A1", "dimension": "A", "content": "Tôi là người sáng tạo." },
+    { "id": "A2", "dimension": "A", "content": "Tôi có trí tưởng tượng phong phú." },
+    { "id": "A3", "dimension": "A", "content": "Tôi thích vẽ, thiết kế hoặc sáng tạo hình ảnh." },
+    { "id": "A4", "dimension": "A", "content": "Tôi thích âm nhạc, nghệ thuật hoặc biểu diễn." },
+    { "id": "A5", "dimension": "A", "content": "Tôi thích viết lách hoặc sáng tác nội dung." },
+    { "id": "A6", "dimension": "A", "content": "Tôi thích thể hiện bản thân theo cách riêng." },
+    
+    { "id": "S1", "dimension": "S", "content": "Tôi thích giúp đỡ người khác." },
+    { "id": "S2", "dimension": "S", "content": "Tôi thích làm việc nhóm." },
+    { "id": "S3", "dimension": "S", "content": "Tôi dễ đồng cảm với cảm xúc của người khác." },
+    { "id": "S4", "dimension": "S", "content": "Tôi thích lắng nghe và tư vấn." },
+    { "id": "S5", "dimension": "S", "content": "Tôi thích dạy hoặc hướng dẫn người khác." },
+    { "id": "S6", "dimension": "S", "content": "Tôi giao tiếp tốt." },
+    
+    { "id": "E1", "dimension": "E", "content": "Tôi thích lãnh đạo và dẫn dắt người khác." },
+    { "id": "E2", "dimension": "E", "content": "Tôi tự tin đưa ra quyết định." },
+    { "id": "E3", "dimension": "E", "content": "Tôi thích thuyết phục và đàm phán." },
+    { "id": "E4", "dimension": "E", "content": "Tôi thích kinh doanh hoặc quản lý." },
+    { "id": "E5", "dimension": "E", "content": "Tôi có tham vọng và mục tiêu rõ ràng." },
+    { "id": "E6", "dimension": "E", "content": "Tôi thích cạnh tranh và thử thách." },
+    
+    { "id": "C1", "dimension": "C", "content": "Tôi làm việc có kế hoạch và tổ chức." },
+    { "id": "C2", "dimension": "C", "content": "Tôi thích làm việc với dữ liệu và con số." },
+    { "id": "C3", "dimension": "C", "content": "Tôi thích sự rõ ràng và quy trình cụ thể." },
+    { "id": "C4", "dimension": "C", "content": "Tôi làm việc cẩn thận và chính xác." },
+    { "id": "C5", "dimension": "C", "content": "Tôi thích sắp xếp và phân loại thông tin." },
+    { "id": "C6", "dimension": "C", "content": "Tôi tuân thủ nguyên tắc và quy định." }
+    
+  ]
+}

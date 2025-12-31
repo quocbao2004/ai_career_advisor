@@ -52,8 +52,14 @@ def search_vector_db(query_embedding, top_k=5):
 
 def get_info_user(user, is_profile_missing):
     user_skills = getattr(user, 'skills', "Chưa cập nhật")
-    current_job = getattr(user.profile, 'current_job_title', None)
-    education = getattr(user.profile, 'education_level', None)
+    try:
+        profile = user.profile
+    except:
+        from apps.users.models import UserProfile
+        profile, _ = UserProfile.objects.get_or_create(user=user)
+    
+    current_job = getattr(profile, 'current_job_title', None)
+    education = getattr(profile, 'education_level', None)
 
     
     if not current_job or not education:

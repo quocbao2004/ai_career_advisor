@@ -3,8 +3,8 @@
   min-height: 85vh;
   display: flex;
   justify-content: center;
-  align-items: center;
-  padding: 20px;
+  align-items: flex-start; /* Thay đổi từ center sang flex-start để tránh header */
+  padding: 100px 20px 20px 20px; /* Thêm padding-top để tránh header */
   position: relative;
   z-index: 10;
   background: linear-gradient(135deg, rgba(15, 23, 42, 0.5) 0%, rgba(30, 41, 59, 0.5) 100%);
