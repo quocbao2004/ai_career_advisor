@@ -1,31 +1,28 @@
 from rest_framework import serializers
 from django.db import transaction
 from apps.users.models import User, UserInterest, UserProfile, UserSkill
-
-# --- 1. Serializer cho Skill (Nested) ---
+from apps.ai.services.ai_service import get_embedding
 class UserSkillSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserSkill
         fields = ['id', 'skill_name', 'proficiency_level']
         read_only_fields = ['id']
 
-# --- 2. Serializer cho User ---
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = '__all__'
 
-# --- 3. Serializer chính cho Profile ---
 class UserProfileSerializer(serializers.ModelSerializer):
     full_name = serializers.CharField(source='user.full_name', required=False)
     email = serializers.EmailField(source='user.email', read_only=True)
+    interests = serializers.ListField(child=serializers.CharField(), write_only=True, required=False, allow_empty=True)
+    skills = UserSkillSerializer(many=True, write_only=True, required=False)
     
-    # Input list interests (Mảng string)
     interests = serializers.ListField(
         child=serializers.CharField(), write_only=True, required=False, allow_empty=True
     )
 
-    # Input list skills (Mảng Object) - MỚI
     skills = UserSkillSerializer(many=True, write_only=True, required=False)
 
     class Meta:
@@ -35,11 +32,10 @@ class UserProfileSerializer(serializers.ModelSerializer):
             'phone_number', 'gender', 'dob', 'bio', 
             'education_level', 'current_job_title', 'linkedin_url',
             'mbti_result', 'holland_result',
-            'interests', 'skills' # Thêm skills vào đây
+            'interests', 'skills'
         ]
         read_only_fields = ['id', 'email', 'profile_vector']
 
-    # Fix lỗi gender viết hoa/thường
     def validate_gender(self, value):
         if value:
             return value.lower()
@@ -48,11 +44,9 @@ class UserProfileSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         representation = super().to_representation(instance)
         
-        # Lấy Interests từ User
         user_interests = UserInterest.objects.filter(user=instance.user)
         representation['interests'] = [ui.keyword for ui in user_interests]
 
-        # Lấy Skills từ User - MỚI
         user_skills = UserSkill.objects.filter(user=instance.user)
         representation['skills'] = UserSkillSerializer(user_skills, many=True).data
 
@@ -63,9 +57,9 @@ class UserProfileSerializer(serializers.ModelSerializer):
         # 1. Tách dữ liệu
         user_data = validated_data.pop('user', {})
         interests_data = validated_data.pop('interests', None)
-        skills_data = validated_data.pop('skills', None) # Lấy dữ liệu skills
+        skills_data = validated_data.pop('skills', None)
 
-        # 2. Update User (full_name)
+        # 2. Update User
         if user_data:
             user = instance.user
             for attr, value in user_data.items():
@@ -86,20 +80,59 @@ class UserProfileSerializer(serializers.ModelSerializer):
             ]
             UserInterest.objects.bulk_create(new_interests)
 
-        # 5. Update Skills - MỚI
+        # =========================================================
+        # 5. UPDATE SKILLS
+        # =========================================================
         if skills_data is not None:
-            # Xóa skill cũ
             UserSkill.objects.filter(user=instance.user).delete()
+            new_skills = []
             
-            # Tạo skill mới
-            new_skills = [
-                UserSkill(
+            for item in skills_data:
+                skill = UserSkill(
                     user=instance.user,
                     skill_name=item['skill_name'],
                     proficiency_level=item['proficiency_level']
                 )
-                for item in skills_data
-            ]
+                
+                try:
+                    vector = get_embedding(skill.skill_name, task_type="retrieval_document")
+                    if vector:
+                        skill.embedding = vector
+                except Exception as e:
+                    print(f"Không thể tạo vector cho skill {skill.skill_name}: {e}")
+                
+                new_skills.append(skill)
+            
             UserSkill.objects.bulk_create(new_skills)
+
+        # =========================================================
+        # 6. TỰ ĐỘNG CẬP NHẬT VECTOR PROFILE
+        # =========================================================
+        try:
+            user = instance.user
+            current_interests = UserInterest.objects.filter(user=user)
+            interests_str = ", ".join([i.keyword for i in current_interests])
+            
+            current_skills = UserSkill.objects.filter(user=user)
+            skills_str = ", ".join([f"{s.skill_name} (Lv {s.proficiency_level})" for s in current_skills])
+
+            text_content = f"""
+            Job: {instance.current_job_title or 'Unknown'}
+            Edu: {instance.get_education_level_display() or 'Unknown'}
+            Bio: {instance.bio or ''}
+            Skills: {skills_str}
+            Interests: {interests_str}
+            MBTI: {instance.mbti_result or ''}
+            Holland: {instance.holland_result or ''}
+            """.strip()
+
+            vector = get_embedding(text_content, task_type="retrieval_document")
+            
+            if vector:
+                instance.profile_vector = vector
+                instance.save(update_fields=['profile_vector'])
+
+        except Exception as e:
+            print(f"Lỗi tạo embedding profile: {e}")
 
         return instance

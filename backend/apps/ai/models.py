@@ -8,6 +8,7 @@ class ContentType(models.TextChoices):
     COURSE = 'course', 'Course'
     GENERAL_ADVICE = 'general_advice', 'General Advice'
 
+
 class KnowledgeBase(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     content_type = models.CharField(max_length=50, choices=ContentType.choices)
@@ -65,7 +66,7 @@ class ChatMessage(models.Model):
     content = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
     feedback_score = models.SmallIntegerField(null=True, blank=True)
-
+    context_used = models.JSONField(default=list, blank=True)
     class Meta:
         db_table = 'chat_messages'
         ordering = ['created_at']

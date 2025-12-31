@@ -6,7 +6,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from apps.users.services.test_service import HollandTestService, MBTITestService, TestResultService
 from utils.permissions import IsAdminUser, IsAdminOrUser
-from apps.ai.ai_service import get_embedding
+from apps.ai.services.ai_service import get_embedding
 
 @api_view(['DELETE'])
 @permission_classes([IsAdminUser])  

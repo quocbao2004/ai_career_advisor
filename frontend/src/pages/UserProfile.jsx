@@ -17,13 +17,11 @@ import {
   Briefcase,
   Heart,
   Puzzle,
-  User,
   Mail,
   FileText,
   Trash2,
   Plus,
   Contact,
-  MapPin, // Dùng tạm cho mục đích khác nếu cần
   Users,
 } from "lucide-react";
 

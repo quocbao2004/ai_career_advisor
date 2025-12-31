@@ -4,7 +4,7 @@ from django.conf import settings
 from dotenv import load_dotenv
 from apps.ai.models import KnowledgeBase
 from pgvector.django import CosineDistance
-from ..ai.models import KnowledgeBase, ChatMessage, ChatSession
+from apps.ai.models import ChatMessage, ChatSession, KnowledgeBase
 
 load_dotenv()
 
@@ -15,26 +15,36 @@ if not api_key:
 else:
     genai.configure(api_key=api_key)
 
-def get_embedding(text):
+def get_embedding(text, task_type="retrieval_query"):
+    """
+    Tạo vector embedding chuẩn Google Gemini.
+    """
     if not text:
         return None
         
     text = text.replace("\n", " ").strip()
     
     try:
-        result = genai.embed_content(
-            model="models/text-embedding-004",
-            content=text,
-            task_type="retrieval_document", 
-            title="Embedding Data" 
-        )
+        if task_type == "retrieval_document":
+            result = genai.embed_content(
+                model="models/text-embedding-004",
+                content=text,
+                task_type=task_type,
+                title="Embedded Document"
+            )
+        else:
+            result = genai.embed_content(
+                model="models/text-embedding-004",
+                content=text,
+                task_type=task_type
+            )
         
         return result['embedding']
         
     except Exception as e:
         print(f"Lỗi tạo embedding với Gemini: {e}")
         return None
-    
+
 def search_vector_db(query_embedding, top_k=5):
     if not query_embedding:
         return []
