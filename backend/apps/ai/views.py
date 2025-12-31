@@ -6,7 +6,7 @@ from django.db import connection
 from django.shortcuts import get_object_or_404
 import os
 from utils.permissions import IsAdminOrUser
-from apps.ai.ai_service import get_embedding, search_vector_db,create_full_prompt_chat, create_rag_context, get_history_message, get_info_user
+from apps.ai.services.ai_service import get_embedding, search_vector_db,create_full_prompt_chat, create_rag_context, get_history_message, get_info_user
 from apps.ai.models import ChatMessage, ChatSession 
 from dotenv import load_dotenv
 

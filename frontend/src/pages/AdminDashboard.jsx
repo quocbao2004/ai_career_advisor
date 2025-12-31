@@ -65,14 +65,6 @@ const AdminDashboard = () => {
       btnText: "Xem nghề",
     },
     {
-      id: "skills",
-      title: "Quản lý Kỹ năng",
-      icon: <Layers size={28} />,
-      color: "#10b981",
-      path: "/trang-quan-tri/skills",
-      btnText: "Xem Skill",
-    },
-    {
       id: "industries",
       title: "Quản lý Ngành",
       icon: <Layers size={28} />,
@@ -87,14 +79,6 @@ const AdminDashboard = () => {
       color: "#105cb9ff",
       path: "/trang-quan-tri/import-data",
       btnText: "Import File",
-    },
-    {
-      id: "export",
-      title: "Xuất Dữ Liệu",
-      icon: <Layers size={28} />,
-      color: "#6489b6ff",
-      path: "/trang-quan-tri/skills",
-      btnText: "Xuất File",
     },
   ];
 

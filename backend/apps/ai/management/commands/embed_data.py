@@ -1,10 +1,8 @@
 from django.core.management.base import BaseCommand
 from django.contrib.auth import get_user_model
 from apps.ai.models import KnowledgeBase
-from apps.courses.models import Course
-from apps.users.models import PersonalityTest
-from apps.career.models import Career, Industry, MasterSkill
-from apps.ai.ai_service import get_embedding
+from apps.career.models import Career, Industry, Course
+from apps.ai.services.ai_service import get_embedding
 
 # Cố gắng import UserSkill, nếu chưa có model này thì bỏ qua
 try:
@@ -41,55 +39,6 @@ class Command(BaseCommand):
     # CÁC HÀM XỬ LÝ CHI TIẾT (BẠN ĐANG THIẾU CÁC HÀM NÀY)
     # ---------------------------------------------------------
 
-    def process_industries(self):
-        self.stdout.write("-> Đang xử lý Industries...")
-        for item in Industry.objects.all():
-            content = f"Ngành nghề: {item.name}. Mô tả tổng quan: {item.description}"
-            self.save_to_knowledge_base(item.id, 'industry', content, {"name": item.name})
-
-    def process_skills(self):
-        self.stdout.write("-> Đang xử lý Master Skills...")
-        for item in MasterSkill.objects.all():
-            content = (
-                f"Kỹ năng: {item.skill_name}. "
-                f"Loại kỹ năng: {item.type}. " 
-                f"Mô tả: {item.description}"
-            )
-            self.save_to_knowledge_base(item.id, 'skill', content, {"name": item.skill_name})
-
-    def process_careers(self):
-        self.stdout.write("-> Đang xử lý Careers...")
-        for item in Career.objects.all():
-            industry_name = item.industry.name if item.industry else "Chưa phân loại"
-            salary_info = f"từ {item.salary_min:,.0f} đến {item.salary_max:,.0f} VNĐ" if item.salary_min else "thỏa thuận"
-            
-            content = (
-                f"Vị trí công việc: {item.title} ({item.level}). "
-                f"Thuộc ngành: {industry_name}. "
-                f"Mức lương tham khảo: {salary_info}. "
-                f"Mô tả công việc: {item.description}"
-            )
-            
-            metadata = {
-                "title": item.title,
-                "level": item.level,
-                "salary_min": str(item.salary_min),
-                "salary_max": str(item.salary_max)
-            }
-            self.save_to_knowledge_base(item.id, 'career', content, metadata)
-
-    def process_courses(self):
-        self.stdout.write("-> Đang xử lý Courses...")
-        for item in Course.objects.all():
-            content = (
-                f"Khóa học: {item.title}. "
-                f"Cung cấp bởi: {item.provider}. "
-                f"Giá học phí: {item.price}. "
-                f"Nội dung khóa học: {item.description}"
-            )
-            metadata = {"title": item.title, "url": item.url}
-            self.save_to_knowledge_base(item.id, 'course', content, metadata)
-
     def process_static_website_data(self):
         self.stdout.write("-> Đang xử lý Static Website Data (FAQ, About)...")
         static_data = [
@@ -121,68 +70,7 @@ class Command(BaseCommand):
                 metadata=item["meta"]
             )
 
-    def process_users(self):
-        self.stdout.write("-> Đang xử lý User Profiles...")
-        # Lấy user đang hoạt động
-        users = User.objects.filter(is_active=True)
-
-        for user in users:
-            # Lấy kỹ năng (nếu có bảng UserSkill)
-            skill_list = "Chưa cập nhật"
-            if UserSkill:
-                try:
-                    user_skills = UserSkill.objects.filter(user=user).select_related('skill')
-                    skills = [us.skill.skill_name for us in user_skills if us.skill]
-                    if skills:
-                        skill_list = ", ".join(skills)
-                except Exception:
-                    pass
-
-            # Tạo nội dung Text
-            content = (
-                f"Hồ sơ người dùng: {user.full_name}. "
-                f"Vai trò: {user.role}. "
-                f"Công việc hiện tại: {user.current_job_title or 'Chưa rõ'}. "
-                f"Trình độ học vấn: {user.education_level or 'Chưa rõ'}. "
-                f"Kỹ năng sở hữu: {skill_list}. "
-                f"Email liên hệ: {user.email}." 
-            )
-
-            metadata = {
-                "user_id": str(user.id),
-                "role": user.role,
-                "full_name": user.full_name,
-                "email": user.email
-            }
-
-            self.save_to_knowledge_base(user.id, 'user_profile', content, metadata)
-
-    def process_test(self):
-        tests = PersonalityTest.objects.all()
-        self.stdout.write(f'\nTìm thấy {tests.count()} bài test tính cách.')
-
-        for test in tests:
-            user = test.user
-            details_text = ""
-            if test.raw_result:
-                if isinstance(test.raw_result, dict):
-                     details_text = "; ".join([f"{k}: {v}" for k, v in test.raw_result.items()])
-                else:                         
-                    details_text = str(test.raw_result)
-            content = (
-                f"Kết quả bài trắc nghiệm tính cách ({test.test_type}) của {user.full_name}. "
-                f"Kết quả tóm tắt: {test.summary_code}. "
-                f"Chi tiết phân tích: {details_text}. "
-                f"Ngày thực hiện: {test.taken_at.strftime('%d/%m/%Y')}."
-            )
-            
-            metadata = {
-                "user_id": str(user.id),
-                "test_type": test.test_type,
-                "summary_code": test.summary_code
-            }
-
-            self.save_to_knowledge_base(test.id, 'personality_result', content, metadata)
+  
     # ---------------------------------------------------------
     # HÀM LƯU CHUNG (QUAN TRỌNG)
     # ---------------------------------------------------------

@@ -4,7 +4,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework import status
 from utils.permissions import IsAdminUser, IsAdminOrUser
-from apps.ai.ai_service import get_embedding
+from apps.ai.services.ai_service import get_embedding
 
 @api_view(['DELETE'])
 @permission_classes([IsAdminUser])  
