@@ -7,8 +7,11 @@ class ContentType(models.TextChoices):
     CAREER = 'career', 'Career'
     COURSE = 'course', 'Course'
     GENERAL_ADVICE = 'general_advice', 'General Advice'
+    USER_CONTEXT = 'user', 'User'
 
-
+# ==========================================
+# Kiến thức dùng chung (Không có trong table trong database)
+# ==========================================
 class KnowledgeBase(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     content_type = models.CharField(max_length=50, choices=ContentType.choices)
@@ -22,22 +25,42 @@ class KnowledgeBase(models.Model):
 
     class Meta:
         db_table = 'knowledge_base'
-        indexes = [
-            # Chỉ uncomment dòng dưới khi bảng đã có dữ liệu (tránh lỗi init)
-            # HnswIndex(
-            #    name='knowledge_base_embedding_idx',
-            #    fields=['embedding'],
-            #    m=16,
-            #    ef_construction=64,
-            #    opclasses=['vector_cosine_ops']
-            # )
-        ]
+
 
     def __str__(self):
         return f"[{self.content_type}] {self.content_text[:50]}..."
-
+    
 # ==========================================
-# 3. CHAT HISTORY (Quản lý hội thoại)
+# Quản lý prompt
+# ==========================================
+
+class AIPromptConfig(models.Model):
+    name = models.CharField(max_length=100, default="Cấu hình mặc định")
+    is_active = models.BooleanField(default=False, help_text="Chỉ có 1 cấu hình được kích hoạt tại 1 thời điểm")
+    temperature = models.FloatField(default=0.7, help_text="Độ sáng tạo (0.0 - 1.0)")
+    # Vai tro cua AI, nhiem vu
+    role_description = models.TextField(
+        default="Bạn là AI Career Advisor chuyên nghiệp...",
+        help_text="Mô tả vai trò cốt lõi của AI."
+    )
+    # Xu ly khi user thieu ho so
+    missing_profile_template = models.TextField(
+        help_text="Prompt dùng khi user chưa cập nhật hồ sơ. Dùng biến {user_profile_context}, {chat_history_text}, {prompt}"
+    )
+    standard_prompt_template = models.TextField(
+        help_text="Prompt chuẩn. Dùng các biến: {user_profile_context}, {rag_context}, {chat_history_text}, {prompt}, {current_job}"
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    def save(self, *args, **kwargs):
+        if self.is_active:
+            AIPromptConfig.objects.filter(is_active=True).update(is_active=False)
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"{self.name} ({'Active' if self.is_active else 'Inactive'})"
+    
+# ==========================================
+# Quản lý hội thoại
 # ==========================================
 class ChatSession(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -52,7 +75,9 @@ class ChatSession(models.Model):
     class Meta:
         db_table = 'chat_sessions'
 
-
+# ==========================================
+# Quản lý tin nhắn
+# ==========================================
 class ChatMessage(models.Model):
     ROLE_CHOICES = [
         ('user', 'User'),

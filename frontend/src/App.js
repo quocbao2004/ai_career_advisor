@@ -9,7 +9,6 @@ import RegisterPage from "./pages/RegisterPage";
 import ForgotPassWordPage from "./pages/ForgotPasswordPage";
 import MainLayout from "./components/layout/MainLayout";
 import ProtectedRoute from "./components/ProtectedRoute";
-import RoleBasedRedirect from "./components/RoleBasedRedirect";
 import UserManager from "./pages/UserManagerPage";
 import DataImport from "./pages/DataImport";
 import CourseManagement from "./pages/CourseManagement";
@@ -18,6 +17,7 @@ import CareerManagement from "./pages/CareerManagement";
 import IndustryManagement from "./pages/IndustryManagement";
 import Chat from "./pages/AIChat";
 import UserProfile from "./pages/UserProfile";
+import AiConfig from "./pages/AiConfig";
 
 import "./assets/css-custom/main.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
@@ -85,6 +85,7 @@ function App() {
               path="/trang-quan-tri/industries"
               element={<IndustryManagement />}
             />
+            <Route path="/trang-quan-tri/ai-config" element={<AiConfig />} />
           </Routes>
         </MainLayout>
         <ToastContainer
