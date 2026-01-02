@@ -190,3 +190,51 @@ def embed_courses_batch(batch_size=50, delay_between_batches=5, re_embed=False):
     print(f"HOÀN THÀNH: {success}/{total} thành công, {failed} thất bại")
     print(f"{'='*60}")
     return {'total': total, 'success': success, 'failed': failed}
+
+
+def check_embedding_status():
+    """
+    Kiểm tra trạng thái embedding của courses trong database
+    
+    Returns:
+        dict: {
+            'total': tổng số courses,
+            'with_embedding': số courses đã có embedding,
+            'without_embedding': số courses chưa có embedding,
+            'percentage': % đã có embedding
+        }
+    """
+    total = Course.objects.count()
+    without_embedding = Course.objects.filter(embedding__isnull=True).count()
+    with_embedding = total - without_embedding
+    percentage = (with_embedding / total * 100) if total > 0 else 0
+    
+    return {
+        'total': total,
+        'with_embedding': with_embedding,
+        'without_embedding': without_embedding,
+        'percentage': round(percentage, 1)
+    }
+
+
+def fix_missing_embeddings(batch_size=50, delay_between_batches=5):
+    """
+    Tự động fix các courses thiếu embedding
+    
+    Returns:
+        dict hoặc None nếu không có gì cần fix
+    """
+    status = check_embedding_status()
+    
+    if status['without_embedding'] == 0:
+        print("✓ Tất cả courses đã có embedding!")
+        return None
+    
+    print(f"⚠️  Phát hiện {status['without_embedding']} courses thiếu embedding")
+    print(f"Bắt đầu fix...")
+    
+    return embed_courses_batch(
+        batch_size=batch_size,
+        delay_between_batches=delay_between_batches,
+        re_embed=False
+    )

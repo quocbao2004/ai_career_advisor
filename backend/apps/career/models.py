@@ -13,18 +13,30 @@ class CourseLevel(models.TextChoices):
 # 1. INDUSTRY (Ngành nghề)
 # ==========================================
 class Industry(models.Model):
-    name = models.CharField(max_length=100, unique=True, null=False)
+    name = models.CharField(max_length=100, unique=True)
     description = models.TextField(blank=True, null=True)
-    created_at = models.DateTimeField(auto_now_add=True)
 
-    def __str__(self):
-        return self.industry_name
+    # MBTI mapping kèm score
+    # {"INTJ": 90, "ENTP": 70}
+    mbti_map = models.JSONField(
+        default=dict,
+        blank=True,
+        help_text='Map MBTI -> score. Ví dụ: {"INTJ": 90, "ENTP": 70}'
+    )
+
+    # Holland mapping kèm score
+    # {"R": 40, "I": 90, "A": 60}
+    holland_map = models.JSONField(
+        default=dict,
+        blank=True,
+        help_text='Map Holland -> score. Ví dụ: {"R": 40, "I": 90}'
+    )
+
+    created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         db_table = 'industries'
-        verbose_name_plural = 'Industries'
-    def __str__(self):
-        return self.name
+
 
 # ==========================================
 # 2. CAREER (Nghề nghiệp cốt lõi)

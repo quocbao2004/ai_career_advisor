@@ -1048,20 +1048,5 @@
         "value": "P"
       }
     ]
-  },
-  {
-    "id": 71,
-    "question": "Vui lòng lựa chọn giới tính của bạn (Để hiển thị hình ảnh minh hoạ)",
-    "category": "Demographic",
-    "options": [
-      {
-        "text": "Nam",
-        "value": "Male"
-      },
-      {
-        "text": "Nữ",
-        "value": "Female"
-      }
-    ]
   }
 ]

@@ -1,15 +1,15 @@
 import "./App.css";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import HomePage from "./pages/HomePage";
 import AdminDashboard from "./pages/AdminDashboard";
 import QuizSelection from "./pages/QuizSelection";
 import QuizGame from "./pages/QuizGame";
+import OnboardingWelcome from "./pages/OnboardingWelcome";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import ForgotPassWordPage from "./pages/ForgotPasswordPage";
 import MainLayout from "./components/layout/MainLayout";
 import ProtectedRoute from "./components/ProtectedRoute";
-import RoleBasedRedirect from "./components/RoleBasedRedirect";
 import UserManager from "./pages/UserManagerPage";
 import DataImport from "./pages/DataImport";
 import CourseManagement from "./pages/CourseManagement";
@@ -27,24 +27,104 @@ import { GoogleOAuthProvider } from "@react-oauth/google";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
+import { isAuthenticated, getUserInfo, getCachedOnboardingStatus,hasSeenOnboardingWelcome } from "./api/authApi";
+//Hàm tránh trả lỗi 404 khi người dùng tự nhập tay url
+// không match với router đang có,
+// chuyển hướng user dựa trên điều kiện
+const resolveFallbackPath = () => {
+  try {
+    const isAuth = isAuthenticated();
+    if (!isAuth) return "/";// chưa login
+    const user = getUserInfo();//thiếu thông tin
+    if (!user) return "/dang-nhap";
+    if (user.role === "admin") return "/trang-quan-tri";
+    const cachedCompleted = getCachedOnboardingStatus();
+    const userCompleted = user.hasCompletedOnboarding === true;
+    const userNeeds = user.needsOnboarding === true;
+    const hasCompleted = cachedCompleted || (userCompleted && !userNeeds);
+    if (hasCompleted) return "/dashboard";// hoàn thành flow lần đầu đăng nhập
+    return hasSeenOnboardingWelcome(user.id) ? "/trac-nghiem" : "/chao-mung";// đã thấy trang chào mừng nhưng chưa hoàn thành flow lần đầu đăng nhập
+  } catch (err) {
+    return "/";
+  }
+};
+
 function App() {
   return (
     <div className="App">
       <GoogleOAuthProvider clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID}>
         <MainLayout>
           <Routes>
-            {/* Home */}
-            <Route path="/" element={<HomePage />} />
-            <Route path="/dashboard" element={<UserProfile />} />
-
-            {/* Auth */}
+            {/* Auth routes - Không cần protection */}
             <Route path="/dang-nhap" element={<LoginPage />} />
             <Route path="/dang-ky" element={<RegisterPage />} />
             <Route path="/quen-mat-khau" element={<ForgotPassWordPage />} />
 
-            {/* Dashboards - Protected */}
-            {/* Profile route removed per request */}
-            <Route path="/chat" element={<Chat />} />
+            {/* Public routes - Có thể truy cập khi chưa login, nhưng nếu đã login thì phải onboarding */}
+            <Route 
+              path="/" 
+              element={
+                <ProtectedRoute 
+                  element={<HomePage />} 
+                  isPublicRoute={true}
+                />
+              } 
+            />
+
+            {/* Onboarding routes - Bắt buộc cho user chưa hoàn thành test */}
+            <Route 
+              path="/chao-mung" 
+              element={
+                <ProtectedRoute 
+                  element={<OnboardingWelcome />} 
+                  skipOnboardingCheck={true}
+                />
+              } 
+            />
+            <Route 
+              path="/trac-nghiem" 
+              element={
+                <ProtectedRoute 
+                  element={<QuizSelection />} 
+                  skipOnboardingCheck={true}
+                  requireWelcomeSeen={true}
+                />
+              } 
+            />
+            <Route 
+              path="/trac-nghiem/mbti" 
+              element={
+                <ProtectedRoute 
+                  element={<QuizGame />} 
+                  skipOnboardingCheck={true}
+                  requireWelcomeSeen={true}
+                />
+              } 
+            />
+            <Route 
+              path="/trac-nghiem/holland" 
+              element={
+                <ProtectedRoute 
+                  element={<QuizGame />} 
+                  skipOnboardingCheck={true}
+                  requireWelcomeSeen={true}
+                />
+              } 
+            />
+
+            {/* Protected routes - Chỉ truy cập được sau khi onboarding */}
+            <Route 
+              path="/dashboard" 
+              element={
+                <ProtectedRoute element={<UserProfile />} />
+              } 
+            />
+            <Route 
+              path="/chat" 
+              element={
+                <ProtectedRoute element={<Chat />} />
+              } 
+            />
             <Route
               path="/trang-quan-tri"
               element={
@@ -55,36 +135,63 @@ function App() {
               }
             />
 
-            {/* Quiz Routes */}
-            <Route path="/trac-nghiem" element={<QuizSelection />} />
-            <Route path="/trac-nghiem/mbti" element={<QuizGame />} />
-            <Route path="/trac-nghiem/holland" element={<QuizGame />} />
-
             {/* ADMIN */}
             <Route
               path="/admin/xem-danh-sach-nguoi-dung"
-              element={<UserManager />}
+              element={
+                <ProtectedRoute
+                  element={<UserManager />}
+                  requiredRole="admin"
+                />
+              }
             />
             <Route
               path="/trang-quan-tri/import-data"
-              element={<DataImport />}
+              element={
+                <ProtectedRoute
+                  element={<DataImport />}
+                  requiredRole="admin"
+                />
+              }
             />
             <Route
               path="/trang-quan-tri/careers"
-              element={<CareerManagement />}
+              element={
+                <ProtectedRoute
+                  element={<CareerManagement />}
+                  requiredRole="admin"
+                />
+              }
             />
             <Route
               path="/trang-quan-tri/courses"
-              element={<CourseManagement />}
+              element={
+                <ProtectedRoute
+                  element={<CourseManagement />}
+                  requiredRole="admin"
+                />
+              }
             />
             <Route
               path="/trang-quan-tri/skills"
-              element={<MasterSkillManagement />}
+              element={
+                <ProtectedRoute
+                  element={<MasterSkillManagement />}
+                  requiredRole="admin"
+                />
+              }
             />
             <Route
               path="/trang-quan-tri/industries"
-              element={<IndustryManagement />}
+              element={
+                <ProtectedRoute
+                  element={<IndustryManagement />}
+                  requiredRole="admin"
+                />
+              }
             />
+
+            <Route path="*" element={<Navigate to={resolveFallbackPath()} replace />} />
           </Routes>
         </MainLayout>
         <ToastContainer

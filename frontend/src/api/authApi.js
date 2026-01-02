@@ -13,7 +13,28 @@ export const clearTokens = () => {
   localStorage.removeItem("access_token");
   localStorage.removeItem("refresh_token");
   localStorage.removeItem("user_info");
+  localStorage.removeItem("has_completed_onboarding");
   cachedUserInfo = null;
+};
+
+const onboardingWelcomeKey = (userId) => `onboarding_welcome_seen_${userId}`;
+
+export const hasSeenOnboardingWelcome = (userId) => {
+  try {
+    if (!userId) return false;
+    return localStorage.getItem(onboardingWelcomeKey(userId)) === "true";
+  } catch {
+    return false;
+  }
+};
+
+export const markOnboardingWelcomeSeen = (userId) => {
+  try {
+    if (!userId) return;
+    localStorage.setItem(onboardingWelcomeKey(userId), "true");
+  } catch {
+    // ignore
+  }
 };
 
 export const registerUser = async (email, password, full_name) => {
@@ -246,5 +267,53 @@ export const logoutUser = async () => {
     return data;
   } catch (error) {
     return { success: false, message: "Lỗi kết nối" };
+  }
+};
+
+// Onboarding Status Check
+export const checkOnboardingStatus = async () => {
+  try {
+    const response = await fetchWithAuth('http://localhost:8000/api/users/onboarding/status/');
+    if (!response.ok) {
+      return { success: false, needsOnboarding: true };
+    }
+    const data = await response.json();
+    return { 
+      success: true, 
+      hasCompletedOnboarding: data.hasCompletedOnboarding,
+      needsOnboarding: data.needsOnboarding,
+      user: data.user
+    };
+  } catch (error) {
+    console.error('Error checking onboarding status:', error);
+    return { success: false, needsOnboarding: true };
+  }
+};
+
+// Save onboarding status to localStorage
+export const saveOnboardingStatus = (hasCompleted) => {
+  try {
+    localStorage.setItem('has_completed_onboarding', hasCompleted ? 'true' : 'false');
+  } catch (error) {
+    console.error('Error saving onboarding status:', error);
+  }
+};
+
+// Get cached onboarding status
+export const getCachedOnboardingStatus = () => {
+  try {
+    const status = localStorage.getItem('has_completed_onboarding');
+    return status === 'true';
+  } catch (error) {
+    return false;
+  }
+};
+
+// Clear onboarding status on logout
+export const clearOnboardingStatus = () => {
+  try {
+    localStorage.removeItem('has_completed_onboarding');
+  } catch (error) {
+    console.error('Error clearing onboarding status:', error);
   }
 };

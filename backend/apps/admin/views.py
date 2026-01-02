@@ -1,20 +1,65 @@
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
-from utils.permissions import IsAdminUser, IsAdminOrUser
-from apps.users.models import User
-from apps.career.models import Career, Industry, Course
-
-
-from apps.users.serializers import UserSerializer
-from apps.career.serializers import IndustrySerializer, CareerSerializer, CourseSerializer
-
-
 from rest_framework.response import Response
 from django.db import transaction
+from django.db.models import Count
 from django.db.models.functions import TruncMonth
 from django.utils import timezone
 from datetime import timedelta
-from django.db.models import Count
+import threading
+import time
+
+from utils.permissions import IsAdminUser, IsAdminOrUser
+from apps.users.models import User
+from apps.users.serializers import UserSerializer
+from apps.career.models import Career, Industry, Course
+from apps.career.serializers import IndustrySerializer, CareerSerializer, CourseSerializer
+from apps.courses.services.embedding_service import (
+    create_course_embedding_text,
+    get_course_embedding,
+    check_embedding_status,
+    fix_missing_embeddings,
+    embed_courses_batch
+)
+
+# ============================================================
+# HELPER FUNCTIONS
+# ============================================================
+
+def run_in_background(func, *args):
+    """Helper function để chạy task trong background thread"""
+    thread = threading.Thread(target=func, args=args)
+    thread.daemon = True
+    thread.start()
+
+
+def embed_courses_task(course_ids):
+    """Task embedding courses - gọi từ import và manual trigger"""
+    print(f"\n[Embedding] Bắt đầu xử lý {len(course_ids)} courses...")
+    success = failed = 0
+    
+    for i, cid in enumerate(course_ids, 1):
+        try:
+            course = Course.objects.get(id=cid)
+            embedding = get_course_embedding(create_course_embedding_text(course))
+            if embedding:
+                course.embedding = embedding
+                course.save(update_fields=['embedding'])
+                success += 1
+                print(f"  [{i}/{len(course_ids)}] ✓ {course.title[:40]}")
+            else:
+                failed += 1
+            time.sleep(0.5)
+        except Exception as e:
+            failed += 1
+            print(f"  [{i}/{len(course_ids)}] ✗ {e}")
+    
+    print(f"\n[Embedding] Kết quả: {success} thành công, {failed} thất bại")
+
+
+# ============================================================
+# USER MANAGEMENT
+# ============================================================
 
 @api_view(['GET'])
 @permission_classes([IsAdminUser])
@@ -46,9 +91,13 @@ def course_list_create(request):
         elif request.method == 'POST':
             serializer = CourseSerializer(data=request.data)
             if serializer.is_valid():
-                serializer.save()
+                course_instance = serializer.save()
+                
+                # Tự động embedding course vừa tạo
+                run_in_background(embed_courses_task, [course_instance.id])
+                
                 return Response({
-                    "message": "Tạo khóa học thành công",
+                    "message": "Tạo khóa học thành công và đang embedding...",
                     "data": serializer.data
                 }, status=status.HTTP_201_CREATED)
             else:
@@ -86,17 +135,25 @@ def edit_courses(request, id):
             serializer = CourseSerializer(course, data=request.data)
 
             if serializer.is_valid():
-                serializer.save()
+                course_instance = serializer.save()
+                
+                # Tự động re-embed khi sửa course
+                run_in_background(embed_courses_task, [course_instance.id])
+                
                 return Response({
-                    "message": "Sửa khóa học thành công",
+                    "message": "Sửa khóa học thành công và đang cập nhật embedding...",
                     "data": serializer.data
-                }, status=status.HTTP_201_CREATED)
+                }, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     except Exception as e:
         return Response({
             "message": "Lỗi hệ thống",
             "error": str(e)
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+# ============================================================
+# DATA IMPORT
+# ============================================================
 
 @api_view(['POST'])
 @permission_classes([IsAdminUser])
@@ -111,8 +168,6 @@ def import_data(request):
         serializer_map = {
             'industries': IndustrySerializer,
             'careers': CareerSerializer,
-
-
             'courses': CourseSerializer,
         }
         TargetSerializer = serializer_map.get(model_name)
@@ -160,7 +215,19 @@ def import_data(request):
         with transaction.atomic():
             serializer = TargetSerializer(data=clean_data, many=True)
             if serializer.is_valid():
-                serializer.save()
+                saved_instances = serializer.save()
+                
+                # Tự động embedding nếu là courses
+                if model_name == 'courses':
+                    course_ids = [instance.id for instance in saved_instances]
+                    run_in_background(embed_courses_task, course_ids)
+                    
+                    return Response({
+                        "message": f"Import thành công! Đang tự động embedding {len(course_ids)} courses...",
+                        "count": len(clean_data),
+                        "data": serializer.data
+                    }, status=status.HTTP_201_CREATED)
+                
                 return Response({
                     "message": "Import thành công!", 
                     "count": len(clean_data),
@@ -333,7 +400,6 @@ def get_dashboard_stats(request):
         # -- Số liệu Cards --
         stats = {
             "total_users": User.objects.count(),
-            # SỬA: date_joined -> created_at
             "new_users_7d": User.objects.filter(created_at__gte=seven_days_ago).count(),
             "total_careers": Career.objects.count(),
             "total_industries": Industry.objects.count(),
@@ -367,3 +433,69 @@ def get_dashboard_stats(request):
     except Exception as e:
         print(f"Error dashboard stats: {e}")
         return Response({"message": str(e)}, status=500)
+
+
+# ============================================================
+# COURSE EMBEDDING MANAGEMENT APIs
+# ============================================================
+
+@api_view(['GET'])
+@permission_classes([IsAdminUser])
+def check_courses_embedding_status(request):
+    """Kiểm tra trạng thái embedding"""
+    try:
+        return Response({
+            "message": "Lấy trạng thái thành công",
+            "data": check_embedding_status()
+        }, status=status.HTTP_200_OK)
+    except Exception as e:
+        return Response({"message": "Lỗi", "error": str(e)}, status=500)
+
+
+@api_view(['POST'])
+@permission_classes([IsAdminUser])
+def fix_courses_embedding(request):
+    """Fix courses thiếu embedding"""
+    try:
+        status_check = check_embedding_status()
+        if status_check['without_embedding'] == 0:
+            return Response({"message": "Tất cả courses đã có embedding!", "data": status_check})
+        
+        batch_size = request.data.get('batch_size', 50)
+        delay = request.data.get('delay', 5)
+        run_in_background(fix_missing_embeddings, batch_size, delay)
+        
+        return Response({
+            "message": f"Đang fix {status_check['without_embedding']} courses...",
+            "data": status_check
+        }, status=202)
+    except Exception as e:
+        return Response({"message": "Lỗi", "error": str(e)}, status=500)
+
+
+@api_view(['POST'])
+@permission_classes([IsAdminUser])
+def re_embed_all_courses(request):
+    """Re-embed tất cả courses (⚠️ tốn quota)"""
+    try:
+        status_check = check_embedding_status()
+        if status_check['total'] == 0:
+            return Response({"message": "Không có courses!"}, status=400)
+        
+        batch_size = request.data.get('batch_size', 50)
+        delay = request.data.get('delay', 5)
+        
+        def task():
+            embed_courses_batch(batch_size, delay, re_embed=True)
+        
+        run_in_background(task)
+        
+        return Response({
+            "message": f"Đang re-embed {status_check['total']} courses...",
+            "data": {
+                "total_courses": status_check['total'],
+                "estimated_minutes": round(status_check['total'] * 0.5 / 60, 1)
+            }
+        }, status=202)
+    except Exception as e:
+        return Response({"message": "Lỗi", "error": str(e)}, status=500)

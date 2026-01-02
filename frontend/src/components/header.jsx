@@ -1,8 +1,15 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import Logo from "./logo";
-import { getUserInfo, clearTokens, logoutUser } from "../api/authApi";
+import {
+  getUserInfo,
+  clearTokens,
+  logoutUser,
+  getCachedOnboardingStatus,
+  hasSeenOnboardingWelcome,
+} from "../api/authApi";
 import "../assets/css-custom/header.css";
+import { toast } from "react-toastify";
 
 const DEFAULT_AVATAR = "https://cdn-icons-png.flaticon.com/512/149/149071.png";
 
@@ -14,6 +21,50 @@ const Header = () => {
   useEffect(() => {
     setUserInfo(getUserInfo());
   }, [location]);
+
+  const isOnboardingLocked = useMemo(() => {
+    if (!userInfo) return false;
+    if (userInfo.role === "admin") return false;
+    const cachedCompleted = getCachedOnboardingStatus();
+    const userCompleted = userInfo.hasCompletedOnboarding === true;
+    const userNeeds = userInfo.needsOnboarding === true;
+    const hasCompleted = cachedCompleted || (userCompleted && !userNeeds);
+    return !hasCompleted;
+  }, [userInfo]);
+
+  const allowOnboardingPath = (to) => {
+    try {
+      if (typeof to !== "string") return false;
+
+      const welcomeSeen = hasSeenOnboardingWelcome(userInfo?.id);
+      if (!welcomeSeen) {
+        return to === "/chao-mung";
+      }
+
+      return to.startsWith("/trac-nghiem");
+    } catch {
+      return false;
+    }
+  };
+
+  const handleLockedNav = (e, to) => {
+    if (!isOnboardingLocked) return;
+
+    if (allowOnboardingPath(to)) return;
+
+    e.preventDefault();
+
+    try {
+      toast.info("Xin hãy làm theo từng bước hướng dẫn.", {
+        toastId: "onboarding-flow-warning",
+      });
+    } catch {
+      // ignore
+    }
+
+    const welcomeSeen = hasSeenOnboardingWelcome(userInfo?.id);
+    navigate(welcomeSeen ? "/trac-nghiem" : "/chao-mung", { replace: true });
+  };
 
   const handleLogout = async () => {
     try {
@@ -55,27 +106,32 @@ const Header = () => {
         >
           <ul className="navbar-nav mb-2 mb-lg-0 gap-lg-3">
             <li className="nav-item">
-              <Link className="nav-link" to="/">
+              <Link className="nav-link" to="/" onClick={(e) => handleLockedNav(e, "/")}
+              >
                 Trang chủ
               </Link>
             </li>
             <li className="nav-item">
-              <Link className="nav-link" to="/ve-chung-toi">
+              <Link className="nav-link" to="/ve-chung-toi" onClick={(e) => handleLockedNav(e, "/ve-chung-toi")}
+              >
                 Giới thiệu
               </Link>
             </li>
             <li className="nav-item">
-              <Link className="nav-link" to="/lien-he">
+              <Link className="nav-link" to="/lien-he" onClick={(e) => handleLockedNav(e, "/lien-he")}
+              >
                 Liên hệ
               </Link>
             </li>
             <li className="nav-item">
-              <Link className="nav-link" to="/trac-nghiem">
+              <Link className="nav-link" to="/trac-nghiem" onClick={(e) => handleLockedNav(e, "/trac-nghiem")}
+              >
                 Trắc nghiệm
               </Link>
             </li>
             <li className="nav-item">
-              <Link className="nav-link" to="/chat">
+              <Link className="nav-link" to="/chat" onClick={(e) => handleLockedNav(e, "/chat")}
+              >
                 Nhận tư vấn với AI
               </Link>
             </li>
@@ -119,7 +175,11 @@ const Header = () => {
 
                 {(userInfo.role === "user" || userInfo.role === "admin") && (
                   <li>
-                    <Link className="dropdown-item py-2" to="/dashboard">
+                    <Link
+                      className="dropdown-item py-2"
+                      to="/dashboard"
+                      onClick={(e) => handleLockedNav(e, "/dashboard")}
+                    >
                       <i className="bi bi-speedometer2 me-2"></i> Dashboard
                     </Link>
                   </li>
@@ -134,7 +194,7 @@ const Header = () => {
                 )}
 
                 <li>
-                  <Link className="dropdown-item py-2" to="/cai-dat">
+                  <Link className="dropdown-item py-2" to="/cai-dat" onClick={(e) => handleLockedNav(e, "/cai-dat")}>
                     <i className="bi bi-sliders me-2"></i> Cài đặt
                   </Link>
                 </li>

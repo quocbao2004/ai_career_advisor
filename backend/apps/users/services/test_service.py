@@ -26,10 +26,7 @@ class HollandTestService:
     
     @classmethod
     def get_questions_for_frontend(cls):
-        """
-        Trả về câu hỏi Holland cho frontend
-        Cấu trúc mới: 36 câu hỏi với rating scale 0-4
-        """
+
         data = cls.load_questions()
         
         return {
@@ -39,11 +36,6 @@ class HollandTestService:
     
     @classmethod
     def calculate_result(cls, answers):
-        """
-        Tính kết quả Holland test
-        answers: dict với key là question_id (string), value là score (0-4)
-        Ví dụ: {'R1': 3, 'R2': 4, 'I1': 2, ...}
-        """
         data = cls.load_questions()
         questions = data.get('questions', [])
         
@@ -64,16 +56,6 @@ class HollandTestService:
         missing_questions = valid_question_ids - provided_question_ids
         if missing_questions:
             raise ValueError(f"Missing question IDs: {missing_questions}")
-        
-        # Map dimension -> name
-        dimension_names = {
-            'R': 'Realistic (Kỹ thuật - Thực tế)',
-            'I': 'Investigative (Nghiên cứu - Khám phá)',
-            'A': 'Artistic (Nghệ thuật - Sáng tạo)',
-            'S': 'Social (Xã hội - Giúp đỡ)',
-            'E': 'Enterprising (Quản lý - Dẫn dắt)',
-            'C': 'Conventional (Nghiệp vụ - Tổ chức)'
-        }
         
         # Validate scores (phải từ 0-4)
         for question_id, score in answers.items():
@@ -103,11 +85,9 @@ class HollandTestService:
             percentage = round((score / max_possible_score * 100), 1)
             result_details[code] = {
                 'code': code,
-                'name': dimension_names.get(code, 'Unknown'),
                 'score': score,
                 'percentage': percentage,
                 'max_score': 24,  # 6 câu × 4 điểm
-                'description': cls._get_group_description(code)
             }
         
         # Sắp xếp theo điểm cao nhất và lấy top 3
@@ -123,49 +103,6 @@ class HollandTestService:
             'scores_by_dimension': dict(sorted_dimensions),
             'total_score': total
         }
-    
-    @classmethod
-    def _get_group_description(cls, code):
-        """Mô tả chi tiết cho mỗi hướng nghề"""
-        descriptions = {
-            'R': {
-                'name_en': 'Realistic (Realistic / Practical)',
-                'name_vi': 'Thực tế (Kỹ thuật - Thực tế)',
-                'description': 'Bạn yêu thích làm việc với những vật thể cụ thể, máy móc, công cụ. Bạn thích tạo ra những thứ thiết thực, giải quyết các vấn đề thực tế. Thường thích làm việc ngoài trời hoặc với các dụng cụ.',
-                'suitable_careers': ['Kỹ sư', 'Thợ máy', 'Nhà xây dựng', 'Lái xe', 'Nông dân']
-            },
-            'I': {
-                'name_en': 'Investigative (Research / Analytical)',
-                'name_vi': 'Nghiên cứu (Nghiên cứu - Khám phá)',
-                'description': 'Bạn yêu thích tìm hiểu, phân tích, và giải quyết vấn đề phức tạp. Bạn có khả năng suy nghĩ logic, yêu thích khoa học và toán học. Thích làm việc một mình hoặc trong nhóm nhỏ.',
-                'suitable_careers': ['Nhà khoa học', 'Kỹ sư phần mềm', 'Nhà toán học', 'Nhà nghiên cứu', 'Bác sĩ']
-            },
-            'A': {
-                'name_en': 'Artistic (Creative / Expressive)',
-                'name_vi': 'Nghệ thuật (Nghệ thuật - Sáng tạo)',
-                'description': 'Bạn sáng tạo, giàu trí tưởng tượng, và thích thể hiện bản thân thông qua nghệ thuật. Bạn dễ bị xúc động, nhạy cảm với thế giới xung quanh. Thích những công việc có tính sáng tạo cao.',
-                'suitable_careers': ['Nhạc sĩ', 'Họa sĩ', 'Nhà thiết kế', 'Nhà viết kịch bản', 'Nhiếp ảnh gia']
-            },
-            'S': {
-                'name_en': 'Social (People-Oriented / Helping)',
-                'name_vi': 'Xã hội (Xã hội - Giúp đỡ)',
-                'description': 'Bạn thân thiện, hòa đồng, và yêu thích giúp đỡ người khác. Bạn dễ thấu hiểu cảm xúc của người khác, có tinh thần hợp tác cao. Thích làm việc nhóm và tương tác với nhiều người.',
-                'suitable_careers': ['Giáo viên', 'Y tá', 'Tư vấn viên', 'Công tác xã hội', 'Huấn luyện viên']
-            },
-            'E': {
-                'name_en': 'Enterprising (Leadership / Persuasive)',
-                'name_vi': 'Quản lý (Quản lý - Dẫn dắt)',
-                'description': 'Bạn quyết đoán, có khả năng thuyết phục, và thích lãnh đạo. Bạn có tham vọng cao, thích giao du, và yêu thích những thách thức mới. Thích được công nhận và có ảnh hưởng đến người khác.',
-                'suitable_careers': ['Quản lý', 'Doanh nhân', 'Nhân viên bán hàng', 'Nhà quản lý dự án', 'Chính trị gia']
-            },
-            'C': {
-                'name_en': 'Conventional (Organized / Detail-Oriented)',
-                'name_vi': 'Tổ chức (Nghiệp vụ - Tổ chức)',
-                'description': 'Bạn gọn gàng, có kế hoạch, và yêu thích làm việc có quy trình rõ ràng. Bạn chính xác, chu đáo, và thích làm việc với dữ liệu và con số. Thích tuân thủ quy tắc và hướng dẫn.',
-                'suitable_careers': ['Kỹ thuật viên', 'Kế toán viên', 'Thư ký', 'Quản lý dữ liệu', 'Lập trình viên']
-            }
-        }
-        return descriptions.get(code, {})
 
 #MBTI
 class MBTITestService:
@@ -219,21 +156,6 @@ class MBTITestService:
     
     @classmethod
     def calculate_result(cls, answers):
-        """
-        Tính toán kết quả MBTI từ các câu trả lời
-        
-        answers: Dict[str, str] - {question_id: answer_value}
-        
-        Return: {
-            'result_code': 'INTJ',
-            'result_details': {
-                'EI': {'dominant': 'I', 'score': 5},
-                'SN': {'dominant': 'N', 'score': 3},
-                'TF': {'dominant': 'T', 'score': 4},
-                'JP': {'dominant': 'J', 'score': 2}
-            }
-        }
-        """
         questions = cls.load_questions()
         
         # Map category -> scores
@@ -324,110 +246,90 @@ class MBTITestService:
                 'score': scores['P'] - scores['J']
             }
         
-        # Thêm mô tả chi tiết cho MBTI type
-        result_details['mbti_description'] = cls._get_mbti_description(mbti_code)
-        result_details['raw_scores'] = scores
-        
         return {
             'result_code': mbti_code,
             'result_details': result_details
         }
-    
-    @classmethod
-    def _get_mbti_description(cls, mbti_code):
-        """Mô tả chi tiết cho mỗi MBTI type"""
-        descriptions = {
-            'ISTJ': {
-                'name': 'Logistician (Nhà hành chính)',
-                'description': 'Trách nhiệm, kỷ luật, thực tế. Những người tin vào truyền thống và quy tắc.',
-                'suitable_careers': ['Kế toán', 'Cảnh sát', 'Quản lý', 'Kỹ sư']
-            },
-            'ISFJ': {
-                'name': 'Defender (Người bảo vệ)',
-                'description': 'Chăm sóc, trung thành, yêu thích giúp đỡ. Những người tận tâm với các mối quan hệ.',
-                'suitable_careers': ['Y tá', 'Giáo viên', 'Công tác xã hội', 'Tư vấn viên']
-            },
-            'INFJ': {
-                'name': 'Advocate (Người ủng hộ)',
-                'description': 'Sáng tạo, có lý tưởng, quan tâm đến con người. Những người muốn giúp thế giới tốt hơn.',
-                'suitable_careers': ['Nhà tâm lý học', 'Nhà viết kịch bản', 'Lãnh đạo', 'Nhà hoạt động xã hội']
-            },
-            'INTJ': {
-                'name': 'Architect (Nhà kiến trúc)',
-                'description': 'Sáng tạo, tự lập, phân tích. Những người có kế hoạch dài hạn và chiến lược.',
-                'suitable_careers': ['Kỹ sư', 'Nhà khoa học', 'Doanh nhân', 'Nhà phân tích']
-            },
-            'ISTP': {
-                'name': 'Virtuoso (Bậc thầy)',
-                'description': 'Thực tế, logic, tương tác tối giản. Những người thích hiểu cách các thứ hoạt động.',
-                'suitable_careers': ['Kỹ sư', 'Lập trình viên', 'Thợ máy', 'Nhà phân tích']
-            },
-            'ISFP': {
-                'name': 'Adventurer (Nhà thám hiểm)',
-                'description': 'Nhạy cảm, sáng tạo, hiền lành. Những người sống theo những giá trị cá nhân.',
-                'suitable_careers': ['Nghệ sĩ', 'Thiết kế viên', 'Âm nhạc gia', 'Thợ thủ công']
-            },
-            'INFP': {
-                'name': 'Mediator (Người hòa giải)',
-                'description': 'Lý tưởng, sáng tạo, tìm kiếm ý nghĩa. Những người muốn làm việc theo đam mê.',
-                'suitable_careers': ['Nhà viết', 'Nhạc sĩ', 'Tư vấn viên', 'Nhà hoạt động']
-            },
-            'INTP': {
-                'name': 'Logician (Nhà logic)',
-                'description': 'Phân tích, tò mò, lý thuyết. Những người yêu thích tìm kiếm hiểu biết.',
-                'suitable_careers': ['Lập trình viên', 'Nhà khoa học', 'Nhà phân tích', 'Dạy học']
-            },
-            'ESTP': {
-                'name': 'Entrepreneur (Doanh nhân)',
-                'description': 'Năng động, thực tế, tiếp xúc. Những người yêu thích hành động và cuộc phiêu lưu.',
-                'suitable_careers': ['Bán hàng', 'Quản lý dự án', 'Doanh nhân', 'Vận động viên']
-            },
-            'ESFP': {
-                'name': 'Entertainer (Người giải trí)',
-                'description': 'Vui vẻ, sáng tạo, thích kết nối. Những người yêu thích vui nhộn và tương tác.',
-                'suitable_careers': ['Diễn viên', 'Hướng dẫn du lịch', 'Bán hàng', 'Giáo viên']
-            },
-            'ENFP': {
-                'name': 'Campaigner (Nhà vận động)',
-                'description': 'Lạc quan, sáng tạo, linh hoạt. Những người yêu thích tìm hiểu con người và ý tưởng.',
-                'suitable_careers': ['Dạy học', 'Tư vấn viên', 'Quảng cáo', 'Lãnh đạo']
-            },
-            'ENTP': {
-                'name': 'Debater (Nhà tranh luận)',
-                'description': 'Thông minh, sáng tạo, thích tranh luận. Những người yêu thích thách thức thực trạng.',
-                'suitable_careers': ['Luật sư', 'Nhà báo', 'Doanh nhân', 'Giáo viên']
-            },
-            'ESTJ': {
-                'name': 'Executive (Quản lý)',
-                'description': 'Lãnh đạo, tổ chức, thực tế. Những người thích quản lý và cấu trúc.',
-                'suitable_careers': ['Quản lý', 'Chỉ huy quân sự', 'Người thực thi', 'Kế toán']
-            },
-            'ESFJ': {
-                'name': 'Consul (Tư vấn)',
-                'description': 'Chăm sóc, tổ chức, xã hội. Những người muốn giúp đỡ và kết nối với người khác.',
-                'suitable_careers': ['Y tá', 'Giáo viên', 'Tư vấn viên', 'Quản lý sự kiện']
-            },
-            'ENFJ': {
-                'name': 'Protagonist (Nhân vật chính)',
-                'description': 'Lãnh đạo, nhạy cảm, lý tưởng. Những người muốn truyền cảm hứng và hướng dẫn.',
-                'suitable_careers': ['Lãnh đạo', 'Dạy học', 'Lãnh đạo tôn giáo', 'Nhà hoạt động']
-            },
-            'ENTJ': {
-                'name': 'Commander (Chỉ huy)',
-                'description': 'Lãnh đạo, chiến lược, logic. Những người sẵn sàng đảm nhận trách nhiệm và quyết định.',
-                'suitable_careers': ['CEO', 'Quản lý', 'Doanh nhân', 'Chỉ huy quân sự']
-            }
-        }
-        
-        return descriptions.get(mbti_code, {
-            'name': mbti_code,
-            'description': 'Một loại tính cách độc đáo',
-            'suitable_careers': []
-        })
 
 
 class TestResultService:
     """Service để quản lý kết quả trắc nghiệm (business logic)"""
+
+    @staticmethod
+    def _recommend_industries_from_db(mbti_code=None, holland_code=None, limit=4):
+        try:
+            from apps.career.models import Industry
+            from django.db.models import Count
+            from apps.career.services.industry_validation import sanitize_industry_maps
+
+            mbti = (mbti_code or '').strip().upper()
+            holland = (holland_code or '').strip().upper()
+            holland_primary = list(holland[:3]) if holland else []
+
+            # Lấy toàn bộ industries + số lượng career để fallback/sort
+            qs = Industry.objects.annotate(career_count=Count('careers')).values(
+                'id',
+                'name',
+                'mbti_map',
+                'holland_map',
+                'career_count'
+            )
+
+            scored = []
+            for row in qs:
+                industry_id = row.get('id')
+                name = row.get('name')
+                if not industry_id or not name:
+                    continue
+                mbti_map, holland_map = sanitize_industry_maps(
+                    mbti_map=row.get('mbti_map') or {},
+                    holland_map=row.get('holland_map') or {},
+                )
+
+                # Ưu tiên dùng score map (nếu có)
+                mbti_score = 0
+                if mbti:
+                    try:
+                        mbti_score = int(mbti_map.get(mbti, 0) or 0)
+                    except Exception:
+                        mbti_score = 0
+
+                holland_score = 0
+                for ch in holland_primary:
+                    if not ch:
+                        continue
+                    try:
+                        holland_score += int(holland_map.get(ch, 0) or 0)
+                    except Exception:
+                        continue
+
+                score = mbti_score + holland_score
+
+                scored.append((score, int(row.get('career_count') or 0), industry_id, name))
+
+            if not scored:
+                return []
+
+            # Nếu chưa có mapping nào được set (tất cả score=0) thì fallback theo career_count
+            has_any_mapping_match = any(s[0] > 0 for s in scored)
+            if has_any_mapping_match:
+                scored.sort(key=lambda x: (-x[0], -x[1], x[3]))
+            else:
+                scored.sort(key=lambda x: (-x[1], x[3]))
+
+            # Chỉ trả tối đa 4 lĩnh vực
+            safe_limit = 4
+            try:
+                safe_limit = min(4, int(limit))
+            except Exception:
+                safe_limit = 4
+
+            return [
+                {"id": industry_id, "name": name}
+                for _, __, industry_id, name in scored[: safe_limit]
+            ]
+        except Exception:
+            return []
     
     @classmethod
     def save_test_result(cls, user, test_type, answers):
@@ -447,6 +349,13 @@ class TestResultService:
         elif test_type.upper() == 'HOLLAND':
             profile.holland_result = calc_result['result_code']
         profile.save()
+
+        # Trả thêm danh sách lĩnh vực gợi ý (lấy từ bảng industries)
+        calc_result['recommended_industries'] = cls._recommend_industries_from_db(
+            mbti_code=getattr(profile, 'mbti_result', None),
+            holland_code=getattr(profile, 'holland_result', None),
+            limit=4,
+        )
         return calc_result
     
     @classmethod
@@ -480,14 +389,3 @@ class TestResultService:
                 'mbti_result': None,
                 'holland_result': None
             }
-
-    @staticmethod
-    def _get_answers_for_type(user, test_type):
-        """
-        Lấy answers từ user profile hoặc nơi lưu trữ đáp án (tùy hệ thống)
-        Nếu chưa lưu đáp án, trả về None hoặc dict rỗng
-        """
-        # TODO: Nếu bạn lưu đáp án ở model khác, hãy lấy đúng chỗ
-        # Ví dụ: user.profile.mbti_answers hoặc user.profile.holland_answers
-        # Nếu chưa lưu, trả về dict rỗng để tránh lỗi
-        return {}

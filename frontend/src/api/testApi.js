@@ -1,18 +1,29 @@
-import { getAccessToken } from './authApi';
+import { fetchWithAuth } from './authApi';
 const API_BASE_URL = `${process.env.REACT_APP_API_BASE || 'http://localhost:8000'}/api/users`;
 
-const getAuthHeaders = () => {
-  const token = getAccessToken();
-  return token ? { Authorization: `Bearer ${token}` } : {};
+const safeJson = async (response) => {
+  try {
+    return await response.json();
+  } catch {
+    return null;
+  }
 };
 
 export const getHollandQuestions = async () => {
   try {
-    const response = await fetch(`${API_BASE_URL}/test/holland/questions/`, {
-      headers: { ...getAuthHeaders() },
+    const response = await fetchWithAuth(`${API_BASE_URL}/test/holland/questions/`, {
+      method: 'GET',
     });
     if (!response.ok) {
-      return { success: false, message: 'Lỗi tải câu hỏi Holland: Server không phản hồi hợp lệ' };
+      const payload = await safeJson(response);
+      return {
+        success: false,
+        status: response.status,
+        message:
+          payload?.message ||
+          payload?.detail ||
+          'Không thể tải câu hỏi Holland. Vui lòng thử lại.',
+      };
     }
     return await response.json();
   } catch (error) {
@@ -22,11 +33,19 @@ export const getHollandQuestions = async () => {
 
 export const getMBTIQuestions = async () => {
   try {
-    const response = await fetch(`${API_BASE_URL}/test/mbti/questions/`, {
-      headers: { ...getAuthHeaders() },
+    const response = await fetchWithAuth(`${API_BASE_URL}/test/mbti/questions/`, {
+      method: 'GET',
     });
     if (!response.ok) {
-      return { success: false, message: 'Lỗi tải câu hỏi MBTI: Server không phản hồi hợp lệ' };
+      const payload = await safeJson(response);
+      return {
+        success: false,
+        status: response.status,
+        message:
+          payload?.message ||
+          payload?.detail ||
+          'Không thể tải câu hỏi MBTI. Vui lòng thử lại.',
+      };
     }
     return await response.json();
   } catch (error) {
@@ -36,16 +55,20 @@ export const getMBTIQuestions = async () => {
 
 export const submitTest = async (test_type, answers) => {
   try {
-    const response = await fetch(`${API_BASE_URL}/test/submit/`, {
+    const response = await fetchWithAuth(`${API_BASE_URL}/test/submit/`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        ...getAuthHeaders(),
-      },
       body: JSON.stringify({ test_type, answers }),
     });
     if (!response.ok) {
-      return { success: false, message: 'Lỗi gửi bài test: Server không phản hồi hợp lệ' };
+      const payload = await safeJson(response);
+      return {
+        success: false,
+        status: response.status,
+        message:
+          payload?.message ||
+          payload?.detail ||
+          'Lỗi gửi bài test. Vui lòng thử lại.',
+      };
     }
     return await response.json();
   } catch (error) {
@@ -55,14 +78,23 @@ export const submitTest = async (test_type, answers) => {
 
 export const getTestResult = async () => {
   try {
-    const response = await fetch(`${API_BASE_URL}/test/result/`, {
-      headers: { ...getAuthHeaders() },
+    const response = await fetchWithAuth(`${API_BASE_URL}/test/result/`, {
+      method: 'GET',
     });
     if (!response.ok) {
-      return { success: false, message: 'Lỗi lấy kết quả test: Server không phản hồi hợp lệ' };
+      const payload = await safeJson(response);
+      return {
+        success: false,
+        status: response.status,
+        message:
+          payload?.message ||
+          payload?.detail ||
+          'Lỗi lấy kết quả test. Vui lòng thử lại.',
+      };
     }
     return await response.json();
   } catch (error) {
     return { success: false, message: 'Lỗi lấy kết quả test: ' + error.message };
   }
 };
+// The getCareersByIndustry API helper has been removed as it is obsolete.

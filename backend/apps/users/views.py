@@ -7,6 +7,59 @@ from rest_framework import status
 from apps.users.services.test_service import HollandTestService, MBTITestService, TestResultService
 from utils.permissions import IsAdminUser, IsAdminOrUser
 from apps.ai.services.ai_service import get_embedding
+from apps.custom_auth.services.auth_service import check_user_onboarding_status
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_careers_by_industry(request):
+    industry_name = (request.query_params.get('industry') or '').strip()
+    industry_id = (request.query_params.get('industry_id') or '').strip()
+
+    if not industry_name and not industry_id:
+        return Response(
+            {"success": False, "message": "Thiếu tham số industry hoặc industry_id"},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    try:
+        from apps.career.models import Career, Industry
+
+        if industry_id:
+            industry = Industry.objects.filter(id=industry_id).first()
+        else:
+            industry = Industry.objects.filter(name__iexact=industry_name).first()
+
+        if not industry:
+            return Response(
+                {"success": False, "message": "Không tìm thấy lĩnh vực"},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        qs = (
+            Career.objects.filter(industry=industry)
+            .order_by('title', 'level')
+            .values('id', 'title', 'level')
+        )
+
+        careers = [
+            {
+                "id": str(row.get('id')),
+                "title": row.get('title') or '',
+                "level": row.get('level'),
+            }
+            for row in qs
+        ]
+
+        return Response(
+            {"success": True, "industry": industry.name, "careers": careers},
+            status=status.HTTP_200_OK,
+        )
+    except Exception as e:
+        return Response(
+            {"success": False, "message": "Lỗi hệ thống", "error": str(e)},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
 
 @api_view(['DELETE'])
 @permission_classes([IsAdminUser])  
@@ -54,7 +107,6 @@ def profile(request):
         if serializer.is_valid():
             updated_profile = serializer.save()
             
-            # === LOGIC TẠO EMBEDDING (RAG) ===
             try:
                 # 1. Lấy chuỗi sở thích
                 interests_qs = user.interests.all()
@@ -115,7 +167,16 @@ def submit_test(request):
         return Response({"error": "Thiếu loại bài test hoặc đáp án"}, status=status.HTTP_400_BAD_REQUEST)
     try:
         calc_result = TestResultService.save_test_result(user, test_type, answers)
-        return Response({"success": True, "result": calc_result})
+        
+        # Check lại onboarding status sau khi submit
+        has_completed = check_user_onboarding_status(user)
+        
+        return Response({
+            "success": True,
+            "result": calc_result,
+            "hasCompletedOnboarding": has_completed,
+            "onboardingCompleted": has_completed
+        })
     except Exception as e:
         return Response({"error": f"Lỗi hệ thống: {str(e)}"}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -125,3 +186,21 @@ def get_test_result(request):
     user = request.user
     result = TestResultService.get_user_test_profile(user)
     return Response(result)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def check_onboarding_status(request):
+    user = request.user
+    has_completed = check_user_onboarding_status(user)
+    
+    return Response({
+        "hasCompletedOnboarding": has_completed,
+        "needsOnboarding": not has_completed,
+        "user": {
+            "id": str(user.id),
+            "email": user.email,
+            "fullName": user.full_name,
+            "role": user.role
+        }
+    })

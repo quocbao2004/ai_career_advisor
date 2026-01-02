@@ -3,8 +3,14 @@ import { Link, useNavigate } from "react-router-dom";
 import { GoogleLogin } from "@react-oauth/google";
 import GlassCard from "../components/common/GlassCard";
 import Logo from "../components/logo";
-import { loginUser, saveTokens, saveUserInfo, googleLogin } from "../api/authApi";
-import { getTestResult } from "../api/testApi";
+import {
+  loginUser,
+  saveTokens,
+  saveUserInfo,
+  googleLogin,
+  saveOnboardingStatus,
+  hasSeenOnboardingWelcome,
+} from "../api/authApi";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import "../assets/css-custom/loginpage.css";
 
@@ -40,33 +46,32 @@ const LoginPage = () => {
 
     try {
       const result = await loginUser(formData.email, formData.password);
-      
+
       if (result.success) {
         saveTokens(result.access, result.refresh);
         saveUserInfo(result.user);
 
-        const postLoginRedirect = async (user) => {
-          // Admins go to admin panel immediately
-          if (user.role === "admin") {
+        // Save onboarding status từ backend response
+        const completed =
+          result.hasCompletedOnboarding ?? result.user?.hasCompletedOnboarding;
+        if (completed !== undefined) {
+          saveOnboardingStatus(Boolean(completed));
+        }
+
+        // Đảm bảo localStorage đã được set xong trước khi navigate
+        setTimeout(() => {
+          if (result.user.role === "admin") {
             navigate("/trang-quan-tri", { replace: true });
-            return;
+          } else if (
+            result.needsOnboarding === true ||
+            result.user?.needsOnboarding === true
+          ) {
+            const welcomeSeen = hasSeenOnboardingWelcome(result.user?.id);
+            navigate(welcomeSeen ? "/trac-nghiem" : "/chao-mung", { replace: true });
+          } else {
+            navigate("/dashboard", { replace: true });
           }
-
-          // For normal users, fetch assessment profile to decide
-          try {
-            const testResp = await getTestResult();
-            if (testResp.success && (testResp.mbti_result || testResp.holland_result)) {
-              navigate("/trang-nguoi-dung", { replace: true });
-            } else {
-              navigate("/trac-nghiem", { replace: true });
-            }
-          } catch (err) {
-            // If profile fetch fails, fall back to dashboard
-            navigate("/trang-nguoi-dung", { replace: true });
-          }
-        };
-
-        postLoginRedirect(result.user);
+        }, 0);
       } else {
         setError(result.message || "Đăng nhập thất bại");
       }
@@ -82,30 +87,32 @@ const LoginPage = () => {
     setError("");
     try {
       const result = await googleLogin(credentialResponse.credential);
-      
+
       if (result.success) {
         saveTokens(result.access, result.refresh);
         saveUserInfo(result.user);
-        // reuse same redirect logic as normal login
-        const postLoginRedirect = async (user) => {
-          if (user.role === "admin") {
+        
+        // Save onboarding status từ backend response
+        const completed =
+          result.hasCompletedOnboarding ?? result.user?.hasCompletedOnboarding;
+        if (completed !== undefined) {
+          saveOnboardingStatus(Boolean(completed));
+        }
+
+        // Đảm bảo localStorage đã được set xong trước khi navigate
+        setTimeout(() => {
+          if (result.user.role === "admin") {
             navigate("/trang-quan-tri", { replace: true });
-            return;
+          } else if (
+            result.needsOnboarding === true ||
+            result.user?.needsOnboarding === true
+          ) {
+            const welcomeSeen = hasSeenOnboardingWelcome(result.user?.id);
+            navigate(welcomeSeen ? "/trac-nghiem" : "/chao-mung", { replace: true });
+          } else {
+            navigate("/dashboard", { replace: true });
           }
-
-          try {
-            const testResp = await getTestResult();
-            if (testResp.success && (testResp.mbti_result || testResp.holland_result)) {
-              navigate("/trang-nguoi-dung", { replace: true });
-            } else {
-              navigate("/trac-nghiem", { replace: true });
-            }
-          } catch (err) {
-            navigate("/trang-nguoi-dung", { replace: true });
-          }
-        };
-
-        postLoginRedirect(result.user);
+        }, 0);
       } else {
         setError(result.message || "Lỗi đăng nhập Google");
       }
@@ -183,11 +190,7 @@ const LoginPage = () => {
             </Link>
           </div>
 
-          <button 
-            type="submit" 
-            className="btn-auth-primary"
-            disabled={loading}
-          >
+          <button type="submit" className="btn-auth-primary" disabled={loading}>
             {loading ? "Đang đăng nhập..." : "Đăng nhập"}
           </button>
 
@@ -195,7 +198,10 @@ const LoginPage = () => {
             <span>Hoặc tiếp tục với</span>
           </div>
 
-          <div className="social-buttons-box" style={{ display: "flex", gap: "10px", justifyContent: "center" }}>
+          <div
+            className="social-buttons-box"
+            style={{ display: "flex", gap: "10px", justifyContent: "center" }}
+          >
             <GoogleLogin
               onSuccess={handleGoogleSuccess}
               onError={() => setError("Lỗi đăng nhập Google")}

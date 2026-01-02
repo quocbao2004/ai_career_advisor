@@ -12,6 +12,7 @@ from dotenv import load_dotenv
 
 from .models import ChatSession, ChatMessage, KnowledgeBase
 from .serializers import ChatMessageSerializer, ChatSessionSerializer
+from apps.ai.services.career_advice_service import AdviceParams, get_ai_advice_payload
 
 
 
@@ -126,4 +127,19 @@ def chat_message(request):
         "session_title": session.title,
         "new_session": new_session_created
     }, status=200)
+
+
+@api_view(['GET'])
+@permission_classes([IsAdminOrUser])
+def get_ai_advice(request):
+    """Trả về tư vấn nghề nghiệp + 2-3 lộ trình học (khóa học lấy từ DB)."""
+    params = AdviceParams(
+        paths=min(3, max(2, int(request.query_params.get('paths', 3) or 3))),
+        courses_per_path=min(10, max(3, int(request.query_params.get('courses_per_path', 6) or 6))),
+    )
+
+    payload = get_ai_advice_payload(request.user, params=params)
+    if not payload.get('success'):
+        return Response(payload, status=status.HTTP_400_BAD_REQUEST)
+    return Response(payload, status=status.HTTP_200_OK)
 

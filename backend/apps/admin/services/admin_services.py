@@ -11,5 +11,4 @@ class AdminServices():
             "total_industries": self.repo.count_industries(),
             "total_careers": self.repo.count_careers(),
             "total_courses": self.repo.count_courses(),
-            "total_skills": self.repo.count_skills(),
         }

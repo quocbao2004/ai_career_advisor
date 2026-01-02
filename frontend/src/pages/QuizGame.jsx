@@ -2,21 +2,21 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import GlassCard from "../components/common/GlassCard";
 import * as testApi from "../api/testApi";
-import { getAccessToken } from "../api/authApi";
+import { getAccessToken, saveOnboardingStatus, getUserInfo, saveUserInfo } from "../api/authApi";
 import { getQuizConfig } from "../assets/js/quizConfig";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "../assets/css-custom/quiz-game.css";
 import { 
-  Target, 
   RotateCcw, 
-  LayoutDashboard, 
   ArrowLeft, 
   ArrowRight, 
   Send, 
   XCircle,
   Loader2
 } from "lucide-react";
+
+import QuizResult from "./QuizResult";
 
 const QuizGame = () => {
   const { type } = useParams(); // "mbti" hoặc "holland"
@@ -29,7 +29,6 @@ const QuizGame = () => {
   const [answers, setAnswers] = useState({});
   const [skippedQuestions, setSkippedQuestions] = useState(new Set()); // Câu bị bỏ qua
   const [result, setResult] = useState(null);
-  const [quizStarted, setQuizStarted] = useState(true); 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -86,6 +85,10 @@ const QuizGame = () => {
         let response;
         if (apiType === "HOLLAND") {
           response = await testApi.getHollandQuestions();
+          if (response && response.success === false) {
+            setError(response.message || "Không thể tải câu hỏi Holland. Vui lòng thử lại.");
+            return;
+          }
           if (response.options && response.questions && response.questions.length > 0) {
             setRatingOptions(response.options);
             setQuestions(response.questions);
@@ -95,6 +98,10 @@ const QuizGame = () => {
           }
         } else if (apiType === "MBTI") {
           response = await testApi.getMBTIQuestions();
+          if (response && response.success === false) {
+            setError(response.message || "Không thể tải câu hỏi MBTI. Vui lòng thử lại.");
+            return;
+          }
           if (response.questions && Array.isArray(response.questions) && response.questions.length > 0) {
             setQuestions(response.questions);
           } else {
@@ -106,7 +113,7 @@ const QuizGame = () => {
           return;
         }
       } catch (err) {
-        setError("Lỗi kết nối. Vui lòng thử lại.");
+        setError(err?.message || "Lỗi kết nối. Vui lòng thử lại.");
       } finally {
         setLoading(false);
       }
@@ -116,7 +123,8 @@ const QuizGame = () => {
   }, [config, apiType]);
 
   const handleAnswer = (value) => {
-    const questionKey = normalizedType === "holland" ? question.id : currentQuestion + 1;
+    const questionId = questions[currentQuestion]?.id;
+    const questionKey = normalizedType === "holland" ? questionId : currentQuestion + 1;
     const newAnswers = {
       ...answers,
       [questionKey]: value,
@@ -190,6 +198,19 @@ const QuizGame = () => {
       const response = await testApi.submitTest(apiType, finalAnswers);
       if (response.success) {
         setResult(response.result);
+        
+        // Nếu backend trả về onboardingCompleted hoặc hasCompletedOnboarding
+        if (response.onboardingCompleted || response.hasCompletedOnboarding) {
+          saveOnboardingStatus(true);
+          const currentUser = getUserInfo();
+          if (currentUser) {
+            saveUserInfo({
+              ...currentUser,
+              hasCompletedOnboarding: true,
+              needsOnboarding: false,
+            });
+          }
+        }
       } else {
         toast.error("Lỗi khi lưu kết quả. Vui lòng thử lại.");
       }
@@ -205,7 +226,6 @@ const QuizGame = () => {
     setAnswers({});
     setSkippedQuestions(new Set());
     setResult(null);
-    setQuizStarted(true); 
   };
 
   // Trạng thái đang tải
@@ -240,175 +260,7 @@ const QuizGame = () => {
 
   // Màn hình kết quả
   if (result) {
-    const resultCode = result.result_code;
-
-    // MBTI: Hiển thị từ backend trả về
-    if (config.resultDisplay === "single") {
-      const mbtiDesc = result.result_details?.mbti_description;
-      const careers = mbtiDesc?.suitable_careers || [];
-      if (!mbtiDesc) {
-        return (
-          <div className="quiz-wrapper">
-            <GlassCard className="quiz-result-card fade-in-up">
-              <p className="text-danger">
-                Lỗi: Không có mô tả MBTI cho mã "{resultCode}"
-              </p>
-              <button
-                className="btn-quiz-primary"
-                onClick={() => navigate("/trac-nghiem")}
-              >
-                Quay lại
-              </button>
-            </GlassCard>
-          </div>
-        );
-      }
-      return (
-        <div className="quiz-wrapper">
-          <GlassCard className="quiz-result-card fade-in-up">
-            <div style={{ textAlign: "center" }}>
-              <span
-                className="result-badge"
-                style={{ background: "#6366f1" }}
-              >
-                {resultCode}
-              </span>
-              <h1 className="result-title-main">
-                {mbtiDesc.name || "Loại tính cách"}
-              </h1>
-              <p className="result-desc">{mbtiDesc.description || ""}</p>
-              <div className="result-section-box">
-                <h4><Target size={18} style={{ marginRight: '8px', display: 'inline' }} /> Nghề nghiệp phù hợp</h4>
-                <div className="tags-container">
-                  {careers.length > 0 ? (
-                    careers.map((career, idx) => (
-                      <span
-                        key={idx}
-                        className="career-tag"
-                        style={{ background: `#6366f140`, color: "#6366f1" }}
-                      >
-                        {career}
-                      </span>
-                    ))
-                  ) : (
-                    <p className="text-white-50">Không có dữ liệu</p>
-                  )}
-                </div>
-              </div>
-              <div className="quiz-actions-row">
-                <button className="btn-quiz-primary" onClick={handleReset}>
-                  <RotateCcw size={16} style={{ marginRight: '6px' }} />
-                  Làm lại
-                </button>
-                <button
-                  className="btn-quiz-outline"
-                  onClick={() => navigate("/dashboard")}
-                >
-                  <LayoutDashboard size={16} style={{ marginRight: '6px' }} />
-                  Đến Dashboard
-                </button>
-              </div>
-            </div>
-          </GlassCard>
-        </div>
-      );
-    }
-
-    // Holland: Hiển thị đơn giản như MBTI
-    if (config.resultDisplay === "grid") {
-      if (!resultCode || typeof resultCode !== "string" || resultCode.length === 0) {
-        return (
-          <div className="quiz-wrapper">
-            <GlassCard className="quiz-result-card fade-in-up">
-              <p className="text-danger">Lỗi: Kết quả không hợp lệ</p>
-              <button
-                className="btn-quiz-primary"
-                onClick={() => navigate("/trac-nghiem")}
-              >
-                <ArrowLeft size={16} style={{ marginRight: '6px' }} />
-                Quay lại
-              </button>
-            </GlassCard>
-          </div>
-        );
-      }
-      
-      // Lấy nhóm đầu tiên (chủ đạo)
-      const primaryCode = resultCode[0];
-      const hollandData = result.result_details?.[primaryCode];
-      
-      if (!hollandData) {
-        return (
-          <div className="quiz-wrapper">
-            <GlassCard className="quiz-result-card fade-in-up">
-              <p className="text-danger">
-                Lỗi: Không tìm thấy nhóm sở thích phù hợp
-              </p>
-              <button
-                className="btn-quiz-primary"
-                onClick={() => navigate("/trac-nghiem")}
-              >
-                <ArrowLeft size={16} style={{ marginRight: '6px' }} />
-                Quay lại
-              </button>
-            </GlassCard>
-          </div>
-        );
-      }
-
-      const desc = hollandData.description;
-      const careers = desc?.suitable_careers || [];
-
-      return (
-        <div className="quiz-wrapper">
-          <GlassCard className="quiz-result-card fade-in-up">
-            <div style={{ textAlign: "center" }}>
-              <span
-                className="result-badge"
-                style={{ background: "#0891b2" }}
-              >
-                {resultCode}
-              </span>
-              <h1 className="result-title-main">
-                {hollandData.name || "Nhóm Holland"}
-              </h1>
-              <p className="result-desc">{desc?.description || ""}</p>
-              <div className="result-section-box">
-                <h4><Target size={18} style={{ marginRight: '8px', display: 'inline' }} /> Nghề nghiệp phù hợp</h4>
-                <div className="tags-container">
-                  {careers.length > 0 ? (
-                    careers.map((career, idx) => (
-                      <span
-                        key={idx}
-                        className="career-tag"
-                        style={{ background: `#0891b240`, color: "#0891b2" }}
-                      >
-                        {career}
-                      </span>
-                    ))
-                  ) : (
-                    <p className="text-white-50">Không có dữ liệu</p>
-                  )}
-                </div>
-              </div>
-              <div className="quiz-actions-row">
-                <button className="btn-quiz-primary" onClick={handleReset}>
-                  <RotateCcw size={16} style={{ marginRight: '6px' }} />
-                  Làm lại
-                </button>
-                <button
-                  className="btn-quiz-outline"
-                  onClick={() => navigate("/dashboard")}
-                >
-                  <LayoutDashboard size={16} style={{ marginRight: '6px' }} />
-                  Đến Dashboard
-                </button>
-              </div>
-            </div>
-          </GlassCard>
-        </div>
-      );
-    }
+    return <QuizResult result={result} config={config} onReset={handleReset} />;
   }
 
   // Màn hình làm trắc nghiệm
@@ -488,9 +340,9 @@ const QuizGame = () => {
 
   return (
     <div className="quiz-wrapper">
-      <ToastContainer position="top-right" autoClose={3000} style={{ zIndex: 2 }} />
+      <ToastContainer position="bottom-right" autoClose={3000}  />
       <div className="quiz-playing-container" style={{ 
-        display: 'flex', 
+        display: 'flex',
         gap: '20px',
         alignItems: 'flex-start',
         width: '100%',
@@ -648,7 +500,6 @@ const QuizGame = () => {
               : `Nộp bài (${Object.keys(answers).length}/${questions.length})`
             }
           </button>
-
           <button
             className="btn-quiz-outline"
             onClick={() => navigate("/trac-nghiem")}

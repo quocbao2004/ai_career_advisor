@@ -38,6 +38,9 @@ urlpatterns = [
     # user
     path("api/users/", include("apps.users.urls")),
 
+    # career
+    path("api/career/", include("apps.career.urls")),
+
     # profile convenience route removed per request
 
     # AI
