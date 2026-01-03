@@ -7,6 +7,21 @@ import logging
 logger = logging.getLogger(__name__)
 
 
+def check_user_onboarding_status(user):
+    """
+    Kiểm tra xem user đã làm test onboarding chưa
+    Sử dụng mbti_result và holland_result có sẵn trong UserProfile
+    """
+    from apps.users.models import UserProfile
+    
+    try:
+        profile = UserProfile.objects.get(user=user)
+        has_completed = bool(profile.mbti_result or profile.holland_result)
+        return has_completed
+    except UserProfile.DoesNotExist:
+        return False
+
+
 class AuthService:
 
     @staticmethod
@@ -29,9 +44,9 @@ class AuthService:
             return None, "Mật khẩu không đúng"
 
         refresh = RefreshToken.for_user(user)
-
-        # Debug log
-        logger.info(f"Login successful for {email}, role: {user.role}")
+        
+        # Check onboarding status dựa trên test results
+        has_completed_onboarding = check_user_onboarding_status(user)
 
         return {
             "access": str(refresh.access_token),
@@ -40,7 +55,9 @@ class AuthService:
                 "id": str(user.id),
                 "email": user.email,
                 "fullName": user.full_name,
-                "role": user.role or "user"
+                "role": user.role or "user",
+                "hasCompletedOnboarding": has_completed_onboarding,
+                "needsOnboarding": not has_completed_onboarding
             }
         }, None
 
@@ -113,24 +130,38 @@ class AuthService:
 
     @staticmethod
     def google_login(email: str, full_name: str, **extra_fields):
-        from apps.users.models import User
-        
+        from apps.users.models import User, UserProfile 
+        from django.db import transaction
+        from django.utils.crypto import get_random_string
+        user = None
         try:
             user = User.objects.get(email=email)
         except User.DoesNotExist:
             try:
-                user = User.objects.create_user(
-                    email=email,
-                    password="",
-                    full_name=full_name,
-                    **extra_fields
-                )
+                with transaction.atomic():
+                    default_password = get_random_string(length=10)
+                    user = User.objects.create_user(
+                        email=email,
+                        password=default_password,
+                        full_name=full_name,
+                        **extra_fields
+                    )
+                    
+                    UserProfile.objects.create(user=user)
+                    try:
+                        EmailService.send_password_email(email, default_password)
+                        logger.info(f"Đã gửi email mật khẩu cho user mới: {email}")
+                    except e:
+                        pass
             except Exception as e:
-                return None, str(e)
+                return None, f"Lỗi tạo user: {str(e)}"
 
         refresh = RefreshToken.for_user(user)
+        
+        # Check onboarding status
+        has_completed_onboarding = check_user_onboarding_status(user)
 
-        logger.info(f"Google login successful for {email}, role: {user.role}")
+        logger.info(f"Google login successful for {email}")
 
         return {
             "access": str(refresh.access_token),
@@ -139,10 +170,12 @@ class AuthService:
                 "id": str(user.id),
                 "email": user.email,
                 "fullName": user.full_name,
-                "role": user.role or "user"
+                "role": user.role or "user",
+                "hasCompletedOnboarding": has_completed_onboarding,
+                "needsOnboarding": not has_completed_onboarding
             }
         }, None
-
+    
     @staticmethod
     def request_password_reset(email: str):
         from apps.users.models import User

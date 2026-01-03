@@ -1,10 +1,29 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-// --- 1. IMPORT TOASTIFY ---
+import "../assets/css-custom/userprofile.css";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-import "../assets/css-custom/userprofile.css";
+// --- IMPORT ICON TỪ LUCIDE-REACT ---
+import {
+  Camera,
+  Pencil,
+  Save,
+  X,
+  Linkedin,
+  Phone,
+  Cake,
+  GraduationCap,
+  Briefcase,
+  Heart,
+  Puzzle,
+  Mail,
+  FileText,
+  Trash2,
+  Plus,
+  Contact,
+  Users,
+} from "lucide-react";
 
 const UserProfile = () => {
   const [isEditing, setIsEditing] = useState(false);
@@ -12,9 +31,9 @@ const UserProfile = () => {
 
   // State dữ liệu
   const [formData, setFormData] = useState({
+    id: null,
     full_name: "",
     email: "",
-    avatar_url: "https://cdn-icons-png.flaticon.com/512/149/149071.png",
     phone_number: "",
     gender: "other",
     dob: "",
@@ -22,9 +41,11 @@ const UserProfile = () => {
     education_level: "bachelor",
     current_job_title: "",
     linkedin_url: "",
-    skills: [],
+    mbti_result: "",
+    holland_result: "",
     interests: [],
-    tests: [],
+    skills: [],
+    avatar_url: "https://cdn-icons-png.flaticon.com/512/149/149071.png",
   });
 
   const [newSkill, setNewSkill] = useState({ name: "", level: 1 });
@@ -43,40 +64,34 @@ const UserProfile = () => {
       const response = await axios.get(API_URL, {
         headers: { Authorization: `Bearer ${token}` },
       });
-
       const data = response.data;
+
       setFormData({
+        id: data.id,
         full_name: data.full_name || "",
         email: data.email || "",
-        avatar_url:
-          data.avatar_url ||
-          "https://cdn-icons-png.flaticon.com/512/149/149071.png",
         phone_number: data.phone_number || "",
-        gender: data.gender || "other",
+        gender: (data.gender || "other").toLowerCase(),
         dob: data.dob || "",
         bio: data.bio || "",
         education_level: data.education_level || "bachelor",
         current_job_title: data.current_job_title || "",
         linkedin_url: data.linkedin_url || "",
-        skills: data.skills.map((s) => ({
-          id: s.id,
-          skill_name: s.skill_details?.skill_name || s.skill_name || "Unknown",
-          proficiency_level: s.proficiency_level,
-        })),
-        interests: data.interests.map((i) => i.keyword || i),
-        tests:
-          data.personality_tests?.map((t) => ({
-            type: t.test_type,
-            code: t.summary_code,
-            date: new Date(t.taken_at).toLocaleDateString(),
-          })) || [],
+        mbti_result: data.mbti_result || "",
+        holland_result: data.holland_result || "",
+        interests: data.interests || [],
+        skills: data.skills
+          ? data.skills.map((s) => ({
+              id: s.id || Math.random(),
+              skill_name: s.skill_name || "Unknown",
+              proficiency_level: s.proficiency_level || 1,
+            }))
+          : [],
+        avatar_url: "https://cdn-icons-png.flaticon.com/512/149/149071.png",
       });
     } catch (error) {
       console.error("Lỗi tải hồ sơ:", error);
-      // --- THAY ALERT BẰNG TOAST ERROR ---
-      toast.error(
-        "Không thể tải thông tin người dùng. Vui lòng đăng nhập lại."
-      );
+      toast.error("Không thể tải thông tin.");
     } finally {
       setIsLoading(false);
     }
@@ -108,10 +123,12 @@ const UserProfile = () => {
   const handleAddInterest = (e) => {
     if (e.key === "Enter" && newInterest.trim()) {
       e.preventDefault();
-      setFormData({
-        ...formData,
-        interests: [...formData.interests, newInterest.trim()],
-      });
+      if (!formData.interests.includes(newInterest.trim())) {
+        setFormData({
+          ...formData,
+          interests: [...formData.interests, newInterest.trim()],
+        });
+      }
       setNewInterest("");
     }
   };
@@ -130,16 +147,18 @@ const UserProfile = () => {
         full_name: formData.full_name,
         phone_number: formData.phone_number,
         gender: formData.gender,
-        dob: formData.dob,
+        dob: formData.dob || null,
         bio: formData.bio,
         education_level: formData.education_level,
         current_job_title: formData.current_job_title,
         linkedin_url: formData.linkedin_url,
+        mbti_result: formData.mbti_result,
+        holland_result: formData.holland_result,
+        interests: formData.interests,
         skills: formData.skills.map((s) => ({
           skill_name: s.skill_name,
           proficiency_level: s.proficiency_level,
         })),
-        interests: formData.interests,
       };
 
       await axios.put(API_URL, payload, {
@@ -149,245 +168,239 @@ const UserProfile = () => {
         },
       });
 
-      // --- THAY ALERT BẰNG TOAST SUCCESS ---
       toast.success("Cập nhật hồ sơ thành công!");
-
       setIsEditing(false);
       fetchProfile();
     } catch (error) {
-      console.error("Lỗi lưu hồ sơ:", error);
-      // --- THAY ALERT BẰNG TOAST ERROR ---
-      toast.error("Có lỗi xảy ra khi lưu thông tin.");
+      toast.error("Lỗi khi lưu. Kiểm tra lại dữ liệu.");
     } finally {
       setIsLoading(false);
     }
   };
 
   if (isLoading && !formData.full_name) {
-    return (
-      <div style={{ textAlign: "center", marginTop: 50 }}>
-        Đang tải dữ liệu...
-      </div>
-    );
+    return <div className="loading-screen">Đang tải dữ liệu...</div>;
   }
 
   return (
     <div className="profile-container">
-      {/* --- 2. THÊM CONTAINER ĐỂ HIỂN THỊ TOAST --- */}
-      <ToastContainer
-        position="top-right"
-        autoClose={3000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-      />
+      <ToastContainer position="top-right" autoClose={3000} />
 
-      <div className="profile-header">
-        <div className="avatar-wrapper">
-          <img src={formData.avatar_url} alt="Avatar" />
-        </div>
-        <div className="header-info">
-          <h1>{formData.full_name || "Người dùng"}</h1>
-          <div style={{ marginTop: 5 }}>
-            <span className="header-role">
-              {formData.current_job_title || "Chưa cập nhật chức danh"}
-            </span>
+      {/* --- HEADER --- */}
+      <div className="profile-header-card">
+        <div className="header-cover"></div>
+        <div className="header-content">
+          <div className="avatar-section">
+            <img
+              src={formData.avatar_url}
+              alt="Avatar"
+              className="profile-avatar"
+            />
+            {isEditing && (
+              <div className="avatar-edit-icon" title="Đổi ảnh đại diện">
+                <Camera size={18} />
+              </div>
+            )}
           </div>
-        </div>
-        <div className="header-actions">
-          {isEditing ? (
-            <>
+
+          <div className="user-intro">
+            <h1 className="user-name">{formData.full_name || "Người dùng"}</h1>
+            <div className="user-role-wrapper">
+              <Briefcase size={16} className="icon-small" />
+              <span className="user-role">
+                {formData.current_job_title || "Chưa cập nhật chức danh"}
+              </span>
+            </div>
+            <div className="user-meta">
+              <Mail size={16} className="icon-small" />
+              <span>{formData.email}</span>
+            </div>
+          </div>
+
+          <div className="header-actions">
+            {isEditing ? (
+              <>
+                <button
+                  className="btn btn-secondary"
+                  onClick={() => {
+                    setIsEditing(false);
+                    fetchProfile();
+                  }}
+                >
+                  <X size={16} /> Hủy
+                </button>
+                <button className="btn btn-primary" onClick={handleSave}>
+                  <Save size={16} /> Lưu thay đổi
+                </button>
+              </>
+            ) : (
               <button
-                className="btn-secondary"
-                onClick={() => {
-                  setIsEditing(false);
-                  fetchProfile();
-                }}
-                style={{ marginRight: 10 }}
-                disabled={isLoading}
+                className="btn btn-outline"
+                onClick={() => setIsEditing(true)}
               >
-                Hủy
+                <Pencil size={16} /> Chỉnh sửa hồ sơ
               </button>
-              <button
-                className="btn-primary"
-                onClick={handleSave}
-                disabled={isLoading}
-              >
-                {isLoading ? "Đang lưu..." : "Lưu thay đổi"}
-              </button>
-            </>
-          ) : (
-            <button
-              className="btn-secondary"
-              onClick={() => setIsEditing(true)}
-            >
-              Chỉnh sửa
-            </button>
-          )}
+            )}
+          </div>
         </div>
       </div>
 
-      <div className="profile-grid">
-        {/* CỘT TRÁI */}
-        <div className="grid-left">
-          <div className="profile-card">
-            <div className="card-title">Thông tin cá nhân</div>
-            <div className="form-row">
-              <div className="form-group">
-                <label>Họ và tên</label>
-                <input
-                  type="text"
-                  name="full_name"
-                  value={formData.full_name}
-                  onChange={handleChange}
-                  disabled={!isEditing}
-                />
-              </div>
-              <div className="form-group">
-                <label>Email</label>
-                <input
-                  type="email"
-                  value={formData.email}
-                  disabled
-                  className="bg-gray-100"
-                  style={{ backgroundColor: "#f3f4f6", cursor: "not-allowed" }}
-                />
-              </div>
+      <div className="profile-layout">
+        {/* --- LEFT COLUMN --- */}
+        <div className="layout-left">
+          {/* INFO CARD */}
+          <div className="info-card">
+            <div className="card-header">
+              <h3>
+                <Contact className="icon-header" size={20} /> Thông tin cá nhân
+              </h3>
             </div>
-            <div className="form-row">
-              <div className="form-group">
-                <label>Số điện thoại</label>
-                <input
-                  type="text"
-                  name="phone_number"
-                  value={formData.phone_number}
-                  onChange={handleChange}
-                  disabled={!isEditing}
-                />
+            <div className="card-body">
+              <div className="form-grid">
+                <div className="form-group">
+                  <label>Họ và tên</label>
+                  <input
+                    className="input-field"
+                    type="text"
+                    name="full_name"
+                    value={formData.full_name}
+                    onChange={handleChange}
+                    disabled={!isEditing}
+                  />
+                </div>
+                <div className="form-group">
+                  <label>
+                    <Phone size={14} className="icon-label" /> Số điện thoại
+                  </label>
+                  <input
+                    className="input-field"
+                    type="text"
+                    name="phone_number"
+                    value={formData.phone_number}
+                    onChange={handleChange}
+                    disabled={!isEditing}
+                  />
+                </div>
+                <div className="form-group">
+                  <label>
+                    <Cake size={14} className="icon-label" /> Ngày sinh
+                  </label>
+                  <input
+                    className="input-field"
+                    type="date"
+                    name="dob"
+                    value={formData.dob}
+                    onChange={handleChange}
+                    disabled={!isEditing}
+                  />
+                </div>
+                <div className="form-group">
+                  <label>
+                    <Users size={14} className="icon-label" /> Giới tính
+                  </label>
+                  <select
+                    className="input-field"
+                    name="gender"
+                    value={formData.gender}
+                    onChange={handleChange}
+                    disabled={!isEditing}
+                  >
+                    <option value="male">Nam</option>
+                    <option value="female">Nữ</option>
+                    <option value="other">Khác</option>
+                  </select>
+                </div>
+                <div className="form-group full-width">
+                  <label>
+                    <GraduationCap size={14} className="icon-label" /> Trình độ
+                    học vấn
+                  </label>
+                  <select
+                    className="input-field"
+                    name="education_level"
+                    value={formData.education_level}
+                    onChange={handleChange}
+                    disabled={!isEditing}
+                  >
+                    <option value="high_school">Trung học phổ thông</option>
+                    <option value="vocational">Trường nghề</option>
+                    <option value="bachelor">Cử nhân (Đại học)</option>
+                    <option value="master">Thạc sĩ</option>
+                    <option value="phd">Tiến sĩ</option>
+                  </select>
+                </div>
+                <div className="form-group full-width">
+                  <label>
+                    <FileText size={14} className="icon-label" /> Giới thiệu
+                    (Bio)
+                  </label>
+                  <textarea
+                    className="input-field bio-area"
+                    rows="4"
+                    name="bio"
+                    value={formData.bio}
+                    onChange={handleChange}
+                    disabled={!isEditing}
+                    placeholder="Mô tả ngắn về kinh nghiệm..."
+                  ></textarea>
+                </div>
               </div>
-              <div className="form-group">
-                <label>Ngày sinh</label>
-                <input
-                  type="date"
-                  name="dob"
-                  value={formData.dob}
-                  onChange={handleChange}
-                  disabled={!isEditing}
-                />
-              </div>
-            </div>
-            <div className="form-row">
-              <div className="form-group">
-                <label>Giới tính</label>
-                <select
-                  name="gender"
-                  value={formData.gender}
-                  onChange={handleChange}
-                  disabled={!isEditing}
-                >
-                  <option value="male">Nam</option>
-                  <option value="female">Nữ</option>
-                  <option value="other">Khác</option>
-                </select>
-              </div>
-              <div className="form-group">
-                <label>Trình độ học vấn</label>
-                <select
-                  name="education_level"
-                  value={formData.education_level}
-                  onChange={handleChange}
-                  disabled={!isEditing}
-                >
-                  <option value="high_school">Trung học phổ thông</option>
-                  <option value="vocational">Trường nghề</option>
-                  <option value="bachelor">Cử nhân (Đại học)</option>
-                  <option value="master">Thạc sĩ</option>
-                  <option value="phd">Tiến sĩ</option>
-                </select>
-              </div>
-            </div>
-            <div className="form-group">
-              <label>Giới thiệu bản thân (Bio)</label>
-              <textarea
-                rows="3"
-                name="bio"
-                value={formData.bio}
-                onChange={handleChange}
-                disabled={!isEditing}
-              ></textarea>
             </div>
           </div>
 
-          <div className="profile-card">
-            <div className="card-title">Kỹ năng chuyên môn</div>
-            <div className="skills-list">
-              {formData.skills.map((skill) => (
-                <div key={skill.id} className="skill-item">
-                  <span style={{ fontWeight: 500 }}>{skill.skill_name}</span>
-                  <div
-                    style={{ display: "flex", alignItems: "center", gap: 10 }}
-                  >
-                    <div className="skill-level-bar">
-                      {[1, 2, 3, 4, 5].map((lvl) => (
-                        <div
-                          key={lvl}
-                          className={`level-dot ${
-                            lvl <= skill.proficiency_level ? "active" : ""
-                          }`}
-                        ></div>
-                      ))}
-                    </div>
-                    {isEditing && (
-                      <button
-                        style={{
-                          color: "red",
-                          border: "none",
-                          background: "none",
-                          cursor: "pointer",
-                          fontSize: "1.2rem",
-                        }}
-                        onClick={() => handleRemoveSkill(skill.id)}
-                      >
-                        ×
-                      </button>
-                    )}
-                  </div>
-                </div>
-              ))}
-              {formData.skills.length === 0 && (
-                <p style={{ color: "#888", fontStyle: "italic" }}>
-                  Chưa có kỹ năng.
-                </p>
-              )}
+          {/* SKILLS CARD */}
+          <div className="info-card">
+            <div className="card-header">
+              <h3>
+                <Puzzle className="icon-header" size={20} /> Kỹ năng chuyên môn
+              </h3>
             </div>
+            <div className="card-body">
+              <div className="skills-container">
+                {formData.skills.map((skill) => (
+                  <div key={skill.id} className="skill-row">
+                    <div className="skill-info">
+                      <span className="skill-name">{skill.skill_name}</span>
+                      <span className="skill-level-text">
+                        Lv.{skill.proficiency_level}
+                      </span>
+                    </div>
+                    <div className="skill-bar-wrapper">
+                      <div className="skill-bar-bg">
+                        <div
+                          className="skill-bar-fill"
+                          style={{ width: `${skill.proficiency_level * 20}%` }}
+                        ></div>
+                      </div>
+                      {isEditing && (
+                        <button
+                          className="btn-icon-delete"
+                          onClick={() => handleRemoveSkill(skill.id)}
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                ))}
+                {formData.skills.length === 0 && (
+                  <p className="empty-text">Chưa có kỹ năng nào.</p>
+                )}
+              </div>
 
-            {isEditing && (
-              <div
-                style={{
-                  marginTop: 15,
-                  display: "flex",
-                  gap: 10,
-                  alignItems: "end",
-                }}
-              >
-                <div style={{ flex: 2 }}>
-                  <label>Tên kỹ năng</label>
+              {isEditing && (
+                <div className="add-skill-box">
                   <input
                     type="text"
-                    placeholder="VD: Python"
+                    className="input-field"
+                    placeholder="Tên kỹ năng (VD: ReactJS)"
                     value={newSkill.name}
                     onChange={(e) =>
                       setNewSkill({ ...newSkill, name: e.target.value })
                     }
                   />
-                </div>
-                <div style={{ flex: 1 }}>
-                  <label>Level (1-5)</label>
                   <select
+                    className="input-field"
                     value={newSkill.level}
                     onChange={(e) =>
                       setNewSkill({ ...newSkill, level: e.target.value })
@@ -399,95 +412,132 @@ const UserProfile = () => {
                     <option value="4">4 - Cao cấp</option>
                     <option value="5">5 - Chuyên gia</option>
                   </select>
+                  <button
+                    className="btn btn-sm btn-primary"
+                    onClick={handleAddSkill}
+                  >
+                    <Plus size={16} /> Thêm
+                  </button>
                 </div>
-                <button
-                  className="btn-primary"
-                  style={{ height: 42 }}
-                  onClick={handleAddSkill}
-                >
-                  +
-                </button>
-              </div>
-            )}
+              )}
+            </div>
           </div>
         </div>
 
-        {/* CỘT PHẢI */}
-        <div className="grid-right">
-          <div className="profile-card">
-            <div className="card-title">Mạng xã hội</div>
-            <div className="form-group">
-              <label>Chức danh hiện tại</label>
-              <input
-                type="text"
-                name="current_job_title"
-                value={formData.current_job_title}
-                onChange={handleChange}
-                disabled={!isEditing}
-              />
+        {/* --- RIGHT COLUMN --- */}
+        <div className="layout-right">
+          {/* SOCIAL CARD */}
+          <div className="info-card">
+            <div className="card-header">
+              <h3>
+                <Briefcase className="icon-header" size={20} /> Công việc & Liên
+                kết
+              </h3>
             </div>
-            <div className="form-group">
-              <label>LinkedIn URL</label>
-              <input
-                type="url"
-                name="linkedin_url"
-                value={formData.linkedin_url}
-                onChange={handleChange}
-                disabled={!isEditing}
-              />
+            <div className="card-body">
+              <div className="form-group">
+                <label>Chức danh hiện tại</label>
+                <input
+                  className="input-field"
+                  type="text"
+                  name="current_job_title"
+                  value={formData.current_job_title}
+                  onChange={handleChange}
+                  disabled={!isEditing}
+                />
+              </div>
+              <div className="form-group">
+                <label>
+                  <Linkedin size={14} className="icon-label" /> LinkedIn URL
+                </label>
+                <input
+                  className="input-field"
+                  type="url"
+                  name="linkedin_url"
+                  value={formData.linkedin_url}
+                  onChange={handleChange}
+                  disabled={!isEditing}
+                />
+              </div>
             </div>
           </div>
 
-          <div className="profile-card">
-            <div className="card-title">Sở thích</div>
-            <div className="tags-container">
-              {formData.interests.map((tag, idx) => (
-                <div key={idx} className="tag-chip">
-                  {tag}
-                  {isEditing && (
-                    <span
-                      className="remove-tag"
-                      onClick={() => handleRemoveInterest(tag)}
-                    >
-                      ×
-                    </span>
-                  )}
-                </div>
-              ))}
+          {/* INTERESTS CARD */}
+          <div className="info-card">
+            <div className="card-header">
+              <h3>
+                <Heart className="icon-header" size={20} /> Sở thích
+              </h3>
             </div>
-            {isEditing && (
-              <input
-                style={{ marginTop: 10 }}
-                type="text"
-                placeholder="Nhập sở thích + Enter"
-                value={newInterest}
-                onChange={(e) => setNewInterest(e.target.value)}
-                onKeyDown={handleAddInterest}
-              />
-            )}
+            <div className="card-body">
+              <p className="hint-text">Giúp AI gợi ý chính xác hơn.</p>
+              <div className="tags-wrapper">
+                {formData.interests.map((tag, idx) => (
+                  <span key={idx} className="tag-pill">
+                    {tag}
+                    {isEditing && (
+                      <span
+                        className="tag-remove"
+                        onClick={() => handleRemoveInterest(tag)}
+                      >
+                        <X size={12} />
+                      </span>
+                    )}
+                  </span>
+                ))}
+              </div>
+              {isEditing && (
+                <input
+                  className="input-field mt-2"
+                  type="text"
+                  placeholder="Nhập sở thích + Enter"
+                  value={newInterest}
+                  onChange={(e) => setNewInterest(e.target.value)}
+                  onKeyDown={handleAddInterest}
+                />
+              )}
+            </div>
           </div>
 
-          <div className="profile-card">
-            <div className="card-title">Kết quả trắc nghiệm</div>
-            {formData.tests.length > 0 ? (
-              formData.tests.map((test, idx) => (
-                <div key={idx} className="test-card">
-                  <div style={{ fontSize: "0.9rem", color: "#666" }}>
-                    {test.type}
+          {/* TEST RESULTS */}
+          <div className="info-card">
+            <div className="card-header">
+              <h3>Kết quả trắc nghiệm</h3>
+            </div>
+            <div className="card-body">
+              <div className="test-item mb-3">
+                <div className="test-label">MBTI (Tính cách)</div>
+                {isEditing ? (
+                  <input
+                    className="input-field"
+                    type="text"
+                    name="mbti_result"
+                    value={formData.mbti_result}
+                    onChange={handleChange}
+                  />
+                ) : (
+                  <div className="test-badge mbti">
+                    {formData.mbti_result || "N/A"}
                   </div>
-                  <div className="test-code">{test.code}</div>
-                  <div
-                    style={{ fontSize: "0.8rem", color: "#999", marginTop: 4 }}
-                  >
-                    Ngày test: {test.date}
+                )}
+              </div>
+              <div className="test-item">
+                <div className="test-label">Holland (Nghề nghiệp)</div>
+                {isEditing ? (
+                  <input
+                    className="input-field"
+                    type="text"
+                    name="holland_result"
+                    value={formData.holland_result}
+                    onChange={handleChange}
+                  />
+                ) : (
+                  <div className="test-badge holland">
+                    {formData.holland_result || "N/A"}
                   </div>
-                </div>
-              ))
-            ) : (
-              <p style={{ color: "#888", fontStyle: "italic" }}>
-                Chưa có kết quả bài test nào.
-              </p>
-            )}
+                )}
+              </div>
+            </div>
           </div>
         </div>
       </div>

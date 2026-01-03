@@ -2,8 +2,7 @@ from django.db import models
 import uuid
 from django.conf import settings
 from django.utils import timezone
-from apps.career.models import Career
-from apps.courses.models import Course
+from apps.career.models import Career, Course
 
 # ENUM cho trạng thái lộ trình
 class PathStatus(models.TextChoices):

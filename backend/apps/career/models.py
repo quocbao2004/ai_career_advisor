@@ -1,25 +1,42 @@
 from django.db import models
 import uuid
 from django.conf import settings
-from apps.users.models import MasterSkill
+from pgvector.django import VectorField
 
+# ENUM cho độ khó khóa học
+class CourseLevel(models.TextChoices):
+    BEGINNER = 'beginner', 'Beginner'
+    INTERMEDIATE = 'intermediate', 'Intermediate'
+    ADVANCED = 'advanced', 'Advanced'
 
 # ==========================================
 # 1. INDUSTRY (Ngành nghề)
 # ==========================================
 class Industry(models.Model):
-    name = models.CharField(max_length=100, unique=True, null=False)
+    name = models.CharField(max_length=100, unique=True)
     description = models.TextField(blank=True, null=True)
-    created_at = models.DateTimeField(auto_now_add=True)
 
-    def __str__(self):
-        return self.industry_name
+    # MBTI mapping kèm score
+    # {"INTJ": 90, "ENTP": 70}
+    mbti_map = models.JSONField(
+        default=dict,
+        blank=True,
+        help_text='Map MBTI -> score. Ví dụ: {"INTJ": 90, "ENTP": 70}'
+    )
+
+    # Holland mapping kèm score
+    # {"R": 40, "I": 90, "A": 60}
+    holland_map = models.JSONField(
+        default=dict,
+        blank=True,
+        help_text='Map Holland -> score. Ví dụ: {"R": 40, "I": 90}'
+    )
+
+    created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         db_table = 'industries'
-        verbose_name_plural = 'Industries'
-    def __str__(self):
-        return self.name
+
 
 # ==========================================
 # 2. CAREER (Nghề nghiệp cốt lõi)
@@ -37,7 +54,7 @@ class Career(models.Model):
     salary_max = models.DecimalField(max_digits=15, decimal_places=2, null=True, blank=True)
     # Xu hướng tương lai (Data để AI "chém gió")
     future_outlook = models.TextField(blank=True, null=True)
-
+    embedding = VectorField(dimensions=768, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -50,29 +67,6 @@ class Career(models.Model):
         unique_together = ('industry', 'title', 'level')
 
     # ==========================================
-
-
-# 3. CAREER SKILLS (Liên kết Nghề - Kỹ năng)
-# ==========================================
-class CareerSkill(models.Model):
-    """
-    Thay thế cho CareerRequiredSkill cũ.
-    Bảng này nối Career với MasterSkill (ở app users).
-    """
-    career = models.ForeignKey(Career,on_delete=models.CASCADE,related_name='required_skills')
-    skill = models.ForeignKey(MasterSkill,on_delete=models.CASCADE,related_name='career_links')
-    # True: Bắt buộc phải có, False: Nên có (Nice to have)
-    is_required = models.BooleanField(default=True)
-
-    class Meta:
-        db_table = 'career_skills'
-        unique_together = ('career', 'skill')
-        verbose_name = 'Career Required Skill'
-
-    def __str__(self):
-        type_str = "Required" if self.is_required else "Optional"
-        return f"{self.career.title} needs {self.skill.skill_name} ({type_str})"
-
 
 # ==========================================
 # 4. RECOMMENDATIONS (Gợi ý của AI)
@@ -94,3 +88,27 @@ class CareerRecommendation(models.Model):
 
     class Meta:
         db_table = 'career_recommendations'
+
+
+class Course(models.Model):
+    # Dùng AutoField hoặc Serial như SQL
+    id = models.AutoField(primary_key=True)
+
+    title = models.CharField(max_length=200)
+    provider = models.CharField(max_length=100, blank=True, null=True)  # VD: Udemy, Coursera
+    description = models.TextField(blank=True, null=True)
+    url = models.URLField(max_length=500, blank=True, null=True) 
+    embedding = VectorField(dimensions=768, null=True, blank=True)
+
+    # Các thông số hỗ trợ tính toán lộ trình
+    price = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    duration_hours = models.IntegerField(default=0, help_text="Thời lượng học (giờ)")
+    level = models.CharField(max_length=20, choices=CourseLevel.choices, default=CourseLevel.BEGINNER)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
+    class Meta:
+        db_table = "courses"
+
+    def __str__(self):
+        return f"{self.title} ({self.provider})"

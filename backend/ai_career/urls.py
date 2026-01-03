@@ -34,11 +34,15 @@ urlpatterns = [
 
     # auth
     path("api/auth/", include("apps.custom_auth.urls")),
-    path("api/assessments/", include("apps.assessments.urls")),
 
     # user
     path("api/users/", include("apps.users.urls")),
 
+    # career
+    path("api/career/", include("apps.career.urls")),
+
+    # learning
+    path("api/learning/", include("apps.learning_paths.urls")),
     # profile convenience route removed per request
 
     # AI

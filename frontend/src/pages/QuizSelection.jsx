@@ -2,6 +2,7 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import GlassCard from "../components/common/GlassCard";
 import "../assets/css-custom/quiz.css";
+import { Brain, Compass, Target, TrendingUp, Briefcase, Lightbulb } from "lucide-react";
 
 const QuizSelection = () => {
   const navigate = useNavigate();
@@ -13,8 +14,8 @@ const QuizSelection = () => {
       vi: "Trắc Nghiệm Tính Cách MBTI",
       description:
         "Khám phá 16 nhóm tính cách Myers-Briggs. Xác định điểm mạnh, điểm yếu và môi trường làm việc lý tưởng.",
-      icon: "",
-      questions: "71 Câu hỏi",
+      icon: <Brain size={48} />,
+      questions: "70 Câu hỏi",
       duration: "12-15 phút",
       difficulty: "Trung bình",
       color: "#4f46e5",
@@ -26,9 +27,9 @@ const QuizSelection = () => {
       vi: "Trắc Nghiệm Mật Mã Holland",
       description:
         "Xác định 6 nhóm sở thích nghề nghiệp (RIASEC). Tìm ra ngành nghề phù hợp nhất với năng lực tự nhiên.",
-      icon: "",
-      questions: "18 Câu hỏi",
-      duration: "5-7 phút",
+      icon: <Compass size={48} />,
+      questions: "36 Câu hỏi",
+      duration: "7-10 phút",
       difficulty: "Dễ",
       color: "#0891b2",
       btnColor: "linear-gradient(90deg, #0891b2, #06b6d4)",
@@ -37,22 +38,22 @@ const QuizSelection = () => {
 
   const benefits = [
     {
-      icon: "",
+      icon: <Target size={32} />,
       title: "Tìm hướng đi",
       desc: "Xác định sở thích và năng lực thực sự",
     },
     {
-      icon: "",
+      icon: <TrendingUp size={32} />,
       title: "Phát triển",
       desc: "Nhận lộ trình học tập cá nhân hóa",
     },
     {
-      icon: "",
+      icon: <Briefcase size={32} />,
       title: "Việc làm",
       desc: "Khám phá nghề nghiệp phù hợp xu hướng",
     },
     {
-      icon: "",
+      icon: <Lightbulb size={32} />,
       title: "Tương lai",
       desc: "Xây dựng kế hoạch dài hạn bền vững",
     },
@@ -82,9 +83,10 @@ const QuizSelection = () => {
                 style={{
                   background: `${quiz.color}20`,
                   border: `1px solid ${quiz.color}40`,
+                  color: quiz.color,
                 }}
               >
-                <span style={{ fontSize: "2.5rem" }}>{quiz.icon}</span>
+                {quiz.icon}
               </div>
 
               <div className="quiz-content">

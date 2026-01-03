@@ -1,6 +1,6 @@
 from apps.career.models import Career, Industry
-from apps.courses.models import Course
-from apps.users.models import User, MasterSkill
+from apps.career.models import Course
+from apps.users.models import User
 
 
 class Admin_Repository:
@@ -12,5 +12,3 @@ class Admin_Repository:
         return Career.objects.count()
     def count_courses(self):
         return Course.objects.count()
-    def count_skills(self):
-        return MasterSkill.objects.count()
