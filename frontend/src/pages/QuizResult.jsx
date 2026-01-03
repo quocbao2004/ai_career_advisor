@@ -40,8 +40,7 @@ const QuizResult = ({ result, config, onReset }) => {
 
   const title = useMemo(() => {
     if (config?.resultDisplay === 'grid') {
-      const primary = resultCode ? resultCode[0] : '';
-      return `Nhóm Holland: ${primary || '-'}`;
+      return `Nhóm Holland: ${resultCode || '-'}`;
     }
     return `Nhóm MBTI: ${resultCode || '-'}`;
   }, [config?.resultDisplay, resultCode]);
@@ -114,9 +113,8 @@ const QuizResult = ({ result, config, onReset }) => {
                 ) : industryCareers.length > 0 ? (
                   <ul style={{ margin: 0, paddingLeft: '18px' }}>
                     {industryCareers.map((c) => (
-                      <li key={c.id} style={{ marginBottom: '6px' }}>
+                      <li key={c.id || c.title} style={{ marginBottom: '6px' }}>
                         {c.title}
-                        {c.level ? ` (${c.level})` : ''}
                       </li>
                     ))}
                   </ul>

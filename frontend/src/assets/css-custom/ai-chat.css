@@ -216,6 +216,75 @@
   scroll-behavior: smooth;
 }
 
+/* Learning path detail modal */
+.lp-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  z-index: 50;
+}
+
+.lp-modal {
+  width: 100%;
+  max-width: 900px;
+  max-height: 85vh;
+  background: var(--bg-main);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-md);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.lp-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--border-color);
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);
+}
+
+.lp-modal-title {
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+.lp-modal-body {
+  padding: 14px 16px;
+  overflow-y: auto;
+}
+
+/* Advice panel (learning paths) - shown only when user requests */
+.advice-card {
+  max-width: 800px;
+  margin: 0 auto;
+  width: 100%;
+  background: var(--bg-bubble-ai);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  box-shadow: var(--shadow-sm);
+}
+
+.advice-title {
+  font-weight: 600;
+}
+
+.advice-sub {
+  color: var(--text-sub);
+}
+
+.advice-detail {
+  margin-top: 12px;
+}
+
 .message-row {
   display: flex;
   gap: 16px;
