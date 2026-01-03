@@ -1,75 +1,90 @@
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework import status, permissions
+from rest_framework.exceptions import ValidationError
 
-from apps.career.models import Industry, Career
-from apps.career.serializers import CareerSerializer
-from apps.ai.services.career_advice_service import _generate_careers_with_ai, _get_or_create_profile, _get_user_skills, _get_user_interests
+from apps.ai.services.ai_service import (
+    suggest_industries_via_ai,
+    recommend_careers_in_industry,
+    save_user_career_choice
+)
+from apps.career.models import CareerRecommendation
+
+class IndustrySuggestionAPI(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        
+        if not hasattr(user, 'profile'):
+            return Response(
+                {"error": "Vui lòng cập nhật hồ sơ cá nhân trước."}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        if not user.profile.mbti_result or not user.profile.holland_result:
+            return Response(
+                {"error": "Bạn cần hoàn thành bài test MBTI và Holland trước khi nhận gợi ý."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        suggestions = suggest_industries_via_ai(user)
+
+        if not suggestions:
+            return Response(
+                {"message": "AI chưa tìm thấy ngành phù hợp hoặc có lỗi xảy ra."},
+                status=status.HTTP_204_NO_CONTENT
+            )
+
+        return Response({
+            "success": True,
+            "data": suggestions
+        }, status=status.HTTP_200_OK)
 
 
-@api_view(["GET"])
-@permission_classes([IsAuthenticated])
-def careers_by_industry(request, industry_id: int):
+class CareerRecommendationAPI(APIView):
+    permission_classes = [permissions.IsAuthenticated]
 
-	try:
-		limit_raw = request.query_params.get("limit", "20")
-		try:
-			limit = int(limit_raw)
-		except Exception:
-			limit = 20
-		limit = max(1, min(50, limit))
+    def get(self, request):
+        industry_id = request.query_params.get('industry_id')
+        
+        if not industry_id:
+            return Response(
+                {"error": "Thiếu tham số industry_id."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
-		industry = Industry.objects.filter(id=industry_id).first()
-		if not industry:
-			return Response({"success": False, "message": "Không tìm thấy lĩnh vực."}, status=404)
+        careers = recommend_careers_in_industry(request.user, industry_id)
 
-		careers_db = list(
-			Career.objects.filter(industry_id=industry_id)
-			.order_by("title", "level")
-			.all()[:limit]
-		)
+        return Response({
+            "success": True,
+            "industry_id": industry_id,
+            "data": careers
+        }, status=status.HTTP_200_OK)
 
-		careers_data = CareerSerializer(careers_db, many=True).data
 
-		# Nếu ít hơn 4 careers từ DB, sinh thêm bằng AI
-		if len(careers_data) < 4:
-			num_to_generate = 4 - len(careers_data)
-			user = request.user
-			profile = _get_or_create_profile(user)
-			skills = _get_user_skills(user)
-			interests = _get_user_interests(user)
-			mbti_code = (getattr(profile, "mbti_result", None) or "").strip().upper() or None
-			holland_code = (getattr(profile, "holland_result", None) or "").strip().upper() or None
+class SelectCareerAPI(APIView):
+    permission_classes = [permissions.IsAuthenticated]
 
-			user_profile = {
-				"full_name": getattr(user, "full_name", ""),
-				"current_job_title": profile.current_job_title,
-				"education_level": profile.education_level,
-				"skills": skills,
-				"interests": interests,
-				"mbti_result": mbti_code,
-				"holland_result": holland_code,
-			}
+    def post(self, request):
+        career_id = request.data.get('career_id')
+        
+        if not career_id:
+            return Response(
+                {"error": "Thiếu career_id."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
-			ai_careers = _generate_careers_with_ai(industry.name, user_profile, num_to_generate)
-			# Thêm careers từ AI, đánh dấu là generated
-			for ai_career in ai_careers:
-				careers_data.append({
-					"id": None,  # Không có ID vì không trong DB
-					"title": ai_career.get("title", ""),
-					"level": ai_career.get("level", "entry"),
-					"description": ai_career.get("description", ""),
-					"industry": {"id": industry.id, "name": industry.name},
-					"is_generated": True,  # Đánh dấu là từ AI
-				})
+        result = save_user_career_choice(request.user, career_id)
 
-		return Response(
-			{
-				"success": True,
-				"industry": {"id": industry.id, "name": industry.name},
-				"careers": careers_data,
-			}
-		)
-	except Exception as e:
-		print(f"Error in careers_by_industry: {e}")
-		return Response({"success": False, "message": "Lỗi hệ thống."}, status=500)
+        if result:
+            return Response({
+                "success": True,
+                "message": f"Đã lưu lộ trình với nghề: {result.career.title}",
+                "recommendation_id": result.id
+            }, status=status.HTTP_201_CREATED)
+        else:
+            return Response(
+                {"error": "Không tìm thấy nghề nghiệp hoặc lỗi hệ thống."},
+                status=status.HTTP_400_BAD_REQUEST
+            )

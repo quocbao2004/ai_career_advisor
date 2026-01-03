@@ -1,7 +1,12 @@
 from django.urls import path
-
-from .views import careers_by_industry
+from apps.career.views import (
+    IndustrySuggestionAPI, 
+    CareerRecommendationAPI, 
+    SelectCareerAPI
+)
 
 urlpatterns = [
-    path("industries/<int:industry_id>/careers/", careers_by_industry, name="careers-by-industry"),
+    path('suggest-industries/', IndustrySuggestionAPI.as_view(), name='ai_suggest_industries'),
+    path('recommend-careers/', CareerRecommendationAPI.as_view(), name='ai_recommend_careers'),
+    path('select-career/', SelectCareerAPI.as_view(), name='ai_select_career'),
 ]

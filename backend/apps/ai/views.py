@@ -19,27 +19,6 @@ def _to_bool(value):
     return s in {"1", "true", "yes", "y", "on"}
 
 
-@api_view(['GET'])
-@permission_classes([IsAdminOrUser])
-def get_learning_paths_for_chat(request):
-    """Generate 3 learning paths for chat UI (button format)"""
-    from apps.ai.services.career_advice_service import generate_learning_paths_for_chat, AdviceParams, _safe_int, _clamp
-
-    raw_paths = request.query_params.get('paths', '3')
-    raw_courses = request.query_params.get('coursesPerPath', None)
-    params = AdviceParams(
-        paths=_clamp(_safe_int(raw_paths, 3), 2, 3),
-        courses_per_path=_clamp(_safe_int(raw_courses, 6), 3, 10),
-    )
-
-    result = generate_learning_paths_for_chat(request.user, params)
-    
-    if not result.get('success'):
-        return Response(result, status=status.HTTP_400_BAD_REQUEST)
-    
-    return Response(result.get('data'), status=status.HTTP_200_OK)
-
-
 @api_view(['POST'])
 @permission_classes([IsAdminOrUser])
 def chat_message(request):
@@ -79,45 +58,11 @@ def chat_message(request):
 
         ChatMessage.objects.create(session=session, role='assistant', content=ai_response_text)
 
-    extra_messages = []
-    if intent_learning_paths:
-        from apps.ai.services.career_advice_service import AdviceParams, generate_learning_paths_for_chat
-
-        params = AdviceParams(paths=3, courses_per_path=6)
-        result = generate_learning_paths_for_chat(user, params)
-        if result.get('success'):
-            payload = {
-                "type": "learning_paths",
-                "payload": result.get("data"),
-            }
-            ChatMessage.objects.create(
-                session=session,
-                role='assistant',
-                content=json.dumps(payload, ensure_ascii=False),
-            )
-            extra_messages.append(payload)
-        else:
-            payload = {
-                "type": "learning_paths_error",
-                "payload": {
-                    "message": result.get("message") or "Chưa thể tạo lộ trình học.",
-                    "missing_fields": result.get("missing_fields") or [],
-                    "missing_fields_readable": result.get("missing_fields_readable") or [],
-                },
-            }
-            ChatMessage.objects.create(
-                session=session,
-                role='assistant',
-                content=json.dumps(payload, ensure_ascii=False),
-            )
-            extra_messages.append(payload)
-    
     return Response({
         "response": ai_response_text,
         "session_id": session.id,
         "session_title": session.title,
         "new_session": new_session,
-        "extra_messages": extra_messages,
     })
 
 @api_view(['GET'])

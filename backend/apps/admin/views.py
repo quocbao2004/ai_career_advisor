@@ -14,48 +14,6 @@ from apps.users.models import User
 from apps.users.serializers import UserSerializer
 from apps.career.models import Career, Industry, Course
 from apps.career.serializers import IndustrySerializer, CareerSerializer, CourseSerializer
-from apps.courses.services.embedding_service import (
-    create_course_embedding_text,
-    get_course_embedding,
-    check_embedding_status,
-    fix_missing_embeddings,
-    embed_courses_batch
-)
-
-# ============================================================
-# HELPER FUNCTIONS
-# ============================================================
-
-def run_in_background(func, *args):
-    """Helper function để chạy task trong background thread"""
-    thread = threading.Thread(target=func, args=args)
-    thread.daemon = True
-    thread.start()
-
-
-def embed_courses_task(course_ids):
-    """Task embedding courses - gọi từ import và manual trigger"""
-    print(f"\n[Embedding] Bắt đầu xử lý {len(course_ids)} courses...")
-    success = failed = 0
-    
-    for i, cid in enumerate(course_ids, 1):
-        try:
-            course = Course.objects.get(id=cid)
-            embedding = get_course_embedding(create_course_embedding_text(course))
-            if embedding:
-                course.embedding = embedding
-                course.save(update_fields=['embedding'])
-                success += 1
-                print(f"  [{i}/{len(course_ids)}] ✓ {course.title[:40]}")
-            else:
-                failed += 1
-            time.sleep(0.5)
-        except Exception as e:
-            failed += 1
-            print(f"  [{i}/{len(course_ids)}] ✗ {e}")
-    
-    print(f"\n[Embedding] Kết quả: {success} thành công, {failed} thất bại")
-
 
 # ============================================================
 # USER MANAGEMENT
@@ -92,9 +50,6 @@ def course_list_create(request):
             serializer = CourseSerializer(data=request.data)
             if serializer.is_valid():
                 course_instance = serializer.save()
-                
-                # Tự động embedding course vừa tạo
-                run_in_background(embed_courses_task, [course_instance.id])
                 
                 return Response({
                     "message": "Tạo khóa học thành công và đang embedding...",
@@ -136,9 +91,6 @@ def edit_courses(request, id):
 
             if serializer.is_valid():
                 course_instance = serializer.save()
-                
-                # Tự động re-embed khi sửa course
-                run_in_background(embed_courses_task, [course_instance.id])
                 
                 return Response({
                     "message": "Sửa khóa học thành công và đang cập nhật embedding...",
@@ -220,8 +172,6 @@ def import_data(request):
                 # Tự động embedding nếu là courses
                 if model_name == 'courses':
                     course_ids = [instance.id for instance in saved_instances]
-                    run_in_background(embed_courses_task, course_ids)
-                    
                     return Response({
                         "message": f"Import thành công! Đang tự động embedding {len(course_ids)} courses...",
                         "count": len(clean_data),
@@ -253,11 +203,7 @@ def career_list_create(request):
         if request.method == 'GET':
             careers = Career.objects.all()
 
-
-            
             serializer = CareerSerializer(careers, many=True)
-
-
             
             return Response({
                 "message": "Lấy danh sách nghề nghiệp thành công",
@@ -291,16 +237,11 @@ def career_list_create(request):
 @api_view(['DELETE', 'PUT'])
 @permission_classes([IsAdminUser])
 def delete_or_edit_career(request, id):
-
     try:
         career = Career.objects.get(id=id)
-
-
         if not career:
-
             return Response({
                 "message": "Không tìm thấy career này!"
-
             }, status= status.HTTP_404_NOT_FOUND)
         
         if request.method == 'DELETE':
@@ -311,7 +252,6 @@ def delete_or_edit_career(request, id):
             }, status=status.HTTP_200_OK)
         elif request.method == 'PUT':
             serializer = CareerSerializer(career, data=request.data)
-
 
             if serializer.is_valid():
                 serializer.save()

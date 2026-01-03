@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from apps.career.models import Industry, Career, Course
+from apps.career.models import Industry, Career, Course, CareerRecommendation
 
 
 class IndustrySerializer(serializers.ModelSerializer):
@@ -33,3 +33,14 @@ class CourseSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("Tiêu đề khóa học quá ngắn, vui lòng nhập rõ ràng hơn.")
         return value
     
+class CareerSimpleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Career
+        fields = ['id', 'title', 'salary_min', 'salary_max', 'description']
+
+class CareerRecommendationSerializer(serializers.ModelSerializer):
+    career = CareerSimpleSerializer(read_only=True) # Nested career để lấy tên nghề
+
+    class Meta:
+        model = CareerRecommendation
+        fields = ['id', 'career', 'match_score', 'reasoning', 'created_at']

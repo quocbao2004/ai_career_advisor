@@ -41,6 +41,8 @@ urlpatterns = [
     # career
     path("api/career/", include("apps.career.urls")),
 
+    # learning
+    path("api/learning/", include("apps.learning_paths.urls")),
     # profile convenience route removed per request
 
     # AI

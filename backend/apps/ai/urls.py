@@ -9,9 +9,6 @@ urlpatterns = [
     path('chat/message/', views.chat_message, name='chat_message'),
     path('chat/sessions/<uuid:session_id>/', views.manage_session, name='manage_session'),
 
-    # advice
-    path('learning-paths/', views.get_learning_paths_for_chat, name='get_learning_paths_for_chat'),
-
     path('admin/ai-configs/', views.ai_config),
     path('admin/ai-configs/<int:pk>/activate/', views.activate_ai_config, name='ai_config_activate'),
 ]

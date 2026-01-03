@@ -19,7 +19,7 @@ import IndustryManagement from "./pages/IndustryManagement";
 import Chat from "./pages/AIChat";
 import UserProfile from "./pages/UserProfile";
 import AiConfig from "./pages/AiConfig";
-
+import LearningPathDetail from "./pages/LearningPathDetail";
 import "./assets/css-custom/main.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
 
@@ -28,23 +28,28 @@ import { GoogleOAuthProvider } from "@react-oauth/google";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-import { isAuthenticated, getUserInfo, getCachedOnboardingStatus,hasSeenOnboardingWelcome } from "./api/authApi";
+import {
+  isAuthenticated,
+  getUserInfo,
+  getCachedOnboardingStatus,
+  hasSeenOnboardingWelcome,
+} from "./api/authApi";
 //Hàm tránh trả lỗi 404 khi người dùng tự nhập tay url
 // không match với router đang có,
 // chuyển hướng user dựa trên điều kiện
 const resolveFallbackPath = () => {
   try {
     const isAuth = isAuthenticated();
-    if (!isAuth) return "/";// chưa login
-    const user = getUserInfo();//thiếu thông tin
+    if (!isAuth) return "/"; // chưa login
+    const user = getUserInfo(); //thiếu thông tin
     if (!user) return "/dang-nhap";
     if (user.role === "admin") return "/trang-quan-tri";
     const cachedCompleted = getCachedOnboardingStatus();
     const userCompleted = user.hasCompletedOnboarding === true;
     const userNeeds = user.needsOnboarding === true;
     const hasCompleted = cachedCompleted || (userCompleted && !userNeeds);
-    if (hasCompleted) return "/dashboard";// hoàn thành flow lần đầu đăng nhập
-    return hasSeenOnboardingWelcome(user.id) ? "/trac-nghiem" : "/chao-mung";// đã thấy trang chào mừng nhưng chưa hoàn thành flow lần đầu đăng nhập
+    if (hasCompleted) return "/dashboard"; // hoàn thành flow lần đầu đăng nhập
+    return hasSeenOnboardingWelcome(user.id) ? "/trac-nghiem" : "/chao-mung"; // đã thấy trang chào mừng nhưng chưa hoàn thành flow lần đầu đăng nhập
   } catch (err) {
     return "/";
   }
@@ -62,69 +67,72 @@ function App() {
             <Route path="/quen-mat-khau" element={<ForgotPassWordPage />} />
 
             {/* Public routes - Có thể truy cập khi chưa login, nhưng nếu đã login thì phải onboarding */}
-            <Route 
-              path="/" 
+            <Route
+              path="/"
               element={
-                <ProtectedRoute 
-                  element={<HomePage />} 
-                  isPublicRoute={true}
-                />
-              } 
+                <ProtectedRoute element={<HomePage />} isPublicRoute={true} />
+              }
             />
 
             {/* Onboarding routes - Bắt buộc cho user chưa hoàn thành test */}
-            <Route 
-              path="/chao-mung" 
+            <Route
+              path="/chao-mung"
               element={
-                <ProtectedRoute 
-                  element={<OnboardingWelcome />} 
+                <ProtectedRoute
+                  element={<OnboardingWelcome />}
                   skipOnboardingCheck={true}
                 />
-              } 
+              }
             />
-            <Route 
-              path="/trac-nghiem" 
+            <Route
+              path="/trac-nghiem"
               element={
-                <ProtectedRoute 
-                  element={<QuizSelection />} 
+                <ProtectedRoute
+                  element={<QuizSelection />}
                   skipOnboardingCheck={true}
                   requireWelcomeSeen={true}
                 />
-              } 
+              }
             />
-            <Route 
-              path="/trac-nghiem/mbti" 
+            <Route
+              path="/trac-nghiem/mbti"
               element={
-                <ProtectedRoute 
-                  element={<QuizGame />} 
+                <ProtectedRoute
+                  element={<QuizGame />}
                   skipOnboardingCheck={true}
                   requireWelcomeSeen={true}
                 />
-              } 
+              }
             />
-            <Route 
-              path="/trac-nghiem/holland" 
+            <Route
+              path="/trac-nghiem/holland"
               element={
-                <ProtectedRoute 
-                  element={<QuizGame />} 
+                <ProtectedRoute
+                  element={<QuizGame />}
                   skipOnboardingCheck={true}
                   requireWelcomeSeen={true}
                 />
-              } 
+              }
+            />
+
+            <Route
+              path="/learning-path/:id"
+              element={
+                <ProtectedRoute
+                  element={<LearningPathDetail />}
+                  // Các props khác tùy logic app của bạn (vd: requireWelcomeSeen)
+                />
+              }
             />
 
             {/* Protected routes - Chỉ truy cập được sau khi onboarding */}
-            <Route 
-              path="/dashboard" 
-              element={
-                <ProtectedRoute element={<UserProfile />} />
-              } 
+            <Route
+              path="/dashboard"
+              element={<ProtectedRoute element={<UserProfile />} />}
             />
-            <Route 
-              path="/chat" 
-              element={
-                <ProtectedRoute element={<Chat />} />
-              } 
+            <Route
+              path="/chat"
+              element={<ProtectedRoute element={<Chat />} />}
             />
             <Route
               path="/trang-quan-tri"
@@ -149,10 +157,7 @@ function App() {
             <Route
               path="/trang-quan-tri/import-data"
               element={
-                <ProtectedRoute
-                  element={<DataImport />}
-                  requiredRole="admin"
-                />
+                <ProtectedRoute element={<DataImport />} requiredRole="admin" />
               }
             />
             <Route
