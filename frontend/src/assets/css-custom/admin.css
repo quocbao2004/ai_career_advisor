@@ -1,0 +1,505 @@
+/* Bảng điều khiển quản trị - Giao diện AI với chủ đề tối và hiệu ứng glass-morphism */
+
+/* Container trang chính */
+.admin-page {
+  background: linear-gradient(135deg, #0f172a 0%, #1a1f3a 50%, #0f172a 100%);
+  min-height: 100vh;
+  position: relative;
+  overflow: visible;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Nền canvas mạng neuron */
+.admin-page canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* Container nội dung chính */
+.admin-container {
+  max-width: 1200px;
+  margin: 100px auto 40px;
+  padding: 0 20px;
+  font-family: "Inter", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  position: relative;
+  z-index: 1;
+}
+
+/* Phần tiêu đề với gradient màu tím-tím đậm */
+.admin-hero {
+  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+  color: white;
+  padding: 40px;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(79, 70, 229, 0.15);
+  margin-bottom: 40px;
+  background-size: 200% 200%;
+  animation: gradientShift 8s ease infinite;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Tiêu đề H1 trong hero section */
+.admin-hero h1 {
+  margin: 0;
+  font-size: 2rem;
+  letter-spacing: -0.5px;
+}
+
+.admin-hero-sub {
+  margin-top: 8px;
+  opacity: 0.95;
+  font-size: 0.95rem;
+}
+
+/* Lưới hiển thị các thẻ thống kê chính */
+.admin-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+  margin-bottom: 40px;
+}
+
+/* Thẻ thống kê cá nhân */
+.admin-stat-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: linear-gradient(135deg, rgba(30, 40, 70, 0.4), rgba(20, 26, 42, 0.3));
+  border: 1px solid rgba(79, 70, 229, 0.15);
+  backdrop-filter: blur(8px);
+  padding: 24px;
+  border-radius: 12px;
+  align-items: flex-start;
+  box-shadow: 0 8px 24px rgba(79, 70, 229, 0.08);
+  transition: all 0.3s ease;
+  animation: cardIn 0.6s ease-out forwards;
+}
+
+/* Hiệu ứng hover trên thẻ thống kê */
+.admin-stat-card:hover {
+  border-color: rgba(79, 70, 229, 0.3);
+  box-shadow: 0 12px 32px rgba(79, 70, 229, 0.15);
+  transform: translateY(-4px);
+}
+
+/* Biểu tượng của thẻ thống kê */
+.admin-stat-icon {
+  width: 72px;
+  height: 72px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 1.6rem;
+}
+
+/* Nội dung chính của thẻ */
+.admin-stat-body {
+  flex: 1;
+}
+
+/* Giá trị thống kê (số lớn) */
+.admin-stat-value {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+/* Tiêu đề của thẻ */
+.admin-stat-title {
+  color: #64748b;
+  margin-top: 6px;
+}
+
+/* Lưới chính hiển thị biểu đồ và phần thông tin */
+.admin-main-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 20px;
+}
+
+/* Biến thể thẻ kính cho giao diện hiện đại với glass-morphism */
+.card-glass {
+  background: linear-gradient(135deg, rgba(30, 40, 70, 0.4), rgba(20, 26, 42, 0.3));
+  border: 1px solid rgba(79, 70, 229, 0.15);
+  backdrop-filter: blur(8px);
+  color: #fff;
+}
+
+/* Thẻ thống kê với kiểu kính */
+.admin-stat-card.card-glass {
+  align-items: flex-start;
+  padding: 24px;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+  background: linear-gradient(135deg, rgba(30, 40, 70, 0.5), rgba(20, 26, 42, 0.35));
+}
+
+/* Hiệu ứng animation khi thẻ thống kê xuất hiện */
+.stat-anim {
+  opacity: 0;
+  transform: translateY(12px) scale(0.995);
+  animation: cardIn 480ms cubic-bezier(.2,.9,.3,1) forwards;
+}
+
+/* Định nghĩa animation cardIn - Xuất hiện với fade-in */
+@keyframes cardIn {
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* Hiệu ứng xung động cho biểu tượng */
+.admin-stat-icon {
+  animation: pulse 2.6s ease-in-out infinite;
+}
+
+/* Định nghĩa animation pulse - Nhấp nháy với bóng sáng */
+@keyframes pulse {
+  0% { box-shadow: 0 6px 16px rgba(0,0,0,0.12), 0 0 0 0 rgba(79,70,229,0.12); }
+  50% { box-shadow: 0 18px 40px rgba(79,70,229,0.12), 0 0 24px 6px rgba(124,58,237,0.06); transform: translateY(-2px); }
+  100% { box-shadow: 0 6px 16px rgba(0,0,0,0.12), 0 0 0 0 rgba(79,70,229,0.12); }
+}
+
+/* Hiệu ứng hover trên thẻ kính */
+.admin-stat-card.card-glass:hover {
+  box-shadow: 0 16px 40px rgba(79, 70, 229, 0.2);
+  border-color: rgba(79, 70, 229, 0.3);
+}
+
+/* Phần bên trái của thẻ (biểu tượng và nội dung) */
+.admin-stat-left {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+/* Phần biểu đồ nhỏ gọn của thẻ */
+.admin-stat-spark {
+  width: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Giá trị số trong thẻ kính */
+.admin-stat-card .admin-stat-value {
+  color: #a8d5ff;
+  font-size: 1.8rem;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+}
+
+/* Tiêu đề trong thẻ kính */
+.admin-stat-card .admin-stat-title {
+  color: #cbd5e1;
+  margin-top: 4px;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.admin-hero-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-left: 40px;
+}
+
+.analysis-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.analysis-card {
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.analysis-title {
+  color: rgba(255,255,255,0.9);
+  font-weight: 700;
+}
+
+.analysis-spark svg { width: 100%; height: 36px; }
+
+/* sparkline draw animation */
+.sparkline-path {
+  stroke-dasharray: 300;
+  stroke-dashoffset: 300;
+  animation: draw 900ms ease forwards;
+  animation-delay: 260ms;
+}
+
+@keyframes draw {
+  to { stroke-dashoffset: 0; }
+}
+
+/* animated hero overlay for AI-y feel */
+.admin-hero::before {
+  content: "";
+  position: absolute;
+  left: -20%;
+  top: -30%;
+  width: 140%;
+  height: 160%;
+  background: radial-gradient(closest-side at 10% 20%, rgba(255,255,255,0.06), transparent 20%), radial-gradient(closest-side at 80% 80%, rgba(0,0,0,0.06), transparent 25%);
+  transform: rotate(8deg);
+  animation: floatLayer 10s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes floatLayer {
+  0% { transform: translateY(0) rotate(6deg); }
+  50% { transform: translateY(-10px) rotate(-6deg); }
+  100% { transform: translateY(0) rotate(6deg); }
+}
+
+@keyframes rippleOut {
+  0% { 
+    width: 20px; 
+    height: 20px; 
+    opacity: 1; 
+  }
+  100% { 
+    width: 300px; 
+    height: 300px; 
+    opacity: 0; 
+  }
+}
+
+.activity-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+
+.activity-text { color: rgba(255,255,255,0.95); }
+.activity-time { color: rgba(255,255,255,0.6); font-size: 0.85rem; }
+
+.activity-badge {
+  background: linear-gradient(90deg, #ffd84d, #f5e6a1);
+  color: #000;
+  padding: 6px 8px;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 0.75rem;
+}
+
+/* small responsive tweaks */
+@media (max-width: 900px) {
+  .admin-stats { grid-template-columns: repeat(2,1fr); }
+  .analysis-grid { grid-template-columns: 1fr; }
+}
+
+.admin-panel {
+  background: linear-gradient(135deg, rgba(20, 26, 42, 0.8), rgba(15, 23, 42, 0.6));
+  border: 1px solid rgba(79, 70, 229, 0.12);
+  backdrop-filter: blur(8px);
+  padding: 18px;
+  border-radius: 10px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  color: #fff;
+}
+
+.admin-panel h3 {
+  margin: 0 0 12px 0;
+  color: #ffffff;
+  font-weight: 700;
+}
+
+.admin-activity-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.admin-activity-list li {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.admin-activity-list .activity-text {
+  color: #e2e8f0;
+}
+
+.admin-activity-list .activity-time {
+  color: #94a3b8;
+  font-size: 0.9rem;
+}
+
+.admin-placeholder {
+  min-height: 220px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #64748b;
+  border: 2px dashed #eef2ff;
+  border-radius: 8px;
+  background: linear-gradient(180deg, #fbfdff, #ffffff);
+}
+
+/* Analysis Charts Section */
+.admin-analysis-charts {
+  margin-bottom: 40px;
+}
+
+.analysis-chart-row {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+  margin-bottom: 24px;
+}
+
+.panel-chart {
+  padding: 28px;
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.5), rgba(26, 31, 58, 0.5)) !important;
+  border: 1px solid rgba(79, 70, 229, 0.15) !important;
+  border-radius: 12px !important;
+  transition: all 0.3s ease;
+}
+
+.panel-chart:hover {
+  border-color: rgba(79, 70, 229, 0.3) !important;
+  box-shadow: 0 8px 24px rgba(79, 70, 229, 0.1) !important;
+}
+
+.panel-chart h3 {
+  font-size: 1rem;
+  color: #e2e8f0;
+  margin: 0 0 16px 0;
+  font-weight: 600;
+}
+
+.chart-container {
+  height: 100px;
+  display: flex;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.chart-container svg {
+  width: 100%;
+  height: 100%;
+}
+
+.chart-stats {
+  font-size: 0.875rem;
+  color: #94a3b8;
+  text-align: center;
+  padding-top: 12px;
+  border-top: 1px solid rgba(79, 70, 229, 0.1);
+}
+
+/* System Insights Section */
+.admin-insights-section {
+  margin-top: 40px;
+}
+
+.insights-title {
+  font-size: 1.5rem;
+  color: #f1f5f9;
+  margin-bottom: 24px;
+  font-weight: 700;
+}
+
+.insights-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+}
+
+.insight-card {
+  padding: 28px;
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.5), rgba(26, 31, 58, 0.5)) !important;
+  border: 1px solid rgba(79, 70, 229, 0.15) !important;
+  border-radius: 12px !important;
+  transition: all 0.3s ease;
+}
+
+.insight-card:hover {
+  border-color: rgba(79, 70, 229, 0.3) !important;
+  box-shadow: 0 12px 32px rgba(79, 70, 229, 0.15) !important;
+  transform: translateY(-4px);
+}
+
+.insight-category {
+  font-size: 1.1rem;
+  color: #e2e8f0;
+  margin: 0 0 16px 0;
+  font-weight: 600;
+  padding-bottom: 12px;
+  border-bottom: 2px solid rgba(79, 70, 229, 0.2);
+}
+
+.insight-metrics {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.metric-row {
+  display: grid;
+  grid-template-columns: 1.3fr 0.9fr 1.2fr;
+  gap: 16px;
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(79, 70, 229, 0.08);
+}
+
+.metric-row:last-child {
+  border-bottom: none;
+}
+
+.metric-label {
+  font-size: 0.9rem;
+  color: #cbd5e1;
+  font-weight: 500;
+}
+
+.metric-value {
+  font-size: 1.1rem;
+  color: #a8d5ff;
+  font-weight: 700;
+}
+
+.metric-change {
+  font-size: 0.85rem;
+  color: #94a3b8;
+  text-align: right;
+  padding-right: 8px;
+}
+
+@media (max-width: 1024px) {
+  .analysis-chart-row {
+    grid-template-columns: 1fr;
+  }
+
+  .insights-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 900px) {
+  .admin-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .admin-main-grid {
+    grid-template-columns: 1fr;
+  }
+}
+

@@ -1,0 +1,126 @@
+:root {
+  --gold: #d4af37;
+  --gold-light: #f5e6a1;
+  --text-dark: #1e1e1e;
+}
+
+#header-custom {
+  background-color: #fff;
+}
+
+.custom-navbar {
+  background: white;
+  box-shadow: 0 6px 30px rgba(79, 70, 229, 0.12);
+  height: 70px;
+  transition: all 0.3s ease;
+  font-family: "Poppins", sans-serif;
+  color: black;
+  position: relative;
+  z-index: 99;
+}
+
+.navbar-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.navbar-nav .nav-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.navbar-nav .nav-link {
+  color: black;
+  font-weight: 600;
+  position: relative;
+  transition: all 0.2s ease;
+  padding: 8px 10px;
+  text-align: center;
+}
+
+.navbar-nav .nav-link::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -6px;
+  width: 0%;
+  height: 3px;
+  background: linear-gradient(90deg, var(--gold), var(--gold-light));
+  box-shadow: 0 3px 8px rgba(212, 175, 55, 0.25);
+  transition: width 0.25s ease;
+  border-radius: 3px;
+}
+
+.navbar-nav .nav-link:hover::after {
+  width: 100%;
+}
+
+.navbar-nav .nav-link:hover {
+  opacity: 0.5;
+}
+
+.btn-gold {
+  background: linear-gradient(90deg, var(--gold), var(--gold-light));
+  color: #000;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  padding: 8px 18px;
+  transition: all 0.2s ease;
+}
+
+.btn-gold:hover {
+  box-shadow: 0 6px 18px rgba(212, 175, 55, 0.35);
+}
+
+.btn-outline-gold {
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: #ffffff;
+  background: transparent;
+  border-radius: 6px;
+  font-weight: 500;
+  padding: 8px 18px;
+  transition: all 0.2s ease;
+}
+
+.btn-outline-gold:hover {
+  background: linear-gradient(90deg, var(--gold), var(--gold-light));
+  color: #000;
+  box-shadow: 0 6px 18px rgba(212, 175, 55, 0.28);
+}
+
+/* scrolled lighter variant (optional) */
+.custom-navbar.scrolled {
+  background: linear-gradient(135deg, #5b4de3 0%, #6f3fb8 100%);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+.dropdown-item {
+  transition: all 0.2s;
+  font-size: 0.95rem;
+}
+
+.dropdown-item:hover {
+  background-color: #f8f9fa; /* Hoặc màu tối nếu dùng dark mode */
+  padding-left: 1.5rem; /* Hiệu ứng trượt nhẹ sang phải khi hover */
+}
+
+/* Đảm bảo avatar luôn tròn */
+#dropdownUserAvatar img {
+  object-fit: cover;
+  border: 2px solid #d4af37; /* Màu vàng gold giống theme của bạn */
+}
+
+/* Mobile */
+@media (max-width: 992px) {
+  .navbar-nav {
+    text-align: center;
+    padding: 1rem 0;
+  }
+
+  .custom-navbar {
+    height: auto;
+  }
+}

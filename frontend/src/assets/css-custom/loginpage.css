@@ -1,0 +1,197 @@
+/* Container bao bọc để căn giữa Form vào màn hình */
+.auth-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 80vh; /* Trừ hao header/footer */
+  padding: 20px;
+}
+
+/* Kích thước và padding của Card đăng nhập */
+.auth-card-container {
+  width: 100%;
+  max-width: 420px;
+  padding: 40px 30px !important; /* Override padding của GlassCard gốc */
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  background: rgba(
+    15,
+    23,
+    42,
+    0.6
+  ) !important; /* Tối hơn một chút để text dễ đọc */
+}
+
+/* --- INPUT STYLES --- */
+.auth-input-group {
+  position: relative;
+  margin-bottom: 20px;
+}
+
+.auth-input-group .input-icon {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #94a3b8;
+  font-size: 1.1rem;
+  z-index: 2;
+  transition: color 0.3s;
+}
+
+.auth-input {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 14px 16px 14px 48px; /* Padding left lớn để né icon */
+  color: #fff;
+  font-size: 0.95rem;
+  outline: none;
+  transition: all 0.3s ease;
+}
+
+.auth-input::placeholder {
+  color: #64748b;
+}
+
+.auth-input:focus {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: #7c3aed; /* Màu tím chủ đạo */
+  box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.1);
+}
+
+.auth-input:focus + .input-icon, /* Trick selector nếu đặt icon sau input */
+.auth-input-group:focus-within .input-icon {
+  color: #a78bfa;
+}
+
+/* --- BUTTON STYLES --- */
+.btn-auth-primary {
+  width: 100%;
+  padding: 14px;
+  background: linear-gradient(90deg, #4f46e5, #7c3aed);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  margin-top: 10px;
+}
+
+.btn-auth-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(124, 58, 237, 0.3);
+}
+
+/* --- OPTIONS ROW --- */
+.options-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  font-size: 0.9rem;
+}
+
+.remember-box {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.remember-box input {
+  margin-right: 8px;
+  accent-color: #7c3aed; /* Màu checkbox */
+  width: 16px;
+  height: 16px;
+}
+
+.forgot-link {
+  color: #fbbf24; /* Màu vàng Gold */
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.forgot-link:hover {
+  color: #fcd34d;
+  text-decoration: underline;
+}
+
+/* --- DIVIDER --- */
+.auth-divider {
+  text-align: center;
+  margin: 24px 0;
+  position: relative;
+}
+
+.auth-divider::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.1);
+  z-index: 0;
+}
+
+.auth-divider span {
+  background: #151c2f; /* Phải trùng với màu nền card hoặc body để che line */
+  padding: 0 12px;
+  color: #64748b;
+  font-size: 0.85rem;
+  position: relative;
+  z-index: 1;
+}
+
+/* --- SOCIAL BUTTONS --- */
+.social-buttons-box {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+}
+
+.btn-social {
+  width: 50px;
+  height: 50px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.05);
+  color: white;
+  font-size: 1.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-social:hover {
+  background: rgba(255, 255, 255, 0.1);
+  transform: translateY(-2px);
+}
+
+.btn-social.google:hover {
+  color: #ea4335;
+  border-color: #ea4335;
+}
+.btn-social.github:hover {
+  color: #ffffff;
+  border-color: #ffffff;
+}
+.btn-social.facebook:hover {
+  color: #1877f2;
+  border-color: #1877f2;
+}
+
+/* --- FOOTER LINK --- */
+.link-highlight {
+  color: #a78bfa;
+  font-weight: 600;
+  text-decoration: none;
+}
+.link-highlight:hover {
+  color: #c4b5fd;
+  text-decoration: underline;
+}
