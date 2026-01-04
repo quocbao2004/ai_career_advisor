@@ -117,12 +117,7 @@ function App() {
 
             <Route
               path="/learning-path/:id"
-              element={
-                <ProtectedRoute
-                  element={<LearningPathDetail />}
-                  // Các props khác tùy logic app của bạn (vd: requireWelcomeSeen)
-                />
-              }
+              element={<ProtectedRoute element={<LearningPathDetail />} />}
             />
 
             {/* Protected routes - Chỉ truy cập được sau khi onboarding */}

@@ -106,31 +106,46 @@ const Header = () => {
         >
           <ul className="navbar-nav mb-2 mb-lg-0 gap-lg-3">
             <li className="nav-item">
-              <Link className="nav-link" to="/" onClick={(e) => handleLockedNav(e, "/")}
+              <Link
+                className="nav-link"
+                to="/"
+                onClick={(e) => handleLockedNav(e, "/")}
               >
                 Trang chủ
               </Link>
             </li>
             <li className="nav-item">
-              <Link className="nav-link" to="/ve-chung-toi" onClick={(e) => handleLockedNav(e, "/ve-chung-toi")}
+              <Link
+                className="nav-link"
+                to="/ve-chung-toi"
+                onClick={(e) => handleLockedNav(e, "/ve-chung-toi")}
               >
                 Giới thiệu
               </Link>
             </li>
             <li className="nav-item">
-              <Link className="nav-link" to="/lien-he" onClick={(e) => handleLockedNav(e, "/lien-he")}
+              <Link
+                className="nav-link"
+                to="/lien-he"
+                onClick={(e) => handleLockedNav(e, "/lien-he")}
               >
                 Liên hệ
               </Link>
             </li>
             <li className="nav-item">
-              <Link className="nav-link" to="/trac-nghiem" onClick={(e) => handleLockedNav(e, "/trac-nghiem")}
+              <Link
+                className="nav-link"
+                to="/trac-nghiem"
+                onClick={(e) => handleLockedNav(e, "/trac-nghiem")}
               >
                 Trắc nghiệm
               </Link>
             </li>
             <li className="nav-item">
-              <Link className="nav-link" to="/chat" onClick={(e) => handleLockedNav(e, "/chat")}
+              <Link
+                className="nav-link"
+                to="/chat"
+                onClick={(e) => handleLockedNav(e, "/chat")}
               >
                 Nhận tư vấn với AI
               </Link>
@@ -194,8 +209,12 @@ const Header = () => {
                 )}
 
                 <li>
-                  <Link className="dropdown-item py-2" to="/cai-dat" onClick={(e) => handleLockedNav(e, "/cai-dat")}>
-                    <i className="bi bi-sliders me-2"></i> Cài đặt
+                  <Link
+                    className="dropdown-item py-2"
+                    to="/learning-path"
+                    onClick={(e) => handleLockedNav(e, "/learning-path")}
+                  >
+                    <i className="bi bi-sliders me-2"></i> Lộ trình học của tôi
                   </Link>
                 </li>
 
