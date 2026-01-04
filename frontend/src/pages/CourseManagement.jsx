@@ -43,7 +43,8 @@ const CourseManagement = () => {
   const [editId, setEditId] = useState(null);
 
   // --- API URL ---
-  const API_URL = "http://127.0.0.1:8000/api/admin/courses/";
+  const API_URL =
+    "https://ai-career-advisor-4006.onrender.com/api/admin/courses/";
 
   // --- 1. FETCH DATA ---
   const fetchCourses = async () => {

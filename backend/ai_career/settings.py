@@ -29,7 +29,7 @@ SECRET_KEY = config('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('DEBUG', default=True, cast=bool)
 
-ALLOWED_HOSTS = config('ALLOWED_HOSTS').split(',')
+# ALLOWED_HOSTS = config('ALLOWED_HOSTS').split(',')
 ALLOWED_HOSTS = ['*']
 
 
@@ -195,12 +195,13 @@ CACHES = {
     }
 }
 
-# CORS Configuration
-CORS_ALLOWED_ORIGINS = [
-    "https://ai-career-advisor-seven.vercel.app", # Production (Vercel)
-    "http://localhost:3000",      # Local React chạy port 3000
-    "http://127.0.0.1:3000",      # Local IP
-]
+CORS_ALLOW_ALL_ORIGINS = True
+# # CORS Configuration
+# CORS_ALLOWED_ORIGINS = [
+#     "https://ai-career-advisor-seven.vercel.app", # Production (Vercel)
+#     "http://localhost:3000",      # Local React chạy port 3000
+#     "http://127.0.0.1:3000",      # Local IP
+# ]
 
 # CSRF trusted origins (dev)
 CSRF_TRUSTED_ORIGINS = [

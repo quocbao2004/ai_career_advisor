@@ -12,7 +12,9 @@ import { fetchWithAuth } from "../api/authApi.js";
 // Đảm bảo bạn đã import bootstrap css ở file index.js hoặc App.js
 // import 'bootstrap/dist/css/bootstrap.min.css';
 
-const API_BASE = process.env.REACT_APP_API_BASE || "http://localhost:8000";
+const API_BASE =
+  process.env.REACT_APP_API_BASE ||
+  "https://ai-career-advisor-4006.onrender.com";
 
 const LearningPathDetail = () => {
   const { id } = useParams();

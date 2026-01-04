@@ -13,7 +13,6 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import UserManager from "./pages/UserManagerPage";
 import DataImport from "./pages/DataImport";
 import CourseManagement from "./pages/CourseManagement";
-import MasterSkillManagement from "./pages/MasterSkillManagement";
 import CareerManagement from "./pages/CareerManagement";
 import IndustryManagement from "./pages/IndustryManagement";
 import Chat from "./pages/AIChat";
@@ -173,15 +172,7 @@ function App() {
                 />
               }
             />
-            <Route
-              path="/trang-quan-tri/skills"
-              element={
-                <ProtectedRoute
-                  element={<MasterSkillManagement />}
-                  requiredRole="admin"
-                />
-              }
-            />
+
             <Route
               path="/trang-quan-tri/industries"
               element={

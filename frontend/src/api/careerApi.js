@@ -3,7 +3,9 @@ import { fetchWithAuth } from "./authApi";
 // Cấu hình Base URL.
 // Lưu ý: Backend views chúng ta viết nằm trong apps/ai/urls.py,
 // nên đường dẫn thường sẽ là /api/ai/... (tùy vào cách bạn include trong urls.py gốc)
-const API_BASE = process.env.REACT_APP_API_BASE || "http://localhost:8000";
+const API_BASE =
+  process.env.REACT_APP_API_BASE ||
+  "https://ai-career-advisor-4006.onrender.com";
 const AI_API_URL = `${API_BASE}/api/career`;
 
 // Helper xử lý lỗi JSON

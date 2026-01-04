@@ -45,7 +45,7 @@ const CareerManagement = () => {
   const [editId, setEditId] = useState(null);
 
   // --- API CONFIG ---
-  const BASE_URL = "http://127.0.0.1:8000/api/admin";
+  const BASE_URL = "https://ai-career-advisor-4006.onrender.com/api/admin";
   const CAREER_API_URL = `${BASE_URL}/careers/`;
   const INDUSTRY_API_URL = `${BASE_URL}/industries/`;
 

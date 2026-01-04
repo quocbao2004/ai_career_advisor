@@ -34,7 +34,7 @@ const IndustryManagement = () => {
   };
   const [formData, setFormData] = useState(initialFormState);
   const [editId, setEditId] = useState(null);
-  const BASE_URL = "http://127.0.0.1:8000/api/admin";
+  const BASE_URL = "https://ai-career-advisor-4006.onrender.com/api/admin";
   const INDUSTRY_API_URL = `${BASE_URL}/industries/`;
 
   const fetchIndustries = useCallback(async () => {

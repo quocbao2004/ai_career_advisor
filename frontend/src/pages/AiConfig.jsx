@@ -37,7 +37,7 @@ const AiConfig = () => {
     try {
       const token = localStorage.getItem("access_token");
       const res = await axios.get(
-        "http://127.0.0.1:8000/api/ai/admin/ai-configs/",
+        "https://ai-career-advisor-4006.onrender.com/api/ai/admin/ai-configs/",
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -73,7 +73,7 @@ const AiConfig = () => {
     try {
       const token = localStorage.getItem("access_token");
       await axios.post(
-        "http://127.0.0.1:8000/api/ai/admin/ai-configs/",
+        "https://ai-career-advisor-4006.onrender.com/api/ai/admin/ai-configs/",
         selectedConfig,
         {
           headers: { Authorization: `Bearer ${token}` },
@@ -99,7 +99,7 @@ const AiConfig = () => {
     try {
       const token = localStorage.getItem("access_token");
       await axios.post(
-        `http://127.0.0.1:8000/api/ai/admin/ai-configs/${id}/activate/`,
+        `https://ai-career-advisor-4006.onrender.com/api/ai/admin/ai-configs/${id}/activate/`,
         {},
         {
           headers: { Authorization: `Bearer ${token}` },

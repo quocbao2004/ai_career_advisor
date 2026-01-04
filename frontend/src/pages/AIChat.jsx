@@ -46,7 +46,7 @@ const AIChat = () => {
   const isCreatingSession = useRef(false);
 
   const token = localStorage.getItem("access_token");
-  const BASE_URL = "http://127.0.0.1:8000/api/ai";
+  const BASE_URL = "https://ai-career-advisor-4006.onrender.com/api/ai";
 
   const AVAILABLE_MODELS = [
     { id: "gemini-2.5-flash", name: "Gemini 2.5 Flash" },
@@ -256,9 +256,15 @@ const AIChat = () => {
       }
 
       // Extra messages (learning paths) are generated & saved by backend
-      if (Array.isArray(data.extra_messages) && data.extra_messages.length > 0) {
+      if (
+        Array.isArray(data.extra_messages) &&
+        data.extra_messages.length > 0
+      ) {
         data.extra_messages.forEach((extra, idx) => {
-          if (extra?.type === "learning_paths" && extra?.payload?.learning_paths) {
+          if (
+            extra?.type === "learning_paths" &&
+            extra?.payload?.learning_paths
+          ) {
             setMessages((prev) => [
               ...prev,
               {
@@ -277,7 +283,9 @@ const AIChat = () => {
                 text: "",
                 sender: "ai",
                 type: "learning_paths_error",
-                payload: extra.payload || { message: "Chưa thể tạo lộ trình học." },
+                payload: extra.payload || {
+                  message: "Chưa thể tạo lộ trình học.",
+                },
               },
             ]);
           }
@@ -362,8 +370,14 @@ const AIChat = () => {
         <div className="lp-modal-overlay" onMouseDown={closePathModal}>
           <div className="lp-modal" onMouseDown={(e) => e.stopPropagation()}>
             <div className="lp-modal-header">
-              <div className="lp-modal-title">{modalPath.title || "Lộ trình"}</div>
-              <button type="button" className="icon-btn" onClick={closePathModal}>
+              <div className="lp-modal-title">
+                {modalPath.title || "Lộ trình"}
+              </div>
+              <button
+                type="button"
+                className="icon-btn"
+                onClick={closePathModal}
+              >
                 <X size={18} />
               </button>
             </div>
@@ -383,7 +397,8 @@ const AIChat = () => {
 
               {modalPath.detail?.estimated_duration ? (
                 <div className="advice-sub" style={{ marginBottom: 8 }}>
-                  <strong>Tổng thời gian:</strong> {modalPath.detail.estimated_duration}
+                  <strong>Tổng thời gian:</strong>{" "}
+                  {modalPath.detail.estimated_duration}
                 </div>
               ) : null}
 
@@ -393,26 +408,41 @@ const AIChat = () => {
                 </div>
               ) : null}
 
-              {Array.isArray(modalPath.detail?.steps) && modalPath.detail.steps.length > 0 ? (
+              {Array.isArray(modalPath.detail?.steps) &&
+              modalPath.detail.steps.length > 0 ? (
                 <div>
-                  <div style={{ fontWeight: 600, marginBottom: 10 }}>Các giai đoạn</div>
+                  <div style={{ fontWeight: 600, marginBottom: 10 }}>
+                    Các giai đoạn
+                  </div>
                   {modalPath.detail.steps.map((step) => (
-                    <div key={step.step_order || step.title} style={{ marginBottom: 14 }}>
+                    <div
+                      key={step.step_order || step.title}
+                      style={{ marginBottom: 14 }}
+                    >
                       <div style={{ fontWeight: 600, marginBottom: 6 }}>
                         {step.title || "Giai đoạn"}
                       </div>
-                      {Array.isArray(step.content) && step.content.length > 0 ? (
+                      {Array.isArray(step.content) &&
+                      step.content.length > 0 ? (
                         <ul style={{ margin: 0, paddingLeft: 18 }}>
                           {step.content
                             .filter((x) => typeof x === "string" && x.trim())
                             .map((line, idx) => (
-                              <li key={idx} style={{ color: "var(--text-sub)", fontSize: 13 }}>
+                              <li
+                                key={idx}
+                                style={{
+                                  color: "var(--text-sub)",
+                                  fontSize: 13,
+                                }}
+                              >
                                 {line}
                               </li>
                             ))}
                         </ul>
                       ) : (
-                        <div className="advice-sub">Chưa có nội dung chi tiết.</div>
+                        <div className="advice-sub">
+                          Chưa có nội dung chi tiết.
+                        </div>
                       )}
                     </div>
                   ))}
@@ -428,10 +458,7 @@ const AIChat = () => {
       {/* --- SIDEBAR --- */}
       <aside className={`sidebar ${isSidebarOpen ? "open" : "closed"}`}>
         <div className="sidebar-header">
-          <button
-            className="btn-new-chat"
-            onClick={handleNewChat}
-          >
+          <button className="btn-new-chat" onClick={handleNewChat}>
             <Plus size={18} /> <span>New Chat</span>
           </button>
         </div>
@@ -585,7 +612,10 @@ const AIChat = () => {
                                   key={pathId}
                                   type="button"
                                   onClick={() => {
-                                    setPathSelections((prev) => ({ ...prev, [msg.id]: pathId }));
+                                    setPathSelections((prev) => ({
+                                      ...prev,
+                                      [msg.id]: pathId,
+                                    }));
                                     openPathModal(path);
                                   }}
                                   style={{
@@ -606,7 +636,8 @@ const AIChat = () => {
                         </div>
                       );
                     })()
-                  ) : msg.sender === "ai" && msg.type === "learning_paths_error" ? (
+                  ) : msg.sender === "ai" &&
+                    msg.type === "learning_paths_error" ? (
                     <div>
                       <div className="advice-sub">
                         {msg.payload?.message || "Chưa thể tạo lộ trình học."}
@@ -615,10 +646,16 @@ const AIChat = () => {
                         className="suggestions"
                         style={{ marginTop: 10, flexWrap: "wrap" }}
                       >
-                        <button type="button" onClick={() => navigate("/dashboard")}>
+                        <button
+                          type="button"
+                          onClick={() => navigate("/dashboard")}
+                        >
                           Cập nhật hồ sơ
                         </button>
-                        <button type="button" onClick={() => navigate("/trac-nghiem")}>
+                        <button
+                          type="button"
+                          onClick={() => navigate("/trac-nghiem")}
+                        >
                           Làm trắc nghiệm
                         </button>
                       </div>

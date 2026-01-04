@@ -91,8 +91,14 @@ const AdminDashboard = () => {
 
         // Gọi song song 2 API để tiết kiệm thời gian
         const [usersRes, statsRes] = await Promise.all([
-          axios.get("http://127.0.0.1:8000/api/admin/users/", config),
-          axios.get("http://127.0.0.1:8000/api/admin/dashboard/stats/", config),
+          axios.get(
+            "https://ai-career-advisor-4006.onrender.com/api/admin/users/",
+            config
+          ),
+          axios.get(
+            "https://ai-career-advisor-4006.onrender.com/api/admin/dashboard/stats/",
+            config
+          ),
         ]);
 
         // Set User Data

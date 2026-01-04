@@ -41,11 +41,6 @@ const DataImport = () => {
       label: "Khóa học (Courses)",
       color: "#f59e0b",
     },
-    {
-      id: "master_skills",
-      label: "Kỹ năng (Skills)",
-      color: "#10b981",
-    },
   ];
 
   const readExcel = (file) => {
@@ -154,7 +149,7 @@ const DataImport = () => {
 
       // 3. Gửi Request dạng JSON
       await axios.post(
-        "http://127.0.0.1:8000/api/admin/import-data/",
+        "https://ai-career-advisor-4006.onrender.com/api/admin/import-data/",
         payload,
         {
           headers: {

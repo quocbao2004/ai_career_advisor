@@ -1,12 +1,4 @@
-// authApi.js
-
-// 1. Cấu hình Domain động (Tự lấy từ biến môi trường Vercel hoặc dùng Localhost)
-// Nếu dùng Create-React-App thì đổi import.meta.env thành process.env.REACT_APP_API_URL
-const DOMAIN = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
-
-// 2. Định nghĩa các Base URL
-const AUTH_BASE_URL = `${DOMAIN}/api/auth`; // Dành cho đăng nhập/đăng ký
-const API_ROOT = `${DOMAIN}/api`; // Dành cho các API khác (token, user...)
+const API_BASE_URL = "https://ai-career-advisor-4006.onrender.com/api/auth";
 
 export const saveTokens = (accessToken, refreshToken) => {
   localStorage.setItem("access_token", accessToken);
@@ -46,7 +38,7 @@ export const markOnboardingWelcomeSeen = (userId) => {
 
 export const registerUser = async (email, password, full_name) => {
   try {
-    const response = await fetch(`${AUTH_BASE_URL}/dang-ky/`, {
+    const response = await fetch(`${API_BASE_URL}/dang-ky/`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, password, full_name }),
@@ -59,7 +51,7 @@ export const registerUser = async (email, password, full_name) => {
 
 export const verifyOTP = async (email, otp) => {
   try {
-    const response = await fetch(`${AUTH_BASE_URL}/xac-thuc-otp/`, {
+    const response = await fetch(`${API_BASE_URL}/xac-thuc-otp/`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, otp }),
@@ -72,7 +64,7 @@ export const verifyOTP = async (email, otp) => {
 
 export const resendOTP = async (email) => {
   try {
-    const response = await fetch(`${AUTH_BASE_URL}/gui-lai-otp/`, {
+    const response = await fetch(`${API_BASE_URL}/gui-lai-otp/`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email }),
@@ -85,7 +77,7 @@ export const resendOTP = async (email) => {
 
 export const loginUser = async (email, password) => {
   try {
-    const response = await fetch(`${AUTH_BASE_URL}/dang-nhap/`, {
+    const response = await fetch(`${API_BASE_URL}/dang-nhap/`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, password }),
@@ -98,7 +90,7 @@ export const loginUser = async (email, password) => {
 
 export const googleLogin = async (token) => {
   try {
-    const response = await fetch(`${AUTH_BASE_URL}/google-login/`, {
+    const response = await fetch(`${API_BASE_URL}/google-login/`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ token }),
@@ -111,7 +103,7 @@ export const googleLogin = async (token) => {
 
 export const forgotPassword = async (email) => {
   try {
-    const response = await fetch(`${AUTH_BASE_URL}/quen-mat-khau/`, {
+    const response = await fetch(`${API_BASE_URL}/quen-mat-khau/`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email }),
@@ -124,7 +116,7 @@ export const forgotPassword = async (email) => {
 
 export const verifyResetOTP = async (email, otp) => {
   try {
-    const response = await fetch(`${AUTH_BASE_URL}/xac-thuc-otp-reset/`, {
+    const response = await fetch(`${API_BASE_URL}/xac-thuc-otp-reset/`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, otp }),
@@ -137,7 +129,7 @@ export const verifyResetOTP = async (email, otp) => {
 
 export const resetPassword = async (email, newPassword) => {
   try {
-    const response = await fetch(`${AUTH_BASE_URL}/dat-lai-mat-khau/`, {
+    const response = await fetch(`${API_BASE_URL}/dat-lai-mat-khau/`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, new_password: newPassword }),
@@ -187,7 +179,7 @@ export const saveUserInfo = (user) => {
       cachedUserInfo = user;
     }
   } catch (error) {
-    // Silently fail
+    // Silently fail to avoid breaking the app
   }
 };
 
@@ -212,7 +204,6 @@ export const fetchWithAuth = async (url, options = {}) => {
         return fetch(url, { ...options, headers });
       } else {
         clearTokens();
-        // Redirect nếu cần, hoặc để component xử lý
         window.location.href = "/dang-nhap";
       }
     }
@@ -229,8 +220,7 @@ export const refreshAccessToken = async () => {
       return false;
     }
 
-    // Đã sửa hardcode localhost -> dùng API_ROOT
-    const response = await fetch(`${API_ROOT}/token/refresh/`, {
+    const response = await fetch("http://localhost:8000/api/token/refresh/", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ refresh: refreshToken }),
@@ -256,7 +246,7 @@ export const refreshAccessToken = async () => {
 export const logoutUser = async () => {
   try {
     const refreshToken = getRefreshToken();
-    const response = await fetchWithAuth(`${AUTH_BASE_URL}/dang-xuat/`, {
+    const response = await fetchWithAuth(`${API_BASE_URL}/dang-xuat/`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ refresh: refreshToken }),
@@ -279,9 +269,8 @@ export const logoutUser = async () => {
 // Onboarding Status Check
 export const checkOnboardingStatus = async () => {
   try {
-    // Đã sửa hardcode localhost -> dùng API_ROOT
     const response = await fetchWithAuth(
-      `${API_ROOT}/users/onboarding/status/`
+      "http://localhost:8000/api/users/onboarding/status/"
     );
     if (!response.ok) {
       return { success: false, needsOnboarding: true };
@@ -299,6 +288,7 @@ export const checkOnboardingStatus = async () => {
   }
 };
 
+// Save onboarding status to localStorage
 export const saveOnboardingStatus = (hasCompleted) => {
   try {
     localStorage.setItem(
@@ -310,6 +300,7 @@ export const saveOnboardingStatus = (hasCompleted) => {
   }
 };
 
+// Get cached onboarding status
 export const getCachedOnboardingStatus = () => {
   try {
     const status = localStorage.getItem("has_completed_onboarding");
@@ -319,6 +310,7 @@ export const getCachedOnboardingStatus = () => {
   }
 };
 
+// Clear onboarding status on logout
 export const clearOnboardingStatus = () => {
   try {
     localStorage.removeItem("has_completed_onboarding");

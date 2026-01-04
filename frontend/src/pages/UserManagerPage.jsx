@@ -11,8 +11,9 @@ const UserManagement = () => {
   // 1. Thêm state cho ô tìm kiếm
   const [searchTerm, setSearchTerm] = useState("");
 
-  const API_URL_USER = "http://127.0.0.1:8000/api/users/";
-  const API_URL_ADMIN = "http://127.0.0.1:8000/api/admin/users";
+  const API_URL_USER = "https://ai-career-advisor-4006.onrender.com/api/users/";
+  const API_URL_ADMIN =
+    "https://ai-career-advisor-4006.onrender.com/api/admin/users";
 
   // Hàm lấy danh sách user
   const fetchUsers = async () => {

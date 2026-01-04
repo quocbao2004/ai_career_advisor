@@ -51,7 +51,8 @@ const UserProfile = () => {
   const [newSkill, setNewSkill] = useState({ name: "", level: 1 });
   const [newInterest, setNewInterest] = useState("");
 
-  const API_URL = "http://127.0.0.1:8000/api/users/profile/";
+  const API_URL =
+    "https://ai-career-advisor-4006.onrender.com/api/users/profile/";
   const token = localStorage.getItem("access_token");
 
   useEffect(() => {
