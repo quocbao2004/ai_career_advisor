@@ -1,3 +1,7 @@
+// authApi.js
+
+// 1. Cấu hình Domain động (Tự lấy từ biến môi trường Vercel hoặc dùng Localhost)
+// Nếu dùng Create-React-App thì đổi import.meta.env thành process.env.REACT_APP_API_URL
 const DOMAIN = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
 
 // 2. Định nghĩa các Base URL
