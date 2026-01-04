@@ -26,7 +26,6 @@ def chat_message(request):
     session_id = request.data.get('session_id')
     prompt = request.data.get('prompt')
     model_key = request.data.get('model', 'gemini-2.5-flash')
-    intent_learning_paths = _to_bool(request.data.get('intent_learning_paths'))
     
     if not prompt:
         return Response({"message": "Vui lòng nhập nội dung"}, status=400)
@@ -42,21 +41,20 @@ def chat_message(request):
     ChatMessage.objects.create(session=session, role='user', content=prompt)
 
     ai_response_text = ""
-    if not intent_learning_paths:
-        try:
-            full_prompt = create_full_prompt_chat(prompt, session, user)
-            response = call_gemini_with_config(full_prompt, model_key)
+    try:
+        full_prompt = create_full_prompt_chat(prompt, session, user)
+        response = call_gemini_with_config(full_prompt, model_key)
 
-            if response and response.parts:
-                ai_response_text = response.text
-            else:
-                ai_response_text = "Xin lỗi, hệ thống AI đang bận."
+        if response and response.parts:
+            ai_response_text = response.text
+        else:
+            ai_response_text = "Xin lỗi, hệ thống AI đang bận."
 
-        except Exception as e:
+    except Exception as e:
             print(f"View Error: {e}")
             ai_response_text = "Đã xảy ra lỗi hệ thống."
 
-        ChatMessage.objects.create(session=session, role='assistant', content=ai_response_text)
+    ChatMessage.objects.create(session=session, role='assistant', content=ai_response_text)
 
     return Response({
         "response": ai_response_text,

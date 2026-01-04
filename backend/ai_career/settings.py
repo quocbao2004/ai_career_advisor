@@ -193,15 +193,16 @@ CACHES = {
 
 # CORS Configuration
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",
-    "http://127.0.0.1:3000",
-    "http://localhost:8080",
+    "https://ai-career-advisor-seven.vercel.app", # Production (Vercel)
+    "http://localhost:3000",      # Local React chạy port 3000
+    "http://127.0.0.1:3000",      # Local IP
 ]
 
 # CSRF trusted origins (dev)
 CSRF_TRUSTED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
+    "https://ai-career-advisor-seven.vercel.app",
 ]
 
 CORS_ALLOW_CREDENTIALS = True
