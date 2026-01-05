@@ -134,6 +134,7 @@ class AuthService:
         from django.db import transaction
         from django.utils.crypto import get_random_string
         user = None
+        is_new_google_user = False
         try:
             user = User.objects.get(email=email)
         except User.DoesNotExist:
@@ -153,6 +154,7 @@ class AuthService:
                         logger.info(f"Đã gửi email mật khẩu cho user mới: {email}")
                     except e:
                         pass
+                is_new_google_user = True
             except Exception as e:
                 return None, f"Lỗi tạo user: {str(e)}"
 
@@ -160,6 +162,7 @@ class AuthService:
         
         # Check onboarding status
         has_completed_onboarding = check_user_onboarding_status(user)
+        is_new_google_user = is_new_google_user or not has_completed_onboarding
 
         logger.info(f"Google login successful for {email}")
 
@@ -172,7 +175,8 @@ class AuthService:
                 "fullName": user.full_name,
                 "role": user.role or "user",
                 "hasCompletedOnboarding": has_completed_onboarding,
-                "needsOnboarding": not has_completed_onboarding
+                "needsOnboarding": not has_completed_onboarding,
+                "isNewGoogleUser": is_new_google_user
             }
         }, None
     

@@ -198,6 +198,16 @@
   transform: scale(0.98);
 }
 
+.option-btn.selected {
+  background: rgba(34, 197, 94, 0.2);
+  border-color: #22c55e;
+  color: #fff;
+}
+
+.option-btn.selected .option-label {
+  background: #22c55e;
+}
+
 /* 5. MÀN HÌNH KẾT QUẢ (RESULT SCREEN) */
 .quiz-result-card {
   max-width: 900px;
@@ -527,6 +537,30 @@
     width: 100%;
     padding: 12px 24px;
   }
+
+  /* Quiz control buttons responsive */
+  .quiz-control-buttons {
+    flex-direction: column !important;
+    gap: 8px !important;
+  }
+
+  .quiz-control-buttons .btn-quiz-primary,
+  .quiz-control-buttons .btn-quiz-outline {
+    width: 100% !important;
+    padding: 12px 20px !important;
+    font-size: 0.9rem !important;
+  }
+
+  /* Question tracker responsive */
+  .question-tracker-legend {
+    justify-content: center !important;
+    text-align: center !important;
+  }
+
+  .question-tracker-grid {
+    grid-template-columns: repeat(auto-fill, minmax(35px, 1fr)) !important;
+    gap: 6px !important;
+  }
 }
 
 @media (max-width: 480px) {
@@ -601,5 +635,102 @@
   .quiz-actions-row {
     gap: 8px;
     margin-top: 24px;
+  }
+
+  /* Extra small screen adjustments */
+  .question-tracker-grid {
+    grid-template-columns: repeat(auto-fill, minmax(30px, 1fr)) !important;
+    gap: 4px !important;
+  }
+
+  .question-tracker-legend {
+    font-size: 10px !important;
+    gap: 8px !important;
+  }
+}
+
+/* Tablet Responsive */
+@media (min-width: 769px) and (max-width: 1200px) {
+  .quiz-playing-container {
+    flex-direction: row !important;
+    gap: 15px !important;
+  }
+
+  .quiz-question-section {
+    order: 2 !important;
+    flex: 1 !important;
+  }
+
+  .question-tracker-card {
+    order: 1 !important;
+    width: 35% !important;
+    min-width: 250px !important;
+    max-height: calc(100vh - 120px) !important;
+    position: sticky !important;
+    top: 20px !important;
+    overflow-y: auto !important;
+  }
+
+  .question-text {
+    font-size: 1.3rem;
+  }
+
+  .option-btn {
+    padding: 16px 20px;
+    font-size: 1rem;
+  }
+
+  .quiz-control-buttons {
+    gap: 8px !important;
+  }
+
+  .quiz-control-buttons .btn-quiz-primary,
+  .quiz-control-buttons .btn-quiz-outline {
+    padding: 12px 24px !important;
+    font-size: 0.9rem !important;
+    min-width: 120px !important;
+  }
+}
+
+/* Desktop Large */
+@media (min-width: 1201px) {
+  .quiz-playing-container {
+    flex-direction: row !important;
+    gap: 20px !important;
+  }
+
+  .quiz-question-section {
+    order: 2 !important;
+    flex: 1 !important;
+  }
+
+  .question-tracker-card {
+    order: 1 !important;
+    width: 40% !important;
+    min-width: 300px !important;
+    max-height: calc(100vh - 100px) !important;
+    position: sticky !important;
+    top: 20px !important;
+    overflow-y: auto !important;
+  }
+
+  .question-text {
+    font-size: 1.4rem;
+  }
+
+  .option-btn {
+    padding: 18px 24px;
+    font-size: 1.05rem;
+  }
+
+  .quiz-control-buttons {
+    gap: 10px !important;
+  }
+
+  .quiz-control-buttons .btn-quiz-primary,
+  .quiz-control-buttons .btn-quiz-outline {
+    padding: 14px 36px !important;
+    font-size: 1rem !important;
+    min-width: 160px !important;
   }
 }

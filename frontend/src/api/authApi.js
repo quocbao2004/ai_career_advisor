@@ -13,6 +13,7 @@ export const clearTokens = () => {
   localStorage.removeItem("refresh_token");
   localStorage.removeItem("user_info");
   localStorage.removeItem("has_completed_onboarding");
+  localStorage.removeItem("is_new_google_user");
   cachedUserInfo = null;
 };
 
@@ -33,6 +34,14 @@ export const markOnboardingWelcomeSeen = (userId) => {
     localStorage.setItem(onboardingWelcomeKey(userId), "true");
   } catch {
     // ignore
+  }
+};
+
+export const getIsNewGoogleUser = () => {
+  try {
+    return localStorage.getItem("is_new_google_user") === "true";
+  } catch {
+    return false;
   }
 };
 

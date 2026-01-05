@@ -1,9 +1,10 @@
 import "./App.css";
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 import HomePage from "./pages/HomePage";
 import AdminDashboard from "./pages/AdminDashboard";
 import QuizSelection from "./pages/QuizSelection";
 import QuizGame from "./pages/QuizGame";
+import QuizResult from "./pages/QuizResult";
 import OnboardingWelcome from "./pages/OnboardingWelcome";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
@@ -33,26 +34,6 @@ import {
   getCachedOnboardingStatus,
   hasSeenOnboardingWelcome,
 } from "./api/authApi";
-//Hàm tránh trả lỗi 404 khi người dùng tự nhập tay url
-// không match với router đang có,
-// chuyển hướng user dựa trên điều kiện
-const resolveFallbackPath = () => {
-  try {
-    const isAuth = isAuthenticated();
-    if (!isAuth) return "/"; // chưa login
-    const user = getUserInfo(); //thiếu thông tin
-    if (!user) return "/dang-nhap";
-    if (user.role === "admin") return "/trang-quan-tri";
-    const cachedCompleted = getCachedOnboardingStatus();
-    const userCompleted = user.hasCompletedOnboarding === true;
-    const userNeeds = user.needsOnboarding === true;
-    const hasCompleted = cachedCompleted || (userCompleted && !userNeeds);
-    if (hasCompleted) return "/dashboard"; // hoàn thành flow lần đầu đăng nhập
-    return hasSeenOnboardingWelcome(user.id) ? "/trac-nghiem" : "/chao-mung"; // đã thấy trang chào mừng nhưng chưa hoàn thành flow lần đầu đăng nhập
-  } catch (err) {
-    return "/";
-  }
-};
 
 function App() {
   return (
@@ -84,12 +65,23 @@ function App() {
               }
             />
             <Route
+              path="/cap-nhat-profile"
+              element={
+                <ProtectedRoute
+                  element={<UserProfile />}
+                  skipOnboardingCheck={true}
+                  requireWelcomeSeen={true}
+                />
+              }
+            />
+            <Route
               path="/trac-nghiem"
               element={
                 <ProtectedRoute
                   element={<QuizSelection />}
                   skipOnboardingCheck={true}
                   requireWelcomeSeen={true}
+                  requireProfileCompleted={true}
                 />
               }
             />
@@ -100,6 +92,7 @@ function App() {
                   element={<QuizGame />}
                   skipOnboardingCheck={true}
                   requireWelcomeSeen={true}
+                  requireProfileCompleted={true}
                 />
               }
             />
@@ -110,6 +103,19 @@ function App() {
                   element={<QuizGame />}
                   skipOnboardingCheck={true}
                   requireWelcomeSeen={true}
+                  requireProfileCompleted={true}
+                />
+              }
+            />
+            <Route
+              path="/ket-qua-trac-nghiem"
+              element={
+                <ProtectedRoute
+                  element={<QuizResult />}
+                  skipOnboardingCheck={true}
+                  requireWelcomeSeen={true}
+                  requireProfileCompleted={true}
+                  requireQuizDone={true}
                 />
               }
             />

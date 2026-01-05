@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import "../assets/css-custom/userprofile.css";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { getUserInfo } from "../api/authApi";
 
 // --- IMPORT ICON TỪ LUCIDE-REACT ---
 import {
@@ -26,6 +28,7 @@ import {
 } from "lucide-react";
 
 const UserProfile = () => {
+  const navigate = useNavigate();
   const [isEditing, setIsEditing] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -172,6 +175,13 @@ const UserProfile = () => {
       toast.success("Cập nhật hồ sơ thành công!");
       setIsEditing(false);
       fetchProfile();
+
+      // Set profile completed for onboarding flow
+      const user = getUserInfo();
+      if (user) {
+        localStorage.setItem(`profile_completed_${user.id}`, 'true');
+        navigate("/trac-nghiem");
+      }
     } catch (error) {
       toast.error("Lỗi khi lưu. Kiểm tra lại dữ liệu.");
     } finally {

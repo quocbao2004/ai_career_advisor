@@ -21,6 +21,30 @@
   ) !important; /* Tối hơn một chút để text dễ đọc */
 }
 
+/* Responsive adjustments */
+@media (max-width: 576px) {
+  .auth-wrapper {
+    padding: 10px;
+    min-height: 90vh;
+  }
+  .auth-card-container {
+    padding: 20px 15px !important;
+    max-width: 100%;
+  }
+  .auth-input {
+    padding: 12px 16px 12px 44px;
+    font-size: 0.9rem;
+  }
+  .auth-input-group .input-icon {
+    font-size: 1rem;
+    left: 14px;
+  }
+  .btn-auth-primary {
+    padding: 12px;
+    font-size: 0.95rem;
+  }
+}
+
 /* --- INPUT STYLES --- */
 .auth-input-group {
   position: relative;
@@ -87,9 +111,6 @@
 
 /* --- OPTIONS ROW --- */
 .options-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
   margin-bottom: 24px;
   font-size: 0.9rem;
 }
@@ -147,8 +168,6 @@
 
 /* --- SOCIAL BUTTONS --- */
 .social-buttons-box {
-  display: flex;
-  gap: 16px;
   justify-content: center;
 }
 

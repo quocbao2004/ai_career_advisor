@@ -214,7 +214,7 @@ const DataImport = () => {
 
       <div className="row g-4">
         {/* Cột trái: Menu chọn */}
-        <div className="col-lg-4">
+        <div className="col-12 col-lg-4">
           <div className="card border-0 shadow-sm mb-4">
             <div className="card-header bg-white fw-bold py-3">
               1. Chọn loại dữ liệu
@@ -259,9 +259,9 @@ const DataImport = () => {
         </div>
 
         {/* Cột phải: Khu vực Upload & Preview */}
-        <div className="col-lg-8">
+        <div className="col-12 col-lg-8">
           <div className="card border-0 shadow-sm h-100">
-            <div className="card-header bg-white fw-bold py-3 d-flex justify-content-between align-items-center">
+            <div className="card-header bg-white fw-bold py-3 d-flex flex-column flex-md-row justify-content-between align-items-center">
               <span>2. Tải lên & Chỉnh sửa</span>
               {file && <span className="badge bg-success">Đã chọn file</span>}
             </div>
@@ -271,7 +271,7 @@ const DataImport = () => {
                 // --- Giao diện DROPZONE ---
                 <label
                   htmlFor="fileInput"
-                  className="upload-area w-100 d-flex flex-column align-items-center justify-content-center border border-2 border-dashed rounded-3 bg-light p-5 cursor-pointer"
+                  className="upload-area w-100 d-flex flex-column align-items-center justify-content-center border border-2 border-dashed rounded-3 bg-light p-3 p-md-5 cursor-pointer"
                   style={{ minHeight: "300px", borderColor: "#ccc" }}
                 >
                   <UploadCloud size={64} className="text-secondary mb-3" />
@@ -292,7 +292,7 @@ const DataImport = () => {
               ) : (
                 // --- Giao diện FILE INFO & EDITABLE TABLE ---
                 <div className="w-100">
-                  <div className="d-flex align-items-center justify-content-between bg-light p-3 rounded mb-3 border">
+                  <div className="d-flex flex-column flex-md-row align-items-center justify-content-between bg-light p-3 rounded mb-3 border">
                     <div className="d-flex align-items-center">
                       <FileSpreadsheet
                         size={32}
@@ -328,7 +328,7 @@ const DataImport = () => {
                   {/* BẢNG CHỈNH SỬA DỮ LIỆU */}
                   {previewHeaders.length > 0 && (
                     <div className="mb-4 border rounded overflow-hidden">
-                      <div className="bg-light px-3 py-2 border-bottom d-flex align-items-center justify-content-between">
+                      <div className="bg-light px-3 py-2 border-bottom d-flex flex-column flex-md-row align-items-center justify-content-between">
                         <div className="d-flex align-items-center">
                           <Edit3 size={16} className="me-2 text-primary" />
                           <small className="fw-bold text-uppercase text-primary">
@@ -346,11 +346,11 @@ const DataImport = () => {
 
                       <div
                         className="table-responsive"
-                        style={{ maxHeight: "400px" }}
+                        style={{ maxHeight: "300px" }}
                       >
                         <table
                           className="table table-sm table-bordered table-hover mb-0"
-                          style={{ fontSize: "0.85rem" }}
+                          style={{ fontSize: "0.75rem" }}
                         >
                           <thead
                             className="table-light sticky-top"
@@ -399,7 +399,7 @@ const DataImport = () => {
                                           e.target.value
                                         )
                                       }
-                                      style={{ minWidth: "100px" }}
+                                      style={{ minWidth: "80px" }}
                                     />
                                   </td>
                                 ))}

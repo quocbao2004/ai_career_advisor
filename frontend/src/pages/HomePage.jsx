@@ -84,7 +84,7 @@ const HomePage = () => {
               Định hướng nghề nghiệp thông minh, cá nhân hóa với công nghệ AI
               tiên tiến. Tìm đúng con đường, phát triển đúng hướng ngay hôm nay.
             </p>
-            <div className="hero-buttons">
+            <div className="hero-buttons d-flex flex-column flex-md-row gap-3 justify-content-center justify-content-md-start">
               <Link to="/trac-nghiem" className="btn btn-hero-primary">
                 Bắt Đầu Ngay
               </Link>

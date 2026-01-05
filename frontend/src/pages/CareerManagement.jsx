@@ -16,6 +16,8 @@ import {
   ChevronLeft,
 } from "lucide-react";
 
+import "../assets/css-custom/career-management.css";
+
 const CareerManagement = () => {
   // --- STATE QUẢN LÝ DỮ LIỆU ---
   const [careers, setCareers] = useState([]);
@@ -205,30 +207,30 @@ const CareerManagement = () => {
   }, [searchTerm]);
 
   return (
-    <div className="container py-5">
+    <div className="career-management-container">
       {/* HEADER */}
-      <div className="d-flex flex-column flex-md-row justify-content-between align-items-center mb-4">
-        <div className="mb-3 mb-md-0">
+      <div className="career-header d-flex flex-column flex-md-row justify-content-between align-items-center">
+        <div className="career-title-section mb-3 mb-md-0">
           <h2 className="fw-bold d-flex align-items-center text-white">
             <Briefcase className="me-2 text-warning" size={32} /> Quản Lý Nghề
             Nghiệp
           </h2>
-          <p className="mb-0 text-white-50">
+          <p className="career-subtitle mb-0 text-white-50">
             Quản lý danh mục nghề, mức lương và xu hướng thị trường
           </p>
         </div>
         <button
           onClick={openAddModal}
-          className="btn btn-warning text-dark fw-bold d-flex align-items-center px-4 py-2 shadow-sm"
+          className="add-career-btn btn btn-warning text-dark fw-bold d-flex align-items-center px-4 py-2 shadow-sm"
         >
           <Plus size={20} className="me-2" /> Thêm Nghề Mới
         </button>
       </div>
 
       {/* SEARCH BAR */}
-      <div className="card shadow-sm border-0 mb-4">
+      <div className="search-card card shadow-sm border-0 mb-4">
         <div className="card-body p-3">
-          <div className="input-group">
+          <div className="search-input-group input-group">
             <span className="input-group-text bg-white border-end-0">
               <Search size={20} className="text-muted" />
             </span>
@@ -245,19 +247,19 @@ const CareerManagement = () => {
       </div>
 
       {/* DATA TABLE */}
-      <div className="card shadow border-0">
+      <div className="career-table-card card shadow border-0">
         <div className="card-body p-0">
           {loading ? (
-            <div className="text-center py-5 text-muted">
+            <div className="loading-container text-center py-5 text-muted">
               <div
-                className="spinner-border text-warning mb-2"
+                className="loading-spinner spinner-border text-warning mb-2"
                 role="status"
               ></div>
-              <p>Đang tải dữ liệu...</p>
+              <p className="loading-text">Đang tải dữ liệu...</p>
             </div>
           ) : (
-            <div className="table-responsive">
-              <table className="table table-hover align-middle mb-0">
+            <div className="career-table-responsive table-responsive">
+              <table className="career-table table table-hover align-middle mb-0">
                 <thead className="bg-light">
                   <tr>
                     <th className="py-3 ps-4 text-secondary text-uppercase small fw-bold">
@@ -282,11 +284,11 @@ const CareerManagement = () => {
                     currentCareers.map((career) => (
                       <tr key={career.id}>
                         <td className="ps-4 py-3">
-                          <div className="fw-bold text-dark fs-6">
+                          <div className="career-title fw-bold text-dark fs-6">
                             {career.title}
                           </div>
                           <div className="mt-1">
-                            <span className="badge bg-light text-dark border border-secondary-subtle">
+                            <span className="industry-badge badge bg-light text-dark border border-secondary-subtle">
                               {/* Hiển thị tên ngành từ object hoặc ID */}
                               {typeof career.industry === "object"
                                 ? career.industry?.name
@@ -296,7 +298,7 @@ const CareerManagement = () => {
                         </td>
                         <td className="py-3">
                           <div className="d-flex flex-column gap-1">
-                            <div className="d-flex align-items-center text-dark fw-bold small">
+                            <div className="salary-info d-flex align-items-center text-dark fw-bold small">
                               <DollarSign
                                 size={14}
                                 className="text-success me-1"
@@ -316,7 +318,7 @@ const CareerManagement = () => {
                         </td>
                         <td className="py-3">
                           <div
-                            className="text-muted small text-truncate"
+                            className="description-text text-muted small text-truncate"
                             style={{ maxWidth: "250px" }}
                             title={career.description}
                           >
@@ -324,7 +326,7 @@ const CareerManagement = () => {
                           </div>
                           {career.future_outlook && (
                             <div
-                              className="text-primary small mt-1 d-flex align-items-center text-truncate"
+                              className="outlook-text text-primary small mt-1 d-flex align-items-center text-truncate"
                               style={{ maxWidth: "250px" }}
                               title={career.future_outlook}
                             >
@@ -334,41 +336,43 @@ const CareerManagement = () => {
                           )}
                         </td>
                         <td className="py-3 text-center">
-                          <button
-                            onClick={() => openEditModal(career)}
-                            className="btn btn-outline-primary btn-sm me-2 border-0"
-                            title="Sửa"
-                          >
-                            <Edit size={18} />
-                          </button>
-                          <button
-                            onClick={() => handleDelete(career.id)}
-                            className="btn btn-outline-danger btn-sm border-0"
-                            title="Xóa"
-                          >
-                            <Trash2 size={18} />
-                          </button>
+                          <div className="action-buttons">
+                            <button
+                              onClick={() => openEditModal(career)}
+                              className="action-btn btn btn-outline-primary btn-sm me-2 border-0"
+                              title="Sửa"
+                            >
+                              <Edit size={18} />
+                            </button>
+                            <button
+                              onClick={() => handleDelete(career.id)}
+                              className="action-btn btn btn-outline-danger btn-sm border-0"
+                              title="Xóa"
+                            >
+                              <Trash2 size={18} />
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     ))
                   ) : (
                     <tr>
-                      <td colSpan="4" className="text-center py-5 text-muted">
+                      <td colSpan="4" className="empty-state text-center py-5 text-muted">
                         <Filter
                           size={48}
-                          className="mb-3 opacity-25 d-block mx-auto"
+                          className="empty-icon mb-3 opacity-25 d-block mx-auto"
                         />
-                        Không tìm thấy nghề nghiệp nào phù hợp
+                        <p className="empty-text">Không tìm thấy nghề nghiệp nào phù hợp</p>
                       </td>
                     </tr>
                   )}
                 </tbody>
               </table>
 
-              {/* PAGINATION CONTROL (Có Wrap) */}
+              {/* PAGINATION CONTROL */}
               {filteredCareers.length > 0 && (
-                <div className="card-footer bg-white border-0 py-3 d-flex justify-content-between align-items-center">
-                  <div className="text-muted small">
+                <div className="pagination-section card-footer bg-white border-0 py-3 d-flex justify-content-between align-items-center">
+                  <div className="pagination-info text-muted small">
                     Hiển thị <strong>{indexOfFirstItem + 1}</strong> -{" "}
                     <strong>
                       {Math.min(indexOfLastItem, filteredCareers.length)}
@@ -376,7 +380,7 @@ const CareerManagement = () => {
                     trong <strong>{filteredCareers.length}</strong> kết quả
                   </div>
                   <nav>
-                    <ul className="pagination mb-0 flex-wrap justify-content-end gap-1">
+                    <ul className="pagination-list pagination mb-0 flex-wrap justify-content-end gap-1">
                       <li
                         className={`page-item ${
                           currentPage === 1 ? "disabled" : ""
@@ -448,11 +452,7 @@ const CareerManagement = () => {
       {showModal && (
         <>
           <div className="modal-backdrop fade show"></div>
-          <div
-            className="modal fade show d-block"
-            tabIndex="-1"
-            style={{ backgroundColor: "rgba(0,0,0,0.5)" }}
-          >
+          <div className="career-modal modal fade show d-block" tabIndex="-1">
             <div className="modal-dialog modal-lg modal-dialog-centered">
               <div className="modal-content shadow-lg">
                 <div className="modal-header bg-light">
