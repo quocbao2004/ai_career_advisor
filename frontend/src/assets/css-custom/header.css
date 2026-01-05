@@ -114,7 +114,7 @@
 }
 
 /* Mobile */
-@media (max-width: 992px) {
+@media (max-width: 991.98px) {
   .navbar-nav {
     text-align: center;
     padding: 1rem 0;
@@ -122,5 +122,337 @@
 
   .custom-navbar {
     height: auto;
+    padding: 0.5rem 1rem;
+  }
+
+  /* Ẩn tên người dùng trên mobile, chỉ hiện avatar */
+  .d-none.d-lg-inline {
+    display: none !important;
+  }
+
+  /* Stack buttons đăng nhập/đăng ký trong collapse menu */
+  .collapse .d-flex.align-items-center.gap-2 {
+    flex-direction: column;
+    gap: 0.5rem !important;
+  }
+
+  .collapse .btn-outline-gold,
+  .collapse .btn-gold {
+    width: 100%;
+    margin: 0;
+  }
+
+  /* Cải thiện dropdown trên mobile */
+  .dropdown-menu {
+    min-width: 180px;
+    border-radius: 8px;
+  }
+
+  /* Logo nhỏ hơn trên mobile */
+  .navbar-brand {
+    font-size: 1rem;
+  }
+
+  .navbar-brand img,
+  .navbar-brand svg {
+    max-height: 30px;
+    height: 30px;
+    width: auto;
+  }
+
+  /* Menu items spacing */
+  .navbar-nav .nav-link {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+  }
+
+  .navbar-nav .nav-item:last-child .nav-link {
+    border-bottom: none;
+  }
+}
+
+/* Tablet - bổ sung cho 768px */
+@media (max-width: 767.98px) {
+  .custom-navbar {
+    padding: 0.25rem 0.75rem;
+  }
+
+  .navbar-nav {
+    padding: 0.5rem 0;
+  }
+
+  .navbar-nav .nav-link {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.9rem;
+  }
+}
+
+/* Small mobile - bổ sung cho 576px */
+@media (max-width: 575.98px) {
+  .navbar-brand {
+    font-size: 1rem;
+  }
+
+  .dropdown-menu {
+    font-size: 0.9rem;
+  }
+}
+
+/* Navbar layout fixes: keep hamburger, logo and avatar on one line */
+.custom-navbar .container-fluid {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: nowrap;
+  gap: 8px;
+  min-height: 56px;
+}
+
+.custom-navbar .navbar-brand {
+  flex-shrink: 1;
+  min-width: 0;
+  margin-right: 0;
+}
+
+.custom-navbar .navbar-toggler {
+  flex-shrink: 0;
+  order: -1;
+  padding: 0.25rem 0.5rem;
+  border: 1px solid rgba(0,0,0,0.1);
+}
+
+.custom-navbar .collapse.navbar-collapse {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Avatar/auth button container */
+.custom-navbar > .container-fluid > .d-flex.align-items-center {
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+/* ========== RESPONSIVE: Tablet & Mobile (< 992px) ========== */
+@media (max-width: 991.98px) {
+  .custom-navbar {
+    height: auto;
+    min-height: 50px;
+    padding: 0.5rem 0.75rem;
+  }
+
+  .custom-navbar .container-fluid {
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  /* Collapse menu appears as dropdown panel */
+  .custom-navbar .collapse.navbar-collapse {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: #fff;
+    z-index: 98;
+    display: none;
+    padding: 0.5rem 0;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+    border-top: 1px solid rgba(0,0,0,0.05);
+  }
+
+  .custom-navbar .collapse.navbar-collapse.show {
+    display: block;
+  }
+
+  /* Navbar nav full width in collapsed state */
+  .custom-navbar .navbar-nav {
+    width: 100%;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  /* Keep avatar and buttons aligned horizontally */
+  .custom-navbar .d-flex.align-items-center.gap-2 {
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    gap: 4px !important;
+  }
+
+  /* Auth buttons smaller */
+  .custom-navbar .btn-outline-gold,
+  .custom-navbar .btn-gold {
+    padding: 5px 10px;
+    font-size: 0.75rem;
+    white-space: nowrap;
+  }
+
+  /* Hide logo text on mobile, show only AI icon */
+  .logo-text {
+    display: none !important;
+  }
+
+  /* Dropdown position */
+  .dropdown {
+    position: relative;
+  }
+
+  .dropdown-menu {
+    right: 0;
+    left: auto;
+    min-width: 180px;
+  }
+
+  /* Shrink logo elements */
+  .logo-container {
+    gap: 6px;
+    padding: 2px 6px;
+  }
+
+  .logo-icon {
+    width: 28px;
+    height: 28px;
+    font-size: 0.8rem;
+  }
+
+  .logo-text {
+    font-size: 0.85rem;
+    letter-spacing: 0.5px;
+  }
+
+  /* Shrink avatar */
+  #dropdownUserAvatar img {
+    width: 32px !important;
+    height: 32px !important;
+  }
+
+  /* Shrink toggler icon */
+  .navbar-toggler {
+    padding: 0.2rem 0.4rem;
+  }
+
+  .navbar-toggler-icon {
+    width: 1.2em;
+    height: 1.2em;
+  }
+}
+
+/* ========== RESPONSIVE: Small Mobile (< 576px) ========== */
+@media (max-width: 575.98px) {
+  .custom-navbar {
+    padding: 0.4rem 0.5rem;
+    min-height: 46px;
+  }
+
+  .custom-navbar .container-fluid {
+    gap: 6px;
+  }
+
+  /* Smaller logo */
+  .logo-container {
+    gap: 4px;
+    padding: 2px 4px;
+  }
+
+  .logo-icon {
+    width: 24px;
+    height: 24px;
+    font-size: 0.7rem;
+  }
+
+  .logo-text {
+    font-size: 0.75rem;
+    letter-spacing: 0.3px;
+  }
+
+  /* Smaller avatar */
+  #dropdownUserAvatar img {
+    width: 28px !important;
+    height: 28px !important;
+  }
+
+  /* Smaller toggler */
+  .navbar-toggler {
+    padding: 0.15rem 0.3rem;
+  }
+
+  .navbar-toggler-icon {
+    width: 1em;
+    height: 1em;
+  }
+
+  /* Auth buttons compact */
+  .custom-navbar .btn-outline-gold,
+  .custom-navbar .btn-gold {
+    padding: 4px 8px;
+    font-size: 0.7rem;
+  }
+
+  /* Nav links smaller */
+  .navbar-nav .nav-link {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.9rem;
+  }
+
+  /* Dropdown menu compact */
+  .dropdown-menu {
+    font-size: 0.85rem;
+    min-width: 160px;
+  }
+
+  .dropdown-item {
+    padding: 0.4rem 0.75rem;
+  }
+}
+
+/* ========== RESPONSIVE: Extra Small (< 420px) ========== */
+@media (max-width: 419.98px) {
+  .custom-navbar {
+    padding: 0.3rem 0.4rem;
+    min-height: 42px;
+  }
+
+  .custom-navbar .container-fluid {
+    gap: 4px;
+  }
+
+  /* Very small logo */
+  .logo-container {
+    gap: 3px;
+    padding: 1px 2px;
+  }
+
+  .logo-icon {
+    width: 22px;
+    height: 22px;
+    font-size: 0.65rem;
+  }
+
+  .logo-text {
+    font-size: 0.65rem;
+    letter-spacing: 0;
+  }
+
+  /* Very small avatar */
+  #dropdownUserAvatar img {
+    width: 26px !important;
+    height: 26px !important;
+  }
+
+  /* Very small toggler */
+  .navbar-toggler {
+    padding: 0.1rem 0.25rem;
+  }
+
+  .navbar-toggler-icon {
+    width: 0.9em;
+    height: 0.9em;
+  }
+
+  /* Auth buttons very compact */
+  .custom-navbar .btn-outline-gold,
+  .custom-navbar .btn-gold {
+    padding: 3px 6px;
+    font-size: 0.65rem;
   }
 }

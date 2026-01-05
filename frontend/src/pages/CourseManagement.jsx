@@ -235,7 +235,7 @@ const CourseManagement = () => {
             </div>
           ) : (
             <div className="table-responsive">
-              <table className="table table-hover align-middle mb-0">
+              <table className="table table-hover table-sm align-middle mb-0">
                 <thead className="bg-light">
                   <tr>
                     <th className="py-3 ps-4 text-secondary text-uppercase small fw-bold">
@@ -345,7 +345,7 @@ const CourseManagement = () => {
               </table>
               {/* PAGINATION CONTROL */}
               {filteredCourses.length > 0 && (
-                <div className="card-footer bg-white border-0 py-3 d-flex justify-content-between align-items-center">
+                <div className="card-footer bg-white border-0 py-3 d-flex flex-column flex-md-row justify-content-between align-items-center">
                   <div className="text-muted small">
                     Hiển thị <strong>{indexOfFirstItem + 1}</strong> -{" "}
                     <strong>
@@ -356,7 +356,7 @@ const CourseManagement = () => {
                   </div>
 
                   <nav>
-                    <ul className="pagination mb-0">
+                    <ul className="pagination pagination-sm mb-0 flex-wrap justify-content-center">
                       {/* Nút Previous */}
                       <li
                         className={`page-item ${
@@ -436,7 +436,7 @@ const CourseManagement = () => {
 
           {/* Modal Dialog */}
           <div
-            className="modal fade show d-block"
+            className="modal fade show d-block modal-fullscreen-sm-down"
             tabIndex="-1"
             role="dialog"
             style={{ backgroundColor: "rgba(0,0,0,0.1)" }} // Overlay nhẹ

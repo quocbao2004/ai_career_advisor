@@ -231,7 +231,8 @@
     flex-direction: column;
     align-items: center;
     text-align: center;
-    margin-top: -64px;
+    margin-top: -56px;
+    padding: 16px;
   }
   .user-intro {
     width: 100%;
@@ -239,6 +240,79 @@
   .user-role-wrapper,
   .user-meta {
     justify-content: center;
+  }
+  .profile-avatar {
+    width: 96px;
+    height: 96px;
+  }
+  .user-name {
+    font-size: 1.4rem;
+  }
+  .header-actions {
+    width: 100%;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+}
+
+/* Ensure personal info fields stack earlier on tablets/mobile */
+@media (max-width: 992px) {
+  .form-grid {
+    grid-template-columns: 1fr; /* Stack inputs into one column */
+  }
+  .full-width {
+    grid-column: span 1;
+  }
+}
+
+/* Form grid collapse for smaller screens */
+@media (max-width: 700px) {
+  .form-grid {
+    grid-template-columns: 1fr; /* Stack inputs */
+  }
+  .full-width {
+    grid-column: span 1;
+  }
+  .add-skill-box {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .add-skill-box .input-field,
+  .add-skill-box select,
+  .add-skill-box .btn {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .profile-container {
+    padding: 16px 12px;
+  }
+  .header-cover {
+    height: 100px;
+  }
+  .profile-avatar {
+    width: 80px;
+    height: 80px;
+    border-width: 3px;
+  }
+  .user-name {
+    font-size: 1.2rem;
+  }
+  .card-body {
+    padding: 16px;
+  }
+}
+
+/* Final override: ensure form fields stack on small viewports (fallback) */
+@media (max-width: 992px) {
+  .profile-container .form-grid {
+    grid-template-columns: 1fr !important;
+  }
+  .profile-container .form-grid .form-group {
+    width: 100% !important;
+    grid-column: span 1 !important;
   }
 }
 

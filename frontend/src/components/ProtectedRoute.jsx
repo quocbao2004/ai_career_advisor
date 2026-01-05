@@ -7,6 +7,7 @@ import {
   clearTokens,
   getCachedOnboardingStatus,
   hasSeenOnboardingWelcome,
+  getIsNewGoogleUser,
 } from "../api/authApi";
 
 const ProtectedRoute = ({
@@ -15,6 +16,8 @@ const ProtectedRoute = ({
   skipOnboardingCheck = false,
   isPublicRoute = false,
   requireWelcomeSeen = false,
+  requireProfileCompleted = false,
+  requireQuizDone = false,
 }) => {
   const isAuth = isAuthenticated();
 
@@ -51,6 +54,11 @@ const ProtectedRoute = ({
     cachedCompleted || (userInfoCompleted && !userInfoNeedsOnboarding);
   const needsOnboarding = !hasCompletedOnboarding;
 
+  // Nếu người dùng không cần onboarding thì bỏ qua kiểm tra
+  if (!needsOnboarding) {
+    return element;
+  }
+
   const nextOnboardingPath = hasSeenOnboardingWelcome(userInfo.id)
     ? "/trac-nghiem"
     : "/chao-mung";
@@ -70,7 +78,25 @@ const ProtectedRoute = ({
   if (needsOnboarding && skipOnboardingCheck && requireWelcomeSeen) {
     if (!hasSeenOnboardingWelcome(userInfo.id)) {
       toastFlowWarning();
-      return <Navigate to={nextOnboardingPath} replace />;
+      return <Navigate to="/chao-mung" replace />;
+    }
+  }
+
+  // - Chưa hoàn thành profile thì không được vào quiz
+  if (needsOnboarding && skipOnboardingCheck && requireProfileCompleted) {
+    const profileCompleted = localStorage.getItem(`profile_completed_${userInfo.id}`) === 'true';
+    if (!profileCompleted) {
+      toastFlowWarning();
+      return <Navigate to="/cap-nhat-profile" replace />;
+    }
+  }
+
+  // - Chưa làm quiz thì không được vào kết quả
+  if (needsOnboarding && skipOnboardingCheck && requireQuizDone) {
+    const quizDone = userInfo.mbti_result || userInfo.holland_result;
+    if (!quizDone) {
+      toastFlowWarning();
+      return <Navigate to="/trac-nghiem" replace />;
     }
   }
 

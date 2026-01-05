@@ -99,6 +99,11 @@ const LoginPage = () => {
           saveOnboardingStatus(Boolean(completed));
         }
 
+        // Save isNewGoogleUser flag
+        if (result.isNewGoogleUser !== undefined) {
+          localStorage.setItem("is_new_google_user", result.isNewGoogleUser.toString());
+        }
+
         // Đảm bảo localStorage đã được set xong trước khi navigate
         setTimeout(() => {
           if (result.user.role === "admin") {
@@ -170,7 +175,7 @@ const LoginPage = () => {
             />
           </div>
 
-          <div className="options-row">
+          <div className="options-row d-flex flex-column flex-md-row justify-content-between align-items-center">
             <label className="remember-box">
               <input
                 type="checkbox"
@@ -198,10 +203,7 @@ const LoginPage = () => {
             <span>Hoặc tiếp tục với</span>
           </div>
 
-          <div
-            className="social-buttons-box"
-            style={{ display: "flex", gap: "10px", justifyContent: "center" }}
-          >
+          <div className="social-buttons-box d-flex gap-2 justify-content-center">
             <GoogleLogin
               onSuccess={handleGoogleSuccess}
               onError={() => setError("Lỗi đăng nhập Google")}

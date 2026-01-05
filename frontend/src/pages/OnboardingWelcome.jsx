@@ -34,14 +34,14 @@ const OnboardingWelcome = () => {
     return <Navigate to="/dashboard" replace />;
   }
 
-  // Chỉ hiển thị đúng 1 lần: nếu đã seen thì đi thẳng QuizSelection
+  // Chỉ hiển thị đúng 1 lần: nếu đã seen thì đi thẳng profile
   if (hasSeenOnboardingWelcome(userInfo.id)) {
-    return <Navigate to="/trac-nghiem" replace />;
+    return <Navigate to="/cap-nhat-profile" replace />;
   }
 
   const handleContinue = () => {
     markOnboardingWelcomeSeen(userInfo.id);
-    navigate("/trac-nghiem", { replace: true });
+    navigate("/cap-nhat-profile", { replace: true });
   };
 
   return (

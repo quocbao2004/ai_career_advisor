@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import "../assets/css-custom/admin.css";
 import {
   Users,
   Briefcase,
@@ -172,16 +173,18 @@ const AdminDashboard = () => {
   }, [stats]);
 
   return (
-    <div className="container-fluid py-4 fade-in">
+    <div className="admin-page">
+      <div className="admin-container">
+        <div className="container-fluid py-4 fade-in">
       {/* HEADER */}
-      <div className="d-flex justify-content-between align-items-center mb-4">
+      <div className="d-flex justify-content-between align-items-center mb-4 flex-wrap">
         <div>
           <h2 className="fw-bold mb-1">Admin Dashboard</h2>
           <p className="text-white m-0">
             Trung tâm kiểm soát hệ thống AI Career Advisor
           </p>
         </div>
-        <button className="btn btn-primary d-flex align-items-center gap-2">
+        <button className="btn btn-primary d-flex align-items-center gap-2 mt-2 mt-md-0">
           <PlusCircle size={18} /> Báo cáo nhanh
         </button>
       </div>
@@ -190,7 +193,7 @@ const AdminDashboard = () => {
       <div className="row g-4 mb-4">
         {/* Cột trái: Stats Cards */}
         <div className="col-lg-8">
-          <div className="row g-3 mb-4">
+          <div className="row g-3 mb-4 stat-grid">
             {systemMetrics.map((m, i) => (
               <div className="col-md-4" key={i}>
                 <StatCard {...m} />
@@ -212,9 +215,9 @@ const AdminDashboard = () => {
         {/* Cột phải: MENU QUẢN LÝ NHANH (Grid Buttons) */}
         <div className="col-lg-4">
           <h5 className="fw-bold mb-3">Chức năng quản lý</h5>
-          <div className="row g-3">
+          <div className="row g-3 management-grid">
             {managementModules.map((mod) => (
-              <div className="col-6" key={mod.id}>
+              <div className="col-12 col-sm-6" key={mod.id}>
                 <GlassCard
                   className="h-100 p-3 text-center cursor-pointer hover-shadow"
                   style={{
@@ -331,6 +334,8 @@ const AdminDashboard = () => {
               </table>
             </div>
           </GlassCard>
+        </div>
+      </div>
         </div>
       </div>
     </div>
