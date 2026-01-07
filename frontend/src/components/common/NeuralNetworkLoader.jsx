@@ -18,7 +18,7 @@ const Loader = () => {
     }
     setParticles(newParticles);
 
-    // ⏳ bắt đầu đếm 3 giây
+    //  bắt đầu đếm 3 giây
     const minTime = new Promise((resolve) => {
       setTimeout(resolve, 3000);
     });

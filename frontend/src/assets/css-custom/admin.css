@@ -503,48 +503,154 @@
   }
 }
 
-/* Mobile responsive */
-@media (max-width: 768px) {
+/* Management Grid Responsive - Lưới quản lý responsive */
+.management-title {
+  font-size: 0.8rem;
+  line-height: 1.3;
+  margin-bottom: 4px !important;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.management-badge {
+  font-size: 0.65rem;
+  padding: 0.25em 0.5em;
+}
+
+/* Header dashboard */
+.admin-title {
+  font-size: 1.5rem;
+  color: #fff;
+}
+
+.admin-subtitle {
+  font-size: 0.85rem;
+  opacity: 0.9;
+}
+
+/* Chart biểu đồ */
+.chart-container-main {
+  height: 150px;
+}
+
+.chart-title {
+  font-size: 1rem;
+}
+
+.table-header-title {
+  font-size: 1rem;
+}
+
+/* ========== RESPONSIVE ========== */
+
+/* Màn hình tablet trở lên */
+@media (min-width: 576px) {
+  .management-title {
+    font-size: 0.85rem;
+  }
+  
+  .management-badge {
+    font-size: 0.7rem;
+  }
+
+  .admin-title {
+    font-size: 1.75rem;
+  }
+
+  .chart-container-main {
+    height: 180px;
+  }
+}
+
+/* Màn hình desktop */
+@media (min-width: 992px) {
+  .admin-title {
+    font-size: 2rem;
+  }
+
+  .admin-subtitle {
+    font-size: 1rem;
+  }
+}
+
+/* Màn hình mobile */
+@media (max-width: 767.98px) {
   .admin-container {
-    margin: 80px auto 20px;
-    padding: 0 15px;
+    margin: 75px auto 20px;
+    padding: 0 8px;
   }
 
-  .admin-hero {
-    padding: 20px;
-    flex-direction: column;
-    text-align: center;
-    gap: 20px;
+  .admin-title {
+    font-size: 1.25rem !important;
   }
 
-  .admin-hero h1 {
-    font-size: 1.5rem;
+  .admin-subtitle {
+    font-size: 0.75rem !important;
   }
 
-  .admin-hero p {
-    font-size: 0.9rem;
+  .chart-container-main {
+    height: 100px !important;
   }
 
-  .stat-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 15px;
+  .chart-title {
+    font-size: 0.85rem !important;
   }
 
-  .management-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .glass-card {
-    padding: 15px;
-  }
-
-  .table-responsive {
+  .table-header-title {
     font-size: 0.85rem;
   }
 
-  .btn {
-    font-size: 0.9rem;
-    padding: 8px 16px;
+  /* StatCard */
+  .stat-card-responsive {
+    padding: 10px !important;
+    min-height: 100px !important;
+  }
+
+  .stat-icon-responsive {
+    width: 32px !important;
+    height: 32px !important;
+  }
+
+  .stat-title-responsive {
+    font-size: 0.65rem !important;
+  }
+
+  .stat-value-responsive {
+    font-size: 0.95rem !important;
+  }
+
+  .stat-spark-responsive {
+    width: 35px !important;
+    height: 22px !important;
+  }
+
+  .management-title {
+    font-size: 0.7rem !important;
+  }
+
+  .management-badge {
+    font-size: 0.55rem !important;
+  }
+}
+
+/* Màn hình rất nhỏ */
+@media (max-width: 375px) {
+  .admin-container {
+    padding: 0 5px;
+  }
+
+  .admin-title {
+    font-size: 1.1rem !important;
+  }
+
+  .stat-spark-responsive {
+    display: none !important;
+  }
+
+  .management-title {
+    font-size: 0.6rem !important;
   }
 }
 

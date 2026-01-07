@@ -8,12 +8,18 @@ import "../assets/css-custom/loginpage.css";
 
 const RegisterPage = () => {
   const navigate = useNavigate();
+  // Bước hiện tại: "register" hoặc "verify-otp"
   const [step, setStep] = useState("register");
+  // Email đã đăng ký, dùng để gửi OTP
   const [registeredEmail, setRegisteredEmail] = useState("");
+  // Trạng thái loading khi đang xử lý
   const [loading, setLoading] = useState(false);
+  // Thông báo lỗi
   const [error, setError] = useState("");
+  // Thời gian chờ gửi lại OTP (giây)
   const [resendCooldown, setResendCooldown] = useState(0);
   
+  // Dữ liệu form đăng ký
   const [formData, setFormData] = useState({
     fullname: "",
     email: "",
@@ -22,39 +28,49 @@ const RegisterPage = () => {
     agreeTerms: false,
   });
 
+  // Dữ liệu mã OTP
+  // Dữ liệu mã OTP
   const [otpData, setOtpData] = useState({ otp: "" });
 
+  // Xử lý khi user thay đổi giá trị trong form đăng ký
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     setFormData((prev) => ({
       ...prev,
+      // Nếu là checkbox thì lấy checked, còn lại lấy value
       [name]: type === "checkbox" ? checked : value,
     }));
+    // Xóa lỗi khi user nhập lại
     setError("");
   };
 
+  // Xử lý khi user nhập mã OTP
   const handleOtpChange = (e) => {
     setOtpData({ otp: e.target.value });
     setError("");
   };
 
+  // Xử lý khi user submit form đăng ký
   const handleRegisterSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError("");
 
+    // Kiểm tra điền đầy đủ thông tin
     if (!formData.fullname || !formData.email || !formData.password || !formData.confirmPassword) {
       setError("Vui lòng điền đầy đủ thông tin");
       setLoading(false);
       return;
     }
 
+    // Kiểm tra mật khẩu xác nhận khớp
     if (formData.password !== formData.confirmPassword) {
       setError("Mật khẩu xác nhận không khớp!");
       setLoading(false);
       return;
     }
 
+    // Kiểm tra đồng ý điều khoản
     if (!formData.agreeTerms) {
       setError("Bạn phải đồng ý với điều khoản sử dụng!");
       setLoading(false);
@@ -62,6 +78,7 @@ const RegisterPage = () => {
     }
 
     try {
+      // Gọi API đăng ký
       const result = await registerUser(
         formData.email,
         formData.password,
@@ -69,6 +86,7 @@ const RegisterPage = () => {
       );
 
       if (result.success) {
+        // Lưu email và chuyển sang bước xác thực OTP
         setRegisteredEmail(formData.email);
         setStep("verify-otp");
       } else {
@@ -81,11 +99,13 @@ const RegisterPage = () => {
     }
   };
 
+  // Xử lý xác thực mã OTP
   const handleVerifyOTP = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError("");
 
+    // Kiểm tra mã OTP hợp lệ (6 chữ số)
     if (!otpData.otp || otpData.otp.length !== 6) {
       setError("Vui lòng nhập mã OTP 6 chữ số");
       setLoading(false);
@@ -93,9 +113,11 @@ const RegisterPage = () => {
     }
 
     try {
+      // Gọi API xác thực OTP
       const result = await verifyOTP(registeredEmail, otpData.otp);
 
       if (result.success) {
+        // Lưu token và thông tin user, chuyển vào trang chính
         saveTokens(result.access, result.refresh);
         saveUserInfo(result.user);
         navigate("/");
@@ -109,6 +131,7 @@ const RegisterPage = () => {
     }
   };
 
+  // Xử lý gửi lại mã OTP
   const handleResendOTP = async () => {
     setLoading(true);
     setError("");
@@ -117,6 +140,7 @@ const RegisterPage = () => {
       const result = await resendOTP(registeredEmail);
 
       if (result.success) {
+        // Bắt đầu đếm ngược 60 giây trước khi cho gửi lại
         setResendCooldown(60);
         const interval = setInterval(() => {
           setResendCooldown((prev) => {
@@ -137,13 +161,16 @@ const RegisterPage = () => {
     }
   };
 
+  // Xử lý khi đăng ký bằng Google thành công
   const handleGoogleSuccess = async (credentialResponse) => {
     setLoading(true);
     setError("");
     try {
+      // Gọi API đăng ký bằng Google credential
       const result = await googleLogin(credentialResponse.credential);
       
       if (result.success) {
+        // Lưu token và thông tin user, chuyển vào trang chính
         saveTokens(result.access, result.refresh);
         saveUserInfo(result.user);
         navigate("/");
@@ -157,12 +184,14 @@ const RegisterPage = () => {
     }
   };
 
+  // Quay lại bước đăng ký từ bước xác thực OTP
   const goBackToRegister = () => {
     setStep("register");
     setOtpData({ otp: "" });
     setError("");
   };
 
+  // Hiển thị form đăng ký
   if (step === "register") {
     return (
       <div className="auth-wrapper">

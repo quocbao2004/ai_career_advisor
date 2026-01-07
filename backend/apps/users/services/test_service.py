@@ -1,3 +1,4 @@
+# Service xử lý logic bài trắc nghiệm MBTI và Holland
 import json
 from pathlib import Path
 from django.core.cache import cache
@@ -5,15 +6,17 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-#Holland
+
+# Service xử lý bài trắc nghiệm Holland
 class HollandTestService:
     
+    # Đường dẫn file dữ liệu câu hỏi
     DATA_FILE = Path(__file__).parent.parent / 'data' / 'holland.json'
     CACHE_KEY = 'holland_questions'
     
+    # Tải câu hỏi từ file JSON và cache lại
     @classmethod
     def load_questions(cls):
-        """Load câu hỏi Holland từ file JSON"""
         cached = cache.get(cls.CACHE_KEY)
         if cached:
             return cached
@@ -21,9 +24,11 @@ class HollandTestService:
         with open(cls.DATA_FILE, 'r', encoding='utf-8') as f:
             data = json.load(f)
         
-        cache.set(cls.CACHE_KEY, data, 3600)  # Cache 1 giờ
+        # Cache 1 giờ để giảm tải đọc file
+        cache.set(cls.CACHE_KEY, data, 3600)
         return data
     
+    # Trả về dữ liệu câu hỏi cho frontend
     @classmethod
     def get_questions_for_frontend(cls):
 
@@ -34,6 +39,7 @@ class HollandTestService:
             'questions': data.get('questions', [])
         }
     
+    # Tính kết quả bài trắc nghiệm Holland
     @classmethod
     def calculate_result(cls, answers):
         data = cls.load_questions()
@@ -42,44 +48,43 @@ class HollandTestService:
         if not questions:
             raise ValueError("Không tìm thấy câu hỏi")
         
-        # Validate: phải có đúng 36 câu trả lời
+        # Kiểm tra phải có đúng 36 câu trả lời
         if len(answers) != 36:
             raise ValueError(f"Cần có đúng 36 câu trả lời, nhận được {len(answers)}")
         
-        valid_question_ids = set(q['id'] for q in questions)
-        provided_question_ids = set(answers.keys())
+        # Kiểm tra câu hỏi hợp lệ
+        valid_question_ids = set(q['id'] for q in questions)#lấy id 36 câu hỏi
+        provided_question_ids = set(answers.keys())#lấy id các câu user đã trả lời
         
-        invalid_questions = provided_question_ids - valid_question_ids
+        invalid_questions = provided_question_ids - valid_question_ids#id ngoài 36 câu
         if invalid_questions:
-            raise ValueError(f"Invalid question IDs: {invalid_questions}")
-        
-        missing_questions = valid_question_ids - provided_question_ids
+            raise ValueError(f"Câu hỏi không hợp lệ: {invalid_questions}")
+
+        missing_questions = valid_question_ids - provided_question_ids# câu chưa trả lời
         if missing_questions:
-            raise ValueError(f"Missing question IDs: {missing_questions}")
+            raise ValueError(f"Chưa trả lời đủ số câu hỏi: {missing_questions}")
         
-        # Validate scores (phải từ 0-4)
+        # Kiểm tra điểm hợp lệ (0-4)
         for question_id, score in answers.items():
             if not isinstance(score, (int, float)) or score < 0 or score > 4:
-                raise ValueError(f"Invalid score for question {question_id}: {score}. Score must be between 0 and 4")
+                raise ValueError(f"Điểm của câu hỏi không hợp lệ {question_id}: {score}.")
         
-        # Tạo mảng để cộng điểm (R, I, A, S, E, C)
+        # Khởi tạo điểm cho 6 chiều (R, I, A, S, E, C)
         dimension_scores = {'R': 0, 'I': 0, 'A': 0, 'S': 0, 'E': 0, 'C': 0}
         
-        # Duyệt qua từng câu hỏi, cộng điểm vào dimension tương ứng
+        # Cộng điểm vào chiều tương ứng
         for question in questions:
             question_id = question['id']
-            dimension = question['dimension']
+            dimension = question['dimension']# nhóm tính cách
             score = answers.get(question_id, 0)
             
             dimension_scores[dimension] += score
         
-        # Tính tổng điểm và phần trăm
+        # Tính tổng và phần trăm
         total = sum(dimension_scores.values())
         max_possible_score = 36 * 4  # 36 câu × 4 điểm tối đa
-        
-        if total == 0:
-            raise ValueError("Câu trả lời được cung cấp không hợp lệ")
-        
+    
+        # Tạo chi tiết kết quả
         result_details = {}
         for code, score in dimension_scores.items():
             percentage = round((score / max_possible_score * 100), 1)
@@ -90,7 +95,7 @@ class HollandTestService:
                 'max_score': 24,  # 6 câu × 4 điểm
             }
         
-        # Sắp xếp theo điểm cao nhất và lấy top 3
+        # Lấy top 3 ký tự có điểm cao nhất làm mã kết quả
         sorted_dimensions = sorted(dimension_scores.items(), key=lambda x: x[1], reverse=True)
         result_code = ''.join([code for code, _ in sorted_dimensions[:3]])
         
@@ -104,15 +109,17 @@ class HollandTestService:
             'total_score': total
         }
 
-#MBTI
+
+# Service xử lý bài trắc nghiệm MBTI
 class MBTITestService:
     
+    # Đường dẫn file dữ liệu câu hỏi
     DATA_FILE = Path(__file__).parent.parent / 'data' / 'mbti.json'
     CACHE_KEY = 'mbti_questions'
     
+    # Tải câu hỏi từ file JSON và cache lại
     @classmethod
     def load_questions(cls):
-        """Load câu hỏi MBTI từ file JSON"""
         cached = cache.get(cls.CACHE_KEY)
         if cached:
             return cached
@@ -120,20 +127,17 @@ class MBTITestService:
         with open(cls.DATA_FILE, 'r', encoding='utf-8') as f:
             questions = json.load(f)
         
-        cache.set(cls.CACHE_KEY, questions, 3600)  # Cache 1 giờ
+        # Cache 1 giờ để giảm tải đọc file
+        cache.set(cls.CACHE_KEY, questions, 3600)
         return questions
     
+    # Trả về dữ liệu câu hỏi cho frontend
     @classmethod
     def get_questions_for_frontend(cls):
-        """Trả về dạng câu hỏi phù hợp cho frontend"""
         questions = cls.load_questions()
         
         result = []
         for q in questions:
-            # Skip demographic questions
-            if q.get('category') == 'Demographic':
-                continue
-                
             result.append({
                 'id': q['id'],
                 'question': q['question'],
@@ -154,22 +158,23 @@ class MBTITestService:
         
         return result
     
+    # Tính kết quả bài trắc nghiệm MBTI
     @classmethod
     def calculate_result(cls, answers):
         questions = cls.load_questions()
         
-        # Map category -> scores
+        # Các giá trị hợp lệ và khởi tạo điểm
         valid_values = {'E', 'I', 'S', 'N', 'T', 'F', 'J', 'P'}
         scores = {'E': 0, 'I': 0, 'S': 0, 'N': 0, 'T': 0, 'F': 0, 'J': 0, 'P': 0}
         
         question_map = {str(q['id']): q for q in questions if q.get('category') != 'Demographic'}
         
-        # Tính điểm cho mỗi category
+        # Tính điểm cho mỗi ký tự
         for question_id_str, answer_value in answers.items():
             if question_id_str not in question_map:
                 continue
             
-            # Validate câu trả lời
+            # Kiểm tra câu trả lời hợp lệ
             if answer_value not in valid_values:
                 raise ValueError(
                     f"Câu trả lời không hợp lệ '{answer_value}' for question {question_id_str}. "
@@ -178,11 +183,11 @@ class MBTITestService:
             
             scores[answer_value] += 1
         
-        # Xác định loại MBTI
+        # Xác định loại MBTI dựa trên 4 cặp chiều
         mbti_code = ''
         result_details = {}
         
-        # EI
+        # E vs I - Hướng ngoại / Hướng nội
         if scores['E'] > scores['I']:
             mbti_code += 'E'
             result_details['EI'] = {
@@ -198,7 +203,7 @@ class MBTITestService:
                 'score': scores['I'] - scores['E']
             }
         
-        # SN
+        # S vs N - Cảm giác / Trực giác
         if scores['S'] > scores['N']:
             mbti_code += 'S'
             result_details['SN'] = {
@@ -214,7 +219,7 @@ class MBTITestService:
                 'score': scores['N'] - scores['S']
             }
         
-        # TF
+        # T vs F - Lý tính / Cảm xúc
         if scores['T'] > scores['F']:
             mbti_code += 'T'
             result_details['TF'] = {
@@ -230,7 +235,7 @@ class MBTITestService:
                 'score': scores['F'] - scores['T']
             }
         
-        # JP
+        # J vs P - Phán đoán / Nhận thức
         if scores['J'] > scores['P']:
             mbti_code += 'J'
             result_details['JP'] = {
@@ -252,8 +257,8 @@ class MBTITestService:
         }
 
 
+# Service quản lý kết quả trắc nghiệm
 class TestResultService:
-    """Service để quản lý kết quả trắc nghiệm (business logic)"""
 
     @staticmethod
     def _recommend_industries_from_db(mbti_code=None, holland_code=None, limit=4):
@@ -310,14 +315,14 @@ class TestResultService:
             if not scored:
                 return []
 
-            # Nếu chưa có mapping nào được set (tất cả score=0) thì fallback theo career_count
+            # Nếu không có mapping nào khớp thì sắp xếp theo số nghề
             has_any_mapping_match = any(s[0] > 0 for s in scored)
             if has_any_mapping_match:
                 scored.sort(key=lambda x: (-x[0], -x[1], x[3]))
             else:
                 scored.sort(key=lambda x: (-x[1], x[3]))
 
-            # Chỉ trả tối đa 4 lĩnh vực
+            # Trả về tối đa 4 lĩnh vực
             safe_limit = 4
             try:
                 safe_limit = min(4, int(limit))
@@ -331,17 +336,18 @@ class TestResultService:
         except Exception:
             return []
     
+    # Lưu kết quả trắc nghiệm vào UserProfile
     @classmethod
     def save_test_result(cls, user, test_type, answers):
-        """
-        Lưu kết quả trắc nghiệm vào UserProfile và trả về kết quả chi tiết
-        """
+        # Tính kết quả theo loại bài test
         if test_type.upper() == 'HOLLAND':
             calc_result = HollandTestService.calculate_result(answers)
         elif test_type.upper() == 'MBTI':
             calc_result = MBTITestService.calculate_result(answers)
         else:
-            raise ValueError(f"Unknown test type: {test_type}")
+            raise ValueError(f"Không xác định: {test_type}")
+        
+        # Lưu vào profile
         from apps.users.models import UserProfile
         profile, _ = UserProfile.objects.get_or_create(user=user)
         if test_type.upper() == 'MBTI':
@@ -350,7 +356,7 @@ class TestResultService:
             profile.holland_result = calc_result['result_code']
         profile.save()
 
-        # Trả thêm danh sách lĩnh vực gợi ý (lấy từ bảng industries)
+        # Thêm danh sách lĩnh vực gợi ý vào kết quả
         calc_result['recommended_industries'] = cls._recommend_industries_from_db(
             mbti_code=getattr(profile, 'mbti_result', None),
             holland_code=getattr(profile, 'holland_result', None),
@@ -358,19 +364,18 @@ class TestResultService:
         )
         return calc_result
     
+    # Lấy kết quả trắc nghiệm chi tiết của user
     @classmethod
     def get_user_test_profile(cls, user):
-        """
-        Trả về kết quả chi tiết cho MBTI và Holland
-        """
         try:
-            # Đảm bảo profile tồn tại, tạo mới nếu chưa có
+            # Tạo profile nếu chưa có
             from apps.users.models import UserProfile
             profile, created = UserProfile.objects.get_or_create(user=user)
             
             if created:
-                logger.info(f"Created missing profile for user: {user.email} in get_user_test_profile")
+                logger.debug(f"Created missing profile for user: {user.email} in get_user_test_profile")
             
+            # Tính lại kết quả chi tiết nếu có
             mbti_result = None
             holland_result = None
             if profile.mbti_result:

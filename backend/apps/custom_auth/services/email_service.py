@@ -4,12 +4,15 @@ from django.core.mail import EmailMessage
 import random
 from threading import Thread
 
+# Dịch vụ gửi email cho xác thực, OTP, mật khẩu
 class EmailService:
 
+    # Gửi mã OTP xác thực cho email
     @staticmethod
     def send_otp(email):
+        # Tạo mã OTP ngẫu nhiên 6 số
         otp = random.randint(100000, 999999)
-
+        # Gửi email OTP cho người dùng (chạy bất đồng bộ)
         def send_async():
             try:
                 send_mail(
@@ -26,17 +29,21 @@ class EmailService:
         thread.daemon = True
         thread.start()
 
+        # Lưu OTP vào cache, hiệu lực 90 giây
         cache.set(f"otp_{email}", otp, timeout=90)  
         return otp
 
+    # Kiểm tra mã OTP nhập vào có đúng không
     @staticmethod
     def verify_otp(email, otp):
+        # Lấy OTP đã lưu trong cache
         cached_otp = cache.get(f"otp_{email}")
         return str(cached_otp) == str(otp)
 
+    # Gửi email chứa mật khẩu tự động cho user đăng ký qua Google
     @staticmethod
     def send_password_email(email, password):
-        """Gửi email chứa mật khẩu tự động cho đăng ký Google"""
+        # Gửi email mật khẩu (chạy bất đồng bộ)
         def send_async():
             try:
                 email_message = EmailMessage(

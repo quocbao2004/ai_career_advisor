@@ -119,7 +119,8 @@
 .career-title {
   font-weight: 600;
   font-size: 1rem;
-  color: #fff;
+  color: #ffffff !important;
+  opacity: 1 !important;
   margin-bottom: 4px;
   display: flex;
   flex-wrap: wrap;

@@ -13,6 +13,12 @@
   --radius: 12px;
 }
 
+/* Keyframes */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
 /* LAYOUT TỔNG */
 .chat-layout {
   display: flex;
@@ -54,6 +60,7 @@
     z-index: 1000;
     transform: translateX(-100%);
     transition: transform 0.3s ease;
+    box-shadow: 4px 0 20px rgba(0, 0, 0, 0.15);
   }
   
   .sidebar.open {
@@ -64,8 +71,19 @@
     transform: translateX(-100%);
   }
   
+  /* Show close button on mobile */
+  .btn-close-sidebar {
+    display: flex !important;
+  }
+  
+  /* Show hamburger button on mobile */
+  .btn-hamburger {
+    display: flex !important;
+  }
+  
   /* Overlay cho mobile */
   .sidebar-overlay {
+    display: block !important;
     position: fixed;
     top: 0;
     left: 0;
@@ -73,11 +91,13 @@
     bottom: 0;
     background: rgba(0, 0, 0, 0.5);
     z-index: 999;
+    animation: fadeIn 0.2s ease;
   }
   
   .chat-header {
     padding: 0 12px;
     height: 56px;
+    gap: 10px;
   }
   
   .messages-container {
@@ -222,10 +242,13 @@
 
 .sidebar-header {
   padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .btn-new-chat {
-  width: 100%;
+  flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -244,6 +267,53 @@
 .btn-new-chat:hover {
   border-color: var(--primary-color);
   color: var(--primary-color);
+}
+
+/* Close button for mobile sidebar */
+.btn-close-sidebar {
+  display: none;
+  width: 36px;
+  height: 36px;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  color: var(--text-sub);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-close-sidebar:hover {
+  background: #fee2e2;
+  border-color: #fca5a5;
+  color: #dc2626;
+}
+
+/* Hamburger button */
+.btn-hamburger {
+  display: none;
+  width: 40px;
+  height: 40px;
+  align-items: center;
+  justify-content: center;
+  background: white;
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  color: var(--text-main);
+  cursor: pointer;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+
+.btn-hamburger:hover {
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+}
+
+/* Sidebar overlay - hidden by default */
+.sidebar-overlay {
+  display: none;
 }
 
 .session-list {

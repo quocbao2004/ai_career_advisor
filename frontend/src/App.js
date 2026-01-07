@@ -20,6 +20,7 @@ import Chat from "./pages/AIChat";
 import UserProfile from "./pages/UserProfile";
 import AiConfig from "./pages/AiConfig";
 import LearningPathDetail from "./pages/LearningPathDetail";
+import LearningPathList from "./pages/LearningPathList";
 import "./assets/css-custom/main.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
 
@@ -118,6 +119,11 @@ function App() {
                   requireQuizDone={true}
                 />
               }
+            />
+
+            <Route
+              path="/learning-path"
+              element={<ProtectedRoute element={<LearningPathList />} />}
             />
 
             <Route

@@ -20,26 +20,39 @@ import {
 import QuizResult from "./QuizResult";
 
 const QuizGame = () => {
-  const { type } = useParams(); // "mbti" hoặc "holland"
+  // Lấy loại bài test từ URL (mbti hoặc holland)
+  const { type } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
 
+  // Danh sách câu hỏi từ API
   const [questions, setQuestions] = useState([]);
-  const [ratingOptions, setRatingOptions] = useState([]); // Cho Holland rating scale
+  // Các lựa chọn đánh giá cho Holland (thang điểm)
+  const [ratingOptions, setRatingOptions] = useState([]);
+  // Vị trí câu hỏi hiện tại (bắt đầu từ 0)
   const [currentQuestion, setCurrentQuestion] = useState(0);
+  // Lưu các câu trả lời của user
   const [answers, setAnswers] = useState({});
-  const [skippedQuestions, setSkippedQuestions] = useState(new Set()); // Câu bị bỏ qua
+  // Danh sách các câu bị bỏ qua
+  const [skippedQuestions, setSkippedQuestions] = useState(new Set());
+  // Kết quả sau khi nộp bài
   const [result, setResult] = useState(null);
+  // Trạng thái loading
   const [loading, setLoading] = useState(false);
+  // Thông báo lỗi
   const [error, setError] = useState(null);
-  const [progressRestored, setProgressRestored] = useState(false); // Theo dõi việc đã khôi phục tiến độ
-  const [selectedAnswer, setSelectedAnswer] = useState(null); // Đáp án đã chọn cho câu hiện tại
+  // Đánh dấu đã khôi phục tiến độ từ localStorage
+  const [progressRestored, setProgressRestored] = useState(false);
+  // Đáp án đang chọn cho câu hiện tại
+  const [selectedAnswer, setSelectedAnswer] = useState(null);
 
-  // Lấy user info để tạo key localStorage
+  // Lấy thông tin user để tạo key lưu tiến độ
   const userInfo = getUserInfo();
   const userId = userInfo?.id || 'anonymous';
 
+  // Chuẩn hóa loại bài test từ URL params
   const rawTypeFromParams = type ? String(type).trim() : "";
+  // Lấy segment cuối của URL làm fallback
   const lastPathSegment = (() => {
     try {
       const parts = (
@@ -55,26 +68,30 @@ const QuizGame = () => {
     }
   })();
 
+  // Chuẩn hóa type về lowercase
   const normalizedType =
     rawTypeFromParams || lastPathSegment
       ? String(rawTypeFromParams || lastPathSegment)
           .trim()
           .toLowerCase()
       : "";
+  
+  // Lấy cấu hình quiz theo loại
   let config = getQuizConfig(normalizedType);
 
+  // Fallback nếu không tìm thấy config
   if (!config) {
     if (normalizedType.includes("mbti")) config = getQuizConfig("mbti");
     else if (normalizedType.includes("holland")) config = getQuizConfig("holland");
   }
 
-  // Đảm bảo apiType luôn là 'MBTI' hoặc 'HOLLAND
+  // Loại API để gọi backend (MBTI hoặc HOLLAND)
   const apiType = config?.apiType?.toUpperCase();
 
-  // Key cho localStorage
+  // Key lưu tiến độ vào localStorage theo user và loại quiz
   const quizStorageKey = `quiz_progress_${userId}_${normalizedType}`;
 
-  // Hàm lưu trạng thái quiz vào localStorage
+  // Lưu tiến độ làm bài vào localStorage để khôi phục khi reload
   const saveQuizState = (state) => {
     try {
       const quizState = {
@@ -90,7 +107,7 @@ const QuizGame = () => {
     }
   };
 
-  // Hàm khôi phục trạng thái quiz từ localStorage
+  // Khôi phục tiến độ làm bài từ localStorage
   const loadQuizState = () => {
     try {
       const savedState = localStorage.getItem(quizStorageKey);
@@ -102,10 +119,11 @@ const QuizGame = () => {
           return false;
         }
 
-        // Kiểm tra xem dữ liệu có hợp lệ và không quá cũ (24 giờ)
+        // Kiểm tra dữ liệu còn hợp lệ và không quá 24 giờ
         const isExpired = Date.now() - quizState.timestamp > 24 * 60 * 60 * 1000;
         const isSameQuizType = quizState.quizType === normalizedType;
 
+        // Khôi phục nếu dữ liệu còn hợp lệ
         if (!isExpired && isSameQuizType && quizState.answers) {
           setCurrentQuestion(quizState.currentQuestion || 0);
           setAnswers(quizState.answers || {});
@@ -120,7 +138,7 @@ const QuizGame = () => {
     return false;
   };
 
-  // Hàm xóa trạng thái quiz khỏi localStorage
+  // Xóa tiến độ đã lưu khỏi localStorage
   const clearQuizState = () => {
     try {
       localStorage.removeItem(quizStorageKey);
@@ -129,6 +147,7 @@ const QuizGame = () => {
     }
   };
 
+  // Kiểm tra user đã đăng nhập chưa
   useEffect(() => {
     const token = getAccessToken();
     if (!token) {
@@ -140,7 +159,7 @@ const QuizGame = () => {
     }
   }, [navigate]);
 
-  // Tải câu hỏi từ 
+  // Tải danh sách câu hỏi từ API theo loại quiz
   useEffect(() => {
     if (!config) return;
 
@@ -148,6 +167,7 @@ const QuizGame = () => {
       try {
         setLoading(true);
         let response;
+        // Tải câu hỏi Holland
         if (apiType === "HOLLAND") {
           response = await testApi.getHollandQuestions();
           if (response && response.success === false) {
@@ -161,6 +181,7 @@ const QuizGame = () => {
             setError("Không thể tải câu hỏi Holland. Vui lòng thử lại.");
             return;
           }
+        // Tải câu hỏi MBTI
         } else if (apiType === "MBTI") {
           response = await testApi.getMBTIQuestions();
           if (response && response.success === false) {
@@ -187,14 +208,14 @@ const QuizGame = () => {
     loadQuestions();
   }, [config, apiType]);
 
-  // Khôi phục trạng thái quiz sau khi tải câu hỏi
+  // Khôi phục tiến độ sau khi tải xong câu hỏi
   useEffect(() => {
     if (questions.length > 0 && !result) {
       loadQuizState();
     }
   }, [questions.length, result]);
 
-  // Tự động lưu trạng thái khi có thay đổi
+  // Tự động lưu tiến độ mỗi khi có thay đổi
   useEffect(() => {
     if (questions.length > 0 && !result && !loading) {
       saveQuizState({
@@ -205,7 +226,7 @@ const QuizGame = () => {
     }
   }, [currentQuestion, answers, skippedQuestions, questions.length, result, loading]);
 
-  // Set selectedAnswer khi chuyển câu
+  // Cập nhật đáp án đang chọn khi chuyển câu
   useEffect(() => {
     if (questions.length > 0) {
       const questionId = questions[currentQuestion]?.id;
@@ -214,9 +235,13 @@ const QuizGame = () => {
     }
   }, [currentQuestion, answers, questions, normalizedType]);
 
+  // Xử lý khi user chọn đáp án
   const handleAnswer = (value) => {
+    // Tạo key câu hỏi theo loại quiz
     const questionId = questions[currentQuestion]?.id;
     const questionKey = normalizedType === "holland" ? questionId : currentQuestion + 1;
+    
+    // Lưu đáp án vào state
     const newAnswers = {
       ...answers,
       [questionKey]: value,
@@ -229,12 +254,13 @@ const QuizGame = () => {
     newSkipped.delete(currentQuestion);
     setSkippedQuestions(newSkipped);
 
-    // Không tự động submit, chỉ chuyển câu
+    // Chuyển sang câu tiếp theo nếu chưa hết
     if (currentQuestion < questions.length - 1) {
       setCurrentQuestion(currentQuestion + 1);
     }
   };
 
+  // Xử lý khi user bỏ qua câu hiện tại
   const handleSkip = () => {
     // Đánh dấu câu hiện tại là bỏ qua
     const newSkipped = new Set(skippedQuestions);
@@ -242,17 +268,20 @@ const QuizGame = () => {
     setSkippedQuestions(newSkipped);
     setSelectedAnswer(null);
 
+    // Chuyển sang câu tiếp theo
     if (currentQuestion < questions.length - 1) {
       setCurrentQuestion(currentQuestion + 1);
     }
   };
 
+  // Quay lại câu trước
   const handlePrevious = () => {
     if (currentQuestion > 0) {
       setCurrentQuestion(currentQuestion - 1);
     }
   };
 
+  // Xử lý nộp bài - kiểm tra đã trả lời hết chưa
   const handleSubmitQuiz = () => {
     if (!canSubmitValue) {
       toast.error(`Bạn cần trả lời đủ ${questions.length} câu hỏi! Hiện tại: ${answeredCount} câu đã trả lời, ${skippedQuestions.size} câu bị bỏ qua.`);
@@ -261,24 +290,30 @@ const QuizGame = () => {
     submitQuiz(answers);
   };
 
+  // Chuyển đến câu hỏi theo index
   const handleGoToQuestion = (index) => {
     setCurrentQuestion(index);
   };
 
+  // Lấy trạng thái của câu hỏi (đã trả lời, bỏ qua, chưa trả lời)
   const getQuestionStatus = (index) => {
     const questionKey = normalizedType === "holland" 
       ? questions[index]?.id 
       : index + 1;
     
+    // Đã trả lời - xanh lá
     if (answers[questionKey] !== undefined) {
-      return 'answered'; // Đã trả lời - xanh lá
+      return 'answered';
+    // Đã bỏ qua - vàng
     } else if (skippedQuestions.has(index)) {
-      return 'skipped'; // Đã bỏ qua - vàng
+      return 'skipped';
+    // Chưa trả lời - đỏ
     } else {
-      return 'unanswered'; // Chưa trả lời - đỏ
+      return 'unanswered';
     }
   };
 
+  // Gửi kết quả làm bài lên server
   const submitQuiz = async (finalAnswers) => {
     try {
       setLoading(true);
@@ -286,19 +321,19 @@ const QuizGame = () => {
       if (response.success) {
         setResult(response.result);
         
-        // Xóa trạng thái đã lưu vì đã hoàn thành
+        // Xóa tiến độ đã lưu vì đã hoàn thành
         clearQuizState();
         
-        // Nếu backend trả về onboardingCompleted hoặc hasCompletedOnboarding
+        // Cập nhật trạng thái onboarding nếu backend xác nhận hoàn thành
         if (response.onboardingCompleted || response.hasCompletedOnboarding) {
           saveOnboardingStatus(true);
-          localStorage.setItem("is_new_google_user", "false");  // Đã hoàn thành onboarding
+          localStorage.setItem("is_new_google_user", "false");
+          // Cập nhật thông tin user trong localStorage
           const currentUser = getUserInfo();
           if (currentUser) {
             saveUserInfo({
               ...currentUser,
               hasCompletedOnboarding: true,
-              needsOnboarding: false,
             });
           }
         }
@@ -312,41 +347,46 @@ const QuizGame = () => {
     }
   };
 
-  // Thêm hàm reset
+  // Reset toàn bộ bài quiz về trạng thái ban đầu
   const handleReset = () => {
     setCurrentQuestion(0);
     setAnswers({});
     setSkippedQuestions(new Set());
     setResult(null);
     setProgressRestored(false);
-    // Xóa trạng thái đã lưu
     clearQuizState();
   };
 
-  // Kiểm tra câu hỏi hiện tại nằm trong giới hạn
+  // Lấy câu hỏi hiện tại
   const question = currentQuestion < questions.length ? questions[currentQuestion] : null;
 
+  // Key để lấy nội dung câu hỏi tùy theo loại quiz
   const questionKey = useMemo(() => normalizedType === "holland" ? "content" : "question", [normalizedType]);
   const questionText = useMemo(() => question ? question[questionKey] : "", [question, questionKey]);
 
+  // Kiểm tra có thể nộp bài không (phải trả lời hết và không bỏ qua câu nào)
   const canSubmitValue = useMemo(() => {
     const totalAnswered = Object.keys(answers).length;
     const hasSkipped = skippedQuestions.size > 0;
     return totalAnswered === questions.length && !hasSkipped;
   }, [answers, questions.length, skippedQuestions]);
 
+  // Số câu đã trả lời
   const answeredCount = useMemo(() => Object.keys(answers).length, [answers]);
 
+  // Lấy danh sách options cho câu hỏi hiện tại
   const options = useMemo(() => {
+    // Holland dùng thang điểm chung cho tất cả câu hỏi
     if (normalizedType === "holland" && ratingOptions.length > 0) {
       return ratingOptions.map(option => ({ value: option.score, label: option.label }));
+    // MBTI mỗi câu có options riêng
     } else if (question && question.options) {
       return question.options.map(option => ({ value: option.value, label: option.text }));
     }
     return [];
   }, [normalizedType, ratingOptions, question]);
 
-  // Trạng thái đang tải
+  // Hiển thị loading khi đang tải câu hỏi
   if (loading) {
     return (
       <div className="quiz-wrapper">
@@ -358,7 +398,7 @@ const QuizGame = () => {
     );
   }
 
-  // Trạng thái lỗi
+  // Hiển thị lỗi nếu có
   if (error) {
     return (
       <div className="quiz-wrapper">
@@ -376,12 +416,12 @@ const QuizGame = () => {
     );
   }
 
-  // Màn hình kết quả - render trực tiếp, khi hiện kết quả là xong flow onboarding
+  // Hiển thị kết quả sau khi nộp bài thành công
   if (result) {
     return <QuizResult result={result} config={config} onReset={handleReset} />;
   }
 
-  // Màn hình làm trắc nghiệm
+  // Không có câu hỏi nào
   if (questions.length === 0) {
     return (
       <div className="quiz-wrapper">
@@ -503,9 +543,9 @@ const QuizGame = () => {
           {/* Các nút điều khiển */}
           <div className="quiz-control-buttons" style={{ 
             display: 'flex', 
-            gap: '10px', 
+            gap: '8px', 
             justifyContent: 'center',
-            flexWrap: 'wrap',
+            flexWrap: 'nowrap',
             marginTop: '20px'
           }}>
           <button
@@ -515,11 +555,14 @@ const QuizGame = () => {
             style={{ 
               opacity: currentQuestion === questions.length - 1 ? 0.5 : 1,
               cursor: currentQuestion === questions.length - 1 ? 'not-allowed' : 'pointer',
-              backgroundColor: '#eab308'
+              backgroundColor: '#eab308',
+              padding: '8px 12px',
+              fontSize: '13px',
+              whiteSpace: 'nowrap'
             }}
           >
             Bỏ qua
-            <ArrowRight size={16} style={{ marginLeft: '6px' }} />
+            <ArrowRight size={14} style={{ marginLeft: '4px' }} />
           </button>
 
           <button
@@ -529,11 +572,14 @@ const QuizGame = () => {
             style={{ 
               opacity: currentQuestion === 0 ? 0.5 : 1,
               cursor: currentQuestion === 0 ? 'not-allowed' : 'pointer',
-              backgroundColor: '#f59e0b'
+              backgroundColor: '#f59e0b',
+              padding: '8px 12px',
+              fontSize: '13px',
+              whiteSpace: 'nowrap'
             }}
           >
-            <ArrowLeft size={16} style={{ marginRight: '6px' }} />
-            Previous
+            <ArrowLeft size={14} style={{ marginRight: '4px' }} />
+            Câu Trước
           </button>
 
           <button
@@ -542,10 +588,13 @@ const QuizGame = () => {
             style={{ 
               backgroundColor: canSubmitValue ? '#22c55e' : '#6b7280',
               cursor: canSubmitValue ? 'pointer' : 'not-allowed',
-              opacity: canSubmitValue ? 1 : 0.6
+              opacity: canSubmitValue ? 1 : 0.6,
+              padding: '8px 12px',
+              fontSize: '13px',
+              whiteSpace: 'nowrap'
             }}
           >
-            <Send size={16} style={{ marginRight: '6px' }} />
+            <Send size={14} style={{ marginRight: '4px' }} />
             {canSubmitValue 
               ? 'Nộp bài' 
               : `Nộp bài (${answeredCount}/${questions.length})`
@@ -554,10 +603,15 @@ const QuizGame = () => {
           <button
             className="btn-quiz-outline"
             onClick={() => navigate("/trac-nghiem")}
-            style={{ backgroundColor: '#ef4444' }}
+            style={{ 
+              backgroundColor: '#ef4444',
+              padding: '8px 12px',
+              fontSize: '13px',
+              whiteSpace: 'nowrap'
+            }}
           >
-            <XCircle size={16} style={{ marginRight: '6px' }} />
-            Hủy bỏ bài thi
+            <XCircle size={14} style={{ marginRight: '4px' }} />
+            Hủy bỏ
           </button>
           </div>
         </div>

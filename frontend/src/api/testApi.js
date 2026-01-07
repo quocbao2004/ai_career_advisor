@@ -115,4 +115,3 @@ export const getTestResult = async () => {
     };
   }
 };
-// The getCareersByIndustry API helper has been removed as it is obsolete.

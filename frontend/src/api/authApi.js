@@ -282,18 +282,17 @@ export const checkOnboardingStatus = async () => {
       "http://localhost:8000/api/users/onboarding/status/"
     );
     if (!response.ok) {
-      return { success: false, needsOnboarding: true };
+      return { success: false, hasCompletedOnboarding: false };
     }
     const data = await response.json();
     return {
       success: true,
       hasCompletedOnboarding: data.hasCompletedOnboarding,
-      needsOnboarding: data.needsOnboarding,
       user: data.user,
     };
   } catch (error) {
     console.error("Error checking onboarding status:", error);
-    return { success: false, needsOnboarding: true };
+    return { success: false, hasCompletedOnboarding: false };
   }
 };
 

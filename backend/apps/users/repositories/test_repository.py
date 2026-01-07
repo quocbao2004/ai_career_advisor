@@ -1,11 +1,11 @@
 from apps.users.models import User, UserProfile
-from typing import Optional, Dict, Any
+from typing import Optional
 
 class TestRepository:
     "Repository để quản lý kết quả trắc nghiệm trong UserProfile"
 
     @staticmethod
-    def save_test(user: User, test_type: str, summary_code: str, raw_result: Dict[str, Any]) -> UserProfile:
+    def save_test(user: User, test_type: str, summary_code: str) -> UserProfile:
         profile, _ = UserProfile.objects.get_or_create(user=user)
         if test_type.upper() == 'MBTI':
             profile.mbti_result = summary_code
@@ -17,7 +17,7 @@ class TestRepository:
     @staticmethod
     def get_test(user: User, test_type: str) -> Optional[str]:
         try:
-            profile, created = UserProfile.objects.get_or_create(user=user)
+            profile = UserProfile.objects.get_or_create(user=user)
             if test_type.upper() == 'MBTI':
                 return profile.mbti_result
             elif test_type.upper() == 'HOLLAND':
@@ -28,7 +28,7 @@ class TestRepository:
     @staticmethod
     def clear_test(user: User, test_type: str) -> bool:
         try:
-            profile, created = UserProfile.objects.get_or_create(user=user)
+            profile = UserProfile.objects.get_or_create(user=user)
             if test_type.upper() == 'MBTI':
                 profile.mbti_result = None
             elif test_type.upper() == 'HOLLAND':

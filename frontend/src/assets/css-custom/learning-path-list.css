@@ -1,0 +1,609 @@
+/* ========================================
+   LEARNING PATH LIST PAGE STYLES
+======================================== */
+
+.lp-page-wrapper {
+  min-height: 100vh;
+  background-color: #0f172a;
+  color: #fff;
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* Background Blobs */
+.lp-blob {
+  position: fixed;
+  width: 500px;
+  height: 500px;
+  filter: blur(120px);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.lp-blob-top {
+  top: 0;
+  left: 0;
+  background: rgba(79, 70, 229, 0.2);
+  transform: translate(-50%, -50%);
+}
+
+.lp-blob-bottom {
+  bottom: 0;
+  right: 0;
+  background: rgba(147, 51, 234, 0.2);
+  transform: translate(50%, 50%);
+}
+
+/* Glass Card */
+.lp-glass-card {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 1.5rem;
+}
+
+/* Header */
+.lp-header {
+  text-align: center;
+  margin-bottom: 2.5rem;
+}
+
+.lp-header-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #6366f1;
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 0.875rem;
+  margin-bottom: 0.5rem;
+}
+
+.lp-header-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 0.75rem;
+}
+
+.lp-header-subtitle {
+  color: #94a3b8;
+  font-size: 1.125rem;
+}
+
+.lp-header-count {
+  color: #6366f1;
+  font-weight: 700;
+}
+
+/* Select Box */
+.lp-select-card {
+  max-width: 700px;
+  margin: 0 auto 1.5rem;
+}
+
+.lp-select-label {
+  display: block;
+  color: #94a3b8;
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.lp-select-box {
+  width: 100%;
+  padding: 14px 18px;
+  background-color: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  color: #fff;
+  font-size: 1rem;
+  cursor: pointer;
+  outline: none;
+  transition: all 0.3s ease;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 20px;
+  padding-right: 45px;
+}
+
+.lp-select-box:hover,
+.lp-select-box:focus {
+  border-color: #6366f1;
+  background-color: rgba(255, 255, 255, 0.08);
+}
+
+.lp-select-box option {
+  background-color: #1e293b;
+  color: #fff;
+  padding: 10px;
+}
+
+/* Preview Card */
+.lp-preview-card {
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.lp-preview-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+  gap: 1rem;
+}
+
+.lp-preview-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 0.5rem;
+}
+
+.lp-preview-career {
+  color: #94a3b8;
+  margin: 0;
+}
+
+.lp-preview-career span {
+  color: #22d3ee;
+}
+
+/* Progress Bar */
+.lp-progress-wrapper {
+  margin-bottom: 1rem;
+}
+
+.lp-progress-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.lp-progress-label {
+  color: #94a3b8;
+  font-size: 0.875rem;
+}
+
+.lp-progress-value {
+  color: #fff;
+  font-weight: 700;
+}
+
+.lp-progress-bar {
+  width: 100%;
+  height: 8px;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.lp-progress-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.5s ease;
+}
+
+.lp-progress-fill.in-progress {
+  background: linear-gradient(90deg, #6366f1, #a855f7);
+}
+
+.lp-progress-fill.completed {
+  background: linear-gradient(90deg, #10b981, #34d399);
+}
+
+/* Meta Info */
+.lp-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: #64748b;
+  font-size: 0.8rem;
+  margin-bottom: 1.5rem;
+}
+
+/* View Button */
+.lp-view-btn {
+  width: 100%;
+  padding: 14px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-weight: 700;
+  font-size: 1rem;
+  color: #fff;
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.lp-view-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 30px rgba(99, 102, 241, 0.3);
+}
+
+/* Status Badges */
+.lp-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.lp-badge.completed {
+  background-color: rgba(16, 185, 129, 0.2);
+  color: #34d399;
+}
+
+.lp-badge.in-progress {
+  background-color: rgba(99, 102, 241, 0.2);
+  color: #818cf8;
+}
+
+.lp-badge.default {
+  background-color: rgba(148, 163, 184, 0.2);
+  color: #94a3b8;
+}
+
+/* All Paths List */
+.lp-all-paths {
+  margin-top: 3rem;
+}
+
+.lp-all-paths-title {
+  text-align: center;
+  color: #94a3b8;
+  font-weight: 500;
+  margin-bottom: 1.5rem;
+  font-size: 1rem;
+}
+
+.lp-paths-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+
+/* Path Card */
+.lp-path-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 1rem;
+  padding: 1.25rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.lp-path-card:hover {
+  background: rgba(255, 255, 255, 0.08);
+  transform: translateY(-2px);
+}
+
+.lp-path-card.selected {
+  background: rgba(99, 102, 241, 0.1);
+  border-color: rgba(99, 102, 241, 0.3);
+}
+
+.lp-path-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 0.5rem;
+  gap: 0.5rem;
+}
+
+.lp-path-card-title {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #fff;
+  margin: 0;
+  line-height: 1.3;
+  flex: 1;
+}
+
+.lp-path-card-career {
+  color: #94a3b8;
+  font-size: 0.8rem;
+  margin-bottom: 0.75rem;
+}
+
+.lp-path-card-progress {
+  width: 100%;
+  height: 4px;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.lp-path-card-progress-fill {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 0.3s ease;
+}
+
+.lp-path-card-meta {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 0.5rem;
+  color: #64748b;
+  font-size: 0.75rem;
+}
+
+/* Empty State */
+.lp-empty-card {
+  max-width: 500px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.lp-empty-icon {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: rgba(99, 102, 241, 0.2);
+}
+
+.lp-empty-icon svg {
+  color: #6366f1;
+}
+
+.lp-empty-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 0.75rem;
+}
+
+.lp-empty-desc {
+  color: #94a3b8;
+  margin-bottom: 1.5rem;
+  line-height: 1.6;
+}
+
+.lp-empty-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  background: #6366f1;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.lp-empty-btn:hover {
+  background: #4f46e5;
+  transform: translateY(-2px);
+}
+
+/* Loading State */
+.lp-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+}
+
+.lp-loading-spinner {
+  animation: lp-spin 1s linear infinite;
+  margin-bottom: 1rem;
+  color: #6366f1;
+}
+
+@keyframes lp-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.lp-loading-text {
+  color: #94a3b8;
+}
+
+/* ========================================
+   RESPONSIVE STYLES
+======================================== */
+
+/* Tablets (768px - 1024px) */
+@media (max-width: 1024px) {
+  .lp-paths-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .lp-header-title {
+    font-size: 2rem;
+  }
+
+  .lp-blob {
+    width: 350px;
+    height: 350px;
+  }
+}
+
+/* Small Tablets & Large Phones (576px - 768px) */
+@media (max-width: 768px) {
+  .lp-header-title {
+    font-size: 1.75rem;
+  }
+
+  .lp-header-subtitle {
+    font-size: 1rem;
+  }
+
+  .lp-glass-card {
+    border-radius: 1rem;
+  }
+
+  .lp-select-card,
+  .lp-preview-card {
+    max-width: 100%;
+  }
+
+  .lp-preview-header {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .lp-preview-title {
+    font-size: 1.1rem;
+  }
+
+  .lp-paths-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+  }
+
+  .lp-path-card {
+    padding: 1rem;
+  }
+
+  .lp-path-card-title {
+    font-size: 0.85rem;
+  }
+
+  .lp-blob {
+    width: 300px;
+    height: 300px;
+  }
+
+  .lp-view-btn {
+    padding: 12px 20px;
+    font-size: 0.9rem;
+  }
+}
+
+/* Mobile Phones (< 576px) */
+@media (max-width: 576px) {
+  .lp-page-wrapper {
+    padding: 0;
+  }
+
+  .lp-header {
+    margin-bottom: 1.5rem;
+  }
+
+  .lp-header-badge {
+    font-size: 0.75rem;
+  }
+
+  .lp-header-title {
+    font-size: 1.5rem;
+  }
+
+  .lp-header-subtitle {
+    font-size: 0.9rem;
+  }
+
+  .lp-glass-card {
+    border-radius: 0.875rem;
+  }
+
+  .lp-select-box {
+    padding: 12px 40px 12px 14px;
+    font-size: 0.9rem;
+  }
+
+  .lp-preview-title {
+    font-size: 1rem;
+  }
+
+  .lp-preview-career {
+    font-size: 0.875rem;
+  }
+
+  .lp-meta {
+    flex-direction: column;
+    gap: 0.25rem;
+    align-items: flex-start;
+  }
+
+  .lp-paths-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .lp-path-card {
+    padding: 0.875rem;
+  }
+
+  .lp-all-paths-title {
+    font-size: 0.9rem;
+  }
+
+  .lp-badge {
+    font-size: 0.7rem;
+    padding: 3px 8px;
+  }
+
+  .lp-blob {
+    width: 200px;
+    height: 200px;
+  }
+
+  .lp-empty-card {
+    padding: 1.5rem;
+  }
+
+  .lp-empty-icon {
+    width: 60px;
+    height: 60px;
+  }
+
+  .lp-empty-title {
+    font-size: 1.25rem;
+  }
+
+  .lp-empty-desc {
+    font-size: 0.9rem;
+  }
+
+  .lp-view-btn {
+    padding: 12px 16px;
+    font-size: 0.875rem;
+    gap: 8px;
+  }
+}
+
+/* Extra Small (< 400px) */
+@media (max-width: 400px) {
+  .lp-header-title {
+    font-size: 1.3rem;
+  }
+
+  .lp-preview-header {
+    gap: 0.5rem;
+  }
+
+  .lp-path-card-header {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .lp-path-card-title {
+    font-size: 0.8rem;
+  }
+
+  .lp-path-card-career {
+    font-size: 0.75rem;
+  }
+}

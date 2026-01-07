@@ -3,6 +3,7 @@ from apps.admin import views
 
 urlpatterns = [
     path('users/', views.get_users),
+    path('users/<uuid:id>/', views.get_update_delete_user),
     path('courses/', views.course_list_create),
     path('import-data/', views.import_data),
     path('courses/<int:id>/', views.edit_courses),

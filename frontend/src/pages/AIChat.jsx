@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import axios from "axios";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -14,8 +14,20 @@ import {
   Bot,
   User,
   Sparkles,
+  Menu,
 } from "lucide-react";
 import "../assets/css-custom/ai-chat.css";
+
+// Constants - đưa ra ngoài component để tránh khởi tạo lại mỗi render
+const BASE_URL = "https://ai-career-advisor-4006.onrender.com/api/ai";
+const AVAILABLE_MODELS = [
+  { id: "gemini-2.5-flash", name: "Gemini 2.5 Flash" },
+  { id: "gemini-2.5-flash-lite", name: "Gemini 2.5 Flash Lite" },
+];
+const ADVICE_KEYWORDS = [
+  "lộ trình", "lo trinh", "roadmap", "tư vấn", "tu van",
+  "định hướng", "dinh huong", "nghề", "nghe", "career"
+];
 
 const AIChat = () => {
   // --- STATE ---
@@ -24,7 +36,7 @@ const AIChat = () => {
   const [messages, setMessages] = useState([]);
   const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(window.innerWidth > 768);
 
   const navigate = useNavigate();
 
@@ -45,13 +57,8 @@ const AIChat = () => {
   // Dùng ref này để chặn useEffect fetch lại tin nhắn khi vừa tạo session mới
   const isCreatingSession = useRef(false);
 
-  const token = localStorage.getItem("access_token");
-  const BASE_URL = "https://ai-career-advisor-4006.onrender.com/api/ai";
-
-  const AVAILABLE_MODELS = [
-    { id: "gemini-2.5-flash", name: "Gemini 2.5 Flash" },
-    { id: "gemini-2.5-flash-lite", name: "Gemini 2.5 Flash Lite" },
-  ];
+  // Helper function để lấy token
+  const getToken = () => localStorage.getItem("access_token");
 
   // --- API & LOGIC ---
 
@@ -90,7 +97,6 @@ const AIChat = () => {
   };
 
   const handleNewChat = () => {
-    // Always reset UI state, even if currentSessionId is already null
     setCurrentSessionId(null);
     setMessages([]);
     resetAdviceState();
@@ -99,18 +105,7 @@ const AIChat = () => {
   const isAdviceIntent = (text) => {
     if (!text) return false;
     const t = String(text).toLowerCase();
-    return (
-      t.includes("lộ trình") ||
-      t.includes("lo trinh") ||
-      t.includes("roadmap") ||
-      t.includes("tư vấn") ||
-      t.includes("tu van") ||
-      t.includes("định hướng") ||
-      t.includes("dinh huong") ||
-      t.includes("nghề") ||
-      t.includes("nghe") ||
-      t.includes("career")
-    );
+    return ADVICE_KEYWORDS.some(keyword => t.includes(keyword));
   };
 
   const parseStoredMessage = (m) => {
@@ -142,20 +137,6 @@ const AIChat = () => {
     return base;
   };
 
-  const pushLearningPathsMessage = (payload) => {
-    const messageId = Date.now() + 1;
-    setMessages((prev) => [
-      ...prev,
-      {
-        id: messageId,
-        text: "",
-        sender: "ai",
-        type: "learning_paths",
-        payload,
-      },
-    ]);
-  };
-
   const openPathModal = (path) => {
     setModalPath(path || null);
     setIsPathModalOpen(true);
@@ -175,24 +156,10 @@ const AIChat = () => {
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [isPathModalOpen]);
 
-  const pushLearningPathsErrorMessage = (message, extraPayload = null) => {
-    const messageId = Date.now() + 1;
-    setMessages((prev) => [
-      ...prev,
-      {
-        id: messageId,
-        text: "",
-        sender: "ai",
-        type: "learning_paths_error",
-        payload: { message, ...(extraPayload || {}) },
-      },
-    ]);
-  };
-
   const fetchSessions = async () => {
     try {
       const res = await axios.get(`${BASE_URL}/chat/sessions/`, {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: { Authorization: `Bearer ${getToken()}` },
       });
       setSessions(res.data.data || res.data);
     } catch (err) {
@@ -206,7 +173,7 @@ const AIChat = () => {
       const res = await axios.get(
         `${BASE_URL}/chat/sessions/${sid}/messages/`,
         {
-          headers: { Authorization: `Bearer ${token}` },
+          headers: { Authorization: `Bearer ${getToken()}` },
         }
       );
       const mapped = (res.data || []).map(parseStoredMessage);
@@ -242,7 +209,7 @@ const AIChat = () => {
           model: selectedModel,
           intent_learning_paths: shouldSuggestPaths,
         },
-        { headers: { Authorization: `Bearer ${token}` } }
+        { headers: { Authorization: `Bearer ${getToken()}` } }
       );
 
       const data = res.data;
@@ -334,7 +301,7 @@ const AIChat = () => {
         `${BASE_URL}/chat/sessions/${sid}/`,
         { title: editTitle },
         {
-          headers: { Authorization: `Bearer ${token}` },
+          headers: { Authorization: `Bearer ${getToken()}` },
         }
       );
       setSessions((prev) =>
@@ -351,7 +318,7 @@ const AIChat = () => {
     if (!window.confirm("Xóa cuộc hội thoại này?")) return;
     try {
       await axios.delete(`${BASE_URL}/chat/sessions/${sid}/`, {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: { Authorization: `Bearer ${getToken()}` },
       });
       setSessions((prev) => prev.filter((s) => s.id !== sid));
       if (currentSessionId === sid) setCurrentSessionId(null);
@@ -455,11 +422,26 @@ const AIChat = () => {
         </div>
       ) : null}
 
+      {/* --- SIDEBAR OVERLAY (Mobile) --- */}
+      {isSidebarOpen && (
+        <div 
+          className="sidebar-overlay" 
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
+
       {/* --- SIDEBAR --- */}
       <aside className={`sidebar ${isSidebarOpen ? "open" : "closed"}`}>
         <div className="sidebar-header">
           <button className="btn-new-chat" onClick={handleNewChat}>
             <Plus size={18} /> <span>New Chat</span>
+          </button>
+          {/* Close button for mobile */}
+          <button 
+            className="btn-close-sidebar" 
+            onClick={() => setIsSidebarOpen(false)}
+          >
+            <X size={20} />
           </button>
         </div>
 
@@ -542,6 +524,14 @@ const AIChat = () => {
       <main className="chat-main">
         {/* HEADER TOOLBAR */}
         <header className="chat-header">
+          {/* Hamburger Menu Button */}
+          <button 
+            className="btn-hamburger" 
+            onClick={() => setIsSidebarOpen(true)}
+          >
+            <Menu size={22} />
+          </button>
+          
           <div className="model-selector-wrapper">
             <Sparkles size={18} className="sparkle-icon" />
             <select

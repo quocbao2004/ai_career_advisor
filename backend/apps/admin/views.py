@@ -6,8 +6,6 @@ from django.db.models import Count
 from django.db.models.functions import TruncMonth
 from django.utils import timezone
 from datetime import timedelta
-import threading
-import time
 
 from utils.permissions import IsAdminUser, IsAdminOrUser
 from apps.users.models import User
@@ -29,6 +27,97 @@ def get_users(request):
             "message": "Lấy danh sách thành công",
             "data": serializer.data
         }, status=status.HTTP_200_OK)
+    except Exception as e:
+        return Response({
+            "message": "Lỗi hệ thống",
+            "error": str(e)
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+# ============================================================
+# GET, UPDATE, DELETE USER BY ID
+# ============================================================
+
+@api_view(['GET', 'PUT', 'DELETE'])
+@permission_classes([IsAdminUser])
+def get_update_delete_user(request, id):
+    """
+    API lấy thông tin, cập nhật hoặc xóa user theo ID
+    - GET: Lấy thông tin chi tiết user
+    - PUT: Cập nhật thông tin user
+    - DELETE: Xóa user (không cho phép xóa chính mình hoặc superuser khác)
+    """
+    try:
+        # Tìm user theo id
+        try:
+            user = User.objects.get(id=id)
+        except User.DoesNotExist:
+            return Response({
+                "message": "Không tìm thấy user"
+            }, status=status.HTTP_404_NOT_FOUND)
+
+        # GET - Lấy thông tin user
+        if request.method == 'GET':
+            serializer = UserSerializer(user)
+            return Response({
+                "message": "Lấy thông tin user thành công",
+                "data": serializer.data
+            }, status=status.HTTP_200_OK)
+
+        # PUT - Cập nhật user
+        elif request.method == 'PUT':
+            # Không cho phép admin tự sửa quyền của chính mình
+            if request.user.id == user.id and 'is_superuser' in request.data:
+                return Response({
+                    "message": "Không thể thay đổi quyền của chính mình"
+                }, status=status.HTTP_400_BAD_REQUEST)
+            
+            # Chỉ cho phép cập nhật một số field
+            allowed_fields = ['full_name', 'email', 'is_active', 'is_superuser']
+            update_data = {k: v for k, v in request.data.items() if k in allowed_fields}
+            
+            # Tự động đồng bộ role khi thay đổi is_superuser
+            if 'is_superuser' in update_data:
+                if update_data['is_superuser']:
+                    update_data['role'] = 'admin'
+                    update_data['is_staff'] = True
+                else:
+                    update_data['role'] = 'user'
+                    update_data['is_staff'] = False
+            
+            serializer = UserSerializer(user, data=update_data, partial=True)
+            if serializer.is_valid():
+                serializer.save()
+                return Response({
+                    "message": "Cập nhật user thành công",
+                    "data": serializer.data
+                }, status=status.HTTP_200_OK)
+            else:
+                return Response({
+                    "message": "Dữ liệu không hợp lệ",
+                    "errors": serializer.errors
+                }, status=status.HTTP_400_BAD_REQUEST)
+
+        # DELETE - Xóa user
+        elif request.method == 'DELETE':
+            # Không cho phép admin tự xóa chính mình
+            if request.user.id == user.id:
+                return Response({
+                    "message": "Không thể xóa chính mình"
+                }, status=status.HTTP_400_BAD_REQUEST)
+            
+            # Không cho phép xóa superuser khác (bảo vệ admin)
+            if user.is_superuser and request.user.id != user.id:
+                return Response({
+                    "message": "Không thể xóa tài khoản admin khác"
+                }, status=status.HTTP_403_FORBIDDEN)
+            
+            user_email = user.email
+            user.delete()
+            return Response({
+                "message": f"Đã xóa user {user_email} thành công"
+            }, status=status.HTTP_200_OK)
+
     except Exception as e:
         return Response({
             "message": "Lỗi hệ thống",

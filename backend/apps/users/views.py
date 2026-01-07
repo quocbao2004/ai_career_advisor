@@ -8,14 +8,18 @@ from apps.users.services.test_service import HollandTestService, MBTITestService
 from utils.permissions import IsAdminUser, IsAdminOrUser
 from apps.ai.services.ai_service import get_embedding
 from apps.custom_auth.services.auth_service import check_user_onboarding_status
+from apps.career.models import Career, Industry
 
 
+# Lấy danh sách nghề nghiệp theo lĩnh vực
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_careers_by_industry(request):
+    # Lấy tham số tìm kiếm từ query params
     industry_name = (request.query_params.get('industry') or '').strip()
     industry_id = (request.query_params.get('industry_id') or '').strip()
 
+    # Bắt buộc phải có ít nhất một tham số
     if not industry_name and not industry_id:
         return Response(
             {"success": False, "message": "Thiếu tham số industry hoặc industry_id"},
@@ -23,8 +27,8 @@ def get_careers_by_industry(request):
         )
 
     try:
-        from apps.career.models import Career, Industry
 
+        # Tìm lĩnh vực theo id hoặc tên
         if industry_id:
             industry = Industry.objects.filter(id=industry_id).first()
         else:
@@ -36,12 +40,14 @@ def get_careers_by_industry(request):
                 status=status.HTTP_404_NOT_FOUND,
             )
 
+        # Lấy danh sách nghề thuộc lĩnh vực
         qs = (
             Career.objects.filter(industry=industry)
             .order_by('title', 'level')
             .values('id', 'title', 'level')
         )
 
+        # Chuẩn hóa dữ liệu trả về
         careers = [
             {
                 "id": str(row.get('id')),
@@ -61,6 +67,7 @@ def get_careers_by_industry(request):
             status=status.HTTP_500_INTERNAL_SERVER_ERROR,
         )
 
+# Khóa tài khoản người dùng (chỉ admin mới có quyền)
 @api_view(['DELETE'])
 @permission_classes([IsAdminUser])  
 def delete_user(request):
@@ -72,6 +79,7 @@ def delete_user(request):
         )
     try:
         user=User.objects.get(id=id)
+        # Không xóa hẳn, chỉ đánh dấu inactive
         user.is_active=False
         user.save()
         return Response(
@@ -89,18 +97,20 @@ def delete_user(request):
             status=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
 
+# Lấy và cập nhật thông tin hồ sơ người dùng
 @api_view(['GET', 'PUT'])
 @permission_classes([IsAdminOrUser])
 def profile(request):
     user = request.user
+    # Tạo profile mới nếu chưa có
     profile_instance, created = UserProfile.objects.get_or_create(user=user)
 
-    # --- METHOD GET ---
+    # Lấy thông tin hồ sơ
     if request.method == 'GET':
         serializer = UserProfileSerializer(profile_instance)
         return Response(serializer.data)
     
-    # --- METHOD PUT ---
+    # Cập nhật hồ sơ
     elif request.method == 'PUT':
         serializer = UserProfileSerializer(profile_instance, data=request.data, partial=True)
         
@@ -108,15 +118,15 @@ def profile(request):
             updated_profile = serializer.save()
             
             try:
-                # 1. Lấy chuỗi sở thích
+                # Lấy danh sách sở thích của user
                 interests_qs = user.interests.all()
                 interests_str = ", ".join([i.keyword for i in interests_qs])
 
-                # 2. Lấy chuỗi Kỹ năng (MỚI THÊM)
+                # Lấy danh sách kỹ năng của user
                 skills_qs = UserSkill.objects.filter(user=user)
                 skills_str = ", ".join([f"{s.skill_name} (Level {s.proficiency_level}/5)" for s in skills_qs])
                 
-                # 3. Tạo nội dung để embed
+                # Tạo nội dung để tạo vector embedding
                 text_content = f"""
                 Job Title: {updated_profile.current_job_title or 'Unknown'}
                 Education: {updated_profile.get_education_level_display() or 'Unknown'}
@@ -127,15 +137,15 @@ def profile(request):
                 Holland Code: {updated_profile.holland_result or ''}
                 """.strip()
 
-                print(f"Embedding Content for {user.email}:\n{text_content}") # Debug xem nội dung đúng chưa
+                print(f"Embedding Content for {user.email}:\n{text_content}")
 
-                # 4. Gọi AI tạo Vector
+                # Gọi AI tạo vector embedding
                 vector = get_embedding(text_content, task_type="retrieval_document")
                 
+                # Lưu vector vào profile
                 if vector:
                     updated_profile.profile_vector = vector
                     updated_profile.save(update_fields=['profile_vector'])
-                    print(f"Updated vector for user {user.email}")
                     
             except Exception as e:
                 print(f"Error updating vector: {e}")
@@ -145,41 +155,47 @@ def profile(request):
         else:
             print("Validation Error:", serializer.errors)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+# Lấy danh sách câu hỏi trắc nghiệm Holland
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_holland_test_questions(request):
     data = HollandTestService.get_questions_for_frontend()
     return Response(data)
 
+# Lấy danh sách câu hỏi trắc nghiệm MBTI
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_mbti_test_questions(request):
     questions = MBTITestService.get_questions_for_frontend()
     return Response({"questions": questions})
 
+# Nộp bài trắc nghiệm và lưu kết quả
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def submit_test(request):
     user = request.user
     test_type = request.data.get("test_type")
     answers = request.data.get("answers")
+    
+    # Kiểm tra dữ liệu bắt buộc
     if not test_type or not answers:
         return Response({"error": "Thiếu loại bài test hoặc đáp án"}, status=status.HTTP_400_BAD_REQUEST)
     try:
+        # Lưu kết quả bài test
         calc_result = TestResultService.save_test_result(user, test_type, answers)
         
-        # Check lại onboarding status sau khi submit
+        # Kiểm tra trạng thái onboarding sau khi làm xong
         has_completed = check_user_onboarding_status(user)
         
         return Response({
             "success": True,
             "result": calc_result,
             "hasCompletedOnboarding": has_completed,
-            "onboardingCompleted": has_completed
         })
     except Exception as e:
         return Response({"error": f"Lỗi hệ thống: {str(e)}"}, status=status.HTTP_400_BAD_REQUEST)
 
+# Lấy kết quả bài trắc nghiệm của user
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_test_result(request):
@@ -188,6 +204,7 @@ def get_test_result(request):
     return Response(result)
 
 
+# Kiểm tra trạng thái hoàn thành onboarding
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def check_onboarding_status(request):
@@ -196,7 +213,6 @@ def check_onboarding_status(request):
     
     return Response({
         "hasCompletedOnboarding": has_completed,
-        "needsOnboarding": not has_completed,
         "user": {
             "id": str(user.id),
             "email": user.email,

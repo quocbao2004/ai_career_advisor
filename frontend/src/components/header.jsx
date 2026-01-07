@@ -27,8 +27,7 @@ const Header = () => {
     if (userInfo.role === "admin") return false;
     const cachedCompleted = getCachedOnboardingStatus();
     const userCompleted = userInfo.hasCompletedOnboarding === true;
-    const userNeeds = userInfo.needsOnboarding === true;
-    const hasCompleted = cachedCompleted || (userCompleted && !userNeeds);
+    const hasCompleted = cachedCompleted || userCompleted;
     return !hasCompleted;
   }, [userInfo]);
 

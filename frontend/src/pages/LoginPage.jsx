@@ -1,3 +1,4 @@
+// Trang đăng nhập cho người dùng
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { GoogleLogin } from "@react-oauth/google";
@@ -16,28 +17,37 @@ import "../assets/css-custom/loginpage.css";
 
 const LoginPage = () => {
   const navigate = useNavigate();
+  // Dữ liệu form đăng nhập
   const [formData, setFormData] = useState({
     email: "",
     password: "",
     rememberMe: false,
   });
+  // Trạng thái loading khi đang xử lý
   const [loading, setLoading] = useState(false);
+  // Thông báo lỗi nếu có
+  // Thông báo lỗi nếu có
   const [error, setError] = useState("");
 
+  // Xử lý khi user thay đổi giá trị trong form
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     setFormData((prev) => ({
       ...prev,
+      // Nếu là checkbox thì lấy checked, còn lại lấy value
       [name]: type === "checkbox" ? checked : value,
     }));
+    // Xóa lỗi khi user bắt đầu nhập lại
     setError("");
   };
 
+  // Xử lý khi user submit form đăng nhập
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError("");
 
+    // Kiểm tra email và mật khẩu không được để trống
     if (!formData.email || !formData.password) {
       setError("Email và mật khẩu là bắt buộc");
       setLoading(false);
@@ -45,30 +55,33 @@ const LoginPage = () => {
     }
 
     try {
+      // Gọi API đăng nhập
       const result = await loginUser(formData.email, formData.password);
 
       if (result.success) {
+        // Lưu token và thông tin user vào localStorage
         saveTokens(result.access, result.refresh);
         saveUserInfo(result.user);
 
-        // Save onboarding status từ backend response
+        // Lưu trạng thái onboarding từ backend response
         const completed =
           result.hasCompletedOnboarding ?? result.user?.hasCompletedOnboarding;
         if (completed !== undefined) {
           saveOnboardingStatus(Boolean(completed));
         }
 
-        // Đảm bảo localStorage đã được set xong trước khi navigate
+        // Đợi localStorage được set xong trước khi chuyển trang
         setTimeout(() => {
+          // Admin thì vào trang quản trị
           if (result.user.role === "admin") {
             navigate("/trang-quan-tri", { replace: true });
-          } else if (
-            result.needsOnboarding === true ||
-            result.user?.needsOnboarding === true
-          ) {
+          // User mới cần làm onboarding
+          } else if (result.user?.hasCompletedOnboarding === false) {
+            // Kiểm tra đã xem trang chào mừng chưa
             const welcomeSeen = hasSeenOnboardingWelcome(result.user?.id);
             navigate(welcomeSeen ? "/trac-nghiem" : "/chao-mung", { replace: true });
           } else {
+            // User bình thường vào dashboard
             navigate("/dashboard", { replace: true });
           }
         }, 0);
@@ -82,39 +95,43 @@ const LoginPage = () => {
     }
   };
 
+  // Xử lý khi đăng nhập Google thành công
   const handleGoogleSuccess = async (credentialResponse) => {
     setLoading(true);
     setError("");
     try {
+      // Gọi API đăng nhập bằng Google credential
       const result = await googleLogin(credentialResponse.credential);
 
       if (result.success) {
+        // Lưu token và thông tin user vào localStorage
         saveTokens(result.access, result.refresh);
         saveUserInfo(result.user);
         
-        // Save onboarding status từ backend response
+        // Lưu trạng thái onboarding từ backend response
         const completed =
           result.hasCompletedOnboarding ?? result.user?.hasCompletedOnboarding;
         if (completed !== undefined) {
           saveOnboardingStatus(Boolean(completed));
         }
 
-        // Save isNewGoogleUser flag
+        // Đánh dấu nếu là user Google mới tạo
         if (result.isNewGoogleUser !== undefined) {
           localStorage.setItem("is_new_google_user", result.isNewGoogleUser.toString());
         }
 
-        // Đảm bảo localStorage đã được set xong trước khi navigate
+        // Đợi localStorage được set xong trước khi chuyển trang
         setTimeout(() => {
+          // Admin thì vào trang quản trị
           if (result.user.role === "admin") {
             navigate("/trang-quan-tri", { replace: true });
-          } else if (
-            result.needsOnboarding === true ||
-            result.user?.needsOnboarding === true
-          ) {
+          // User mới cần làm onboarding
+          } else if (result.user?.hasCompletedOnboarding === false) {
+            // Kiểm tra đã xem trang chào mừng chưa
             const welcomeSeen = hasSeenOnboardingWelcome(result.user?.id);
             navigate(welcomeSeen ? "/trac-nghiem" : "/chao-mung", { replace: true });
           } else {
+            // User bình thường vào dashboard
             navigate("/dashboard", { replace: true });
           }
         }, 0);

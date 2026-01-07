@@ -6,35 +6,25 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { getUserInfo } from "../api/authApi";
 
-// --- IMPORT ICON TỪ LUCIDE-REACT ---
-import {
-  Camera,
-  Pencil,
-  Save,
-  X,
-  Linkedin,
-  Phone,
-  Cake,
-  GraduationCap,
-  Briefcase,
-  Heart,
-  Puzzle,
-  Mail,
-  FileText,
-  Trash2,
-  Plus,
-  Contact,
-  Users,
+import {Pencil,Save,X,Linkedin,Phone,Cake,GraduationCap,Briefcase,
+  Heart,Puzzle,Mail,FileText,Trash2,Plus,Contact,Users,
 } from "lucide-react";
+
+// Ảnh đại diện mặc định khi chưa có avatar
+const DEFAULT_AVATAR = "https://cdn-icons-png.flaticon.com/512/149/149071.png";
+const API_URL = "https://ai-career-advisor-4006.onrender.com/api/users/profile/";
 
 const UserProfile = () => {
   const navigate = useNavigate();
+  // Chế độ chỉnh sửa
   const [isEditing, setIsEditing] = useState(false);
+  // Trạng thái đang tải dữ liệu
   const [isLoading, setIsLoading] = useState(true);
+  // Trạng thái đang lưu
+  const [isSaving, setIsSaving] = useState(false);
 
-  // State dữ liệu
+  // Dữ liệu hồ sơ người dùng
   const [formData, setFormData] = useState({
-    id: null,
     full_name: "",
     email: "",
     phone_number: "",
@@ -48,30 +38,32 @@ const UserProfile = () => {
     holland_result: "",
     interests: [],
     skills: [],
-    avatar_url: "https://cdn-icons-png.flaticon.com/512/149/149071.png",
   });
 
+  // Dữ liệu kỹ năng mới đang nhập
   const [newSkill, setNewSkill] = useState({ name: "", level: 1 });
+  // Sở thích mới đang nhập
   const [newInterest, setNewInterest] = useState("");
 
-  const API_URL =
-    "https://ai-career-advisor-4006.onrender.com/api/users/profile/";
-  const token = localStorage.getItem("access_token");
+  // Lấy access token từ localStorage
+  const getToken = () => localStorage.getItem("access_token");
 
+  // Tải hồ sơ khi component mount
   useEffect(() => {
     fetchProfile();
   }, []);
 
+  // Lấy thông tin hồ sơ từ API
   const fetchProfile = async () => {
     try {
       setIsLoading(true);
       const response = await axios.get(API_URL, {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: { Authorization: `Bearer ${getToken()}` },
       });
       const data = response.data;
 
+      // Gán dữ liệu vào form, xử lý giá trị null/undefined
       setFormData({
-        id: data.id,
         full_name: data.full_name || "",
         email: data.email || "",
         phone_number: data.phone_number || "",
@@ -84,6 +76,7 @@ const UserProfile = () => {
         mbti_result: data.mbti_result || "",
         holland_result: data.holland_result || "",
         interests: data.interests || [],
+        // Chuẩn hóa dữ liệu kỹ năng
         skills: data.skills
           ? data.skills.map((s) => ({
               id: s.id || Math.random(),
@@ -91,7 +84,6 @@ const UserProfile = () => {
               proficiency_level: s.proficiency_level || 1,
             }))
           : [],
-        avatar_url: "https://cdn-icons-png.flaticon.com/512/149/149071.png",
       });
     } catch (error) {
       console.error("Lỗi tải hồ sơ:", error);
@@ -101,13 +93,16 @@ const UserProfile = () => {
     }
   };
 
+  // Xử lý khi thay đổi giá trị input
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
 
+  // Thêm kỹ năng mới vào danh sách
   const handleAddSkill = () => {
     if (!newSkill.name.trim()) return;
+    // Tạo kỹ năng tạm với id unique
     const tempSkill = {
       id: `temp-${Date.now()}`,
       skill_name: newSkill.name,
@@ -117,6 +112,7 @@ const UserProfile = () => {
     setNewSkill({ name: "", level: 1 });
   };
 
+  // Xóa kỹ năng khỏi danh sách
   const handleRemoveSkill = (id) => {
     setFormData({
       ...formData,
@@ -124,9 +120,11 @@ const UserProfile = () => {
     });
   };
 
+  // Thêm sở thích khi nhấn Enter
   const handleAddInterest = (e) => {
     if (e.key === "Enter" && newInterest.trim()) {
       e.preventDefault();
+      // Kiểm tra trùng lặp trước khi thêm
       if (!formData.interests.includes(newInterest.trim())) {
         setFormData({
           ...formData,
@@ -137,6 +135,7 @@ const UserProfile = () => {
     }
   };
 
+  // Xóa sở thích khỏi danh sách
   const handleRemoveInterest = (tag) => {
     setFormData({
       ...formData,
@@ -144,9 +143,11 @@ const UserProfile = () => {
     });
   };
 
+  // Lưu thông tin hồ sơ lên server
   const handleSave = async () => {
     try {
-      setIsLoading(true);
+      setIsSaving(true);
+      // Chuẩn bị dữ liệu gửi lên API
       const payload = {
         full_name: formData.full_name,
         phone_number: formData.phone_number,
@@ -159,6 +160,7 @@ const UserProfile = () => {
         mbti_result: formData.mbti_result,
         holland_result: formData.holland_result,
         interests: formData.interests,
+        // Chuẩn hóa dữ liệu kỹ năng trước khi gửi
         skills: formData.skills.map((s) => ({
           skill_name: s.skill_name,
           proficiency_level: s.proficiency_level,
@@ -167,7 +169,7 @@ const UserProfile = () => {
 
       await axios.put(API_URL, payload, {
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${getToken()}`,
           "Content-Type": "application/json",
         },
       });
@@ -176,19 +178,27 @@ const UserProfile = () => {
       setIsEditing(false);
       fetchProfile();
 
-      // Set profile completed for onboarding flow
+      // Kiểm tra xem có đang trong quá trình onboarding không
       const user = getUserInfo();
       if (user) {
+        const wasProfileCompleted = localStorage.getItem(`profile_completed_${user.id}`) === 'true';
+        
+        // Đánh dấu profile đã hoàn thành
         localStorage.setItem(`profile_completed_${user.id}`, 'true');
-        navigate("/trac-nghiem");
+        
+        // Chỉ chuyển sang trang trắc nghiệm nếu user chưa hoàn thành profile trước đó
+        if (!wasProfileCompleted) {
+          navigate("/trac-nghiem");
+        }
       }
     } catch (error) {
       toast.error("Lỗi khi lưu. Kiểm tra lại dữ liệu.");
     } finally {
-      setIsLoading(false);
+      setIsSaving(false);
     }
   };
 
+  // Hiển thị loading khi đang tải dữ liệu
   if (isLoading && !formData.full_name) {
     return <div className="loading-screen">Đang tải dữ liệu...</div>;
   }
@@ -197,21 +207,28 @@ const UserProfile = () => {
     <div className="profile-container">
       <ToastContainer position="top-right" autoClose={3000} />
 
+      {/* Loading Overlay khi đang lưu */}
+      {isSaving && (
+        <div className="saving-overlay">
+          <div className="saving-content">
+            <div className="spinner-border text-primary" role="status">
+              <span className="visually-hidden">Loading...</span>
+            </div>
+            <p className="mt-3 mb-0 fw-semibold">Đang lưu thay đổi...</p>
+          </div>
+        </div>
+      )}
+
       {/* --- HEADER --- */}
       <div className="profile-header-card">
         <div className="header-cover"></div>
         <div className="header-content">
           <div className="avatar-section">
             <img
-              src={formData.avatar_url}
+              src={DEFAULT_AVATAR}
               alt="Avatar"
               className="profile-avatar"
             />
-            {isEditing && (
-              <div className="avatar-edit-icon" title="Đổi ảnh đại diện">
-                <Camera size={18} />
-              </div>
-            )}
           </div>
 
           <div className="user-intro">
@@ -240,8 +257,16 @@ const UserProfile = () => {
                 >
                   <X size={16} /> Hủy
                 </button>
-                <button className="btn btn-primary" onClick={handleSave}>
-                  <Save size={16} /> Lưu thay đổi
+                <button 
+                  className="btn btn-primary" 
+                  onClick={handleSave}
+                  disabled={isSaving}
+                >
+                  {isSaving ? (
+                    <><span className="spinner-border spinner-border-sm me-2" role="status"></span> Đang lưu...</>
+                  ) : (
+                    <><Save size={16} /> Lưu thay đổi</>
+                  )}
                 </button>
               </>
             ) : (
@@ -528,7 +553,7 @@ const UserProfile = () => {
                   />
                 ) : (
                   <div className="test-badge mbti">
-                    {formData.mbti_result || "N/A"}
+                    {formData.mbti_result || "Chưa có"}
                   </div>
                 )}
               </div>
@@ -544,7 +569,7 @@ const UserProfile = () => {
                   />
                 ) : (
                   <div className="test-badge holland">
-                    {formData.holland_result || "N/A"}
+                    {formData.holland_result || "Chưa có"}
                   </div>
                 )}
               </div>
