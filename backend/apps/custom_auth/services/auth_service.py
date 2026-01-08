@@ -175,7 +175,7 @@ class AuthService:
                 "hasCompletedOnboarding": has_completed_onboarding,
                 "isNewGoogleUser": is_new_google_user
             }
-        }, None
+        }
     
     # Yêu cầu đặt lại mật khẩu
     @staticmethod

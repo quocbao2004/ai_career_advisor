@@ -1,6 +1,7 @@
 import { fetchWithAuth } from "./authApi";
 
 const API_BASE_URL = "https://ai-career-advisor-4006.onrender.com/api/ai";
+// const API_BASE_URL = "http://localhost:8000/api/ai";
 
 const safeJson = async (response) => {
   try {
