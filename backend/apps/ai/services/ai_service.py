@@ -198,7 +198,7 @@ def suggest_industries_via_ai(user):
     try:
         profile = getattr(user, 'profile', None)
         if not profile: return {"error": "Không tìm thấy User Profile."}
-
+        userSkill = getattr(user, 'skills', None)
         mbti = profile.mbti_result
         holland = profile.holland_result
         if not mbti or not holland:
@@ -217,7 +217,7 @@ def suggest_industries_via_ai(user):
     - MBTI: {mbti}
     - Holland Code (RIASEC): {holland}
     - Bio: {profile.bio}
-
+    - User Skills: {userSkill}
     DANH SÁCH LĨNH VỰC (INDUSTRIES):
     {industries_text}
 
